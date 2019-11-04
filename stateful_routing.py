@@ -45,7 +45,6 @@ def update_state(state, **kw):
     changed = False
     for k, v in kw.items():
         if isinstance(v, list):
-            v = [x for x in v if x]  # Falsey values get deleted
             if not v and k not in state:
                 different = False
             else:
@@ -101,6 +100,7 @@ def update_url_from_page_state(page_state):
         Input("test-filter-dropdown", "value"),
         Input("ccg-dropdown", "value"),
         Input("chart-dropdown", "value"),
+        Input("calc-value-range-slider", "value"),
     ],
     [State("page-state", "children"), State("url-for-update", "pathname")],
 )
@@ -113,6 +113,7 @@ def update_state_from_inputs(
     selected_filter,
     selected_ccg,
     selected_chart,
+    calc_value_range_filter,
     page_state,
     current_path,
 ):
@@ -137,6 +138,8 @@ def update_state_from_inputs(
         update_state(page_state, entity_ids_for_practice_filter=["all"])
     if "result_filter" not in page_state:
         update_state(page_state, result_filter="all")
+    if "calc_value_range_filter" not in page_state:
+        update_state(page_state, calc_value_range_filter=(0, 100))
 
     # Errors should already have been shown by this point. Reset error state.
     if "error" in page_state:
@@ -165,6 +168,7 @@ def update_state_from_inputs(
         numerators=selected_numerator,
         denominators=stored_denominators,
         result_filter=selected_filter,
+        calc_value_range_filter=calc_value_range_filter,
         groupby=groupby,
         entity_ids_for_practice_filter=selected_ccg,
         page_id=selected_chart,
