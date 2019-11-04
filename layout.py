@@ -18,7 +18,10 @@ def pairs(seq):
 
 
 def make_measure_card(measure):
-    measure_url = urls.build("analysis", measure)
+    drop_keys = ["title", "description"]
+    measure_url = urls.build(
+        "analysis", dict((x, y) for x, y in measure.items() if x not in drop_keys)
+    )
 
     return dbc.Card(
         [

@@ -18,6 +18,7 @@ from werkzeug.routing import NotFound
 from werkzeug.routing import BuildError
 from urls import url_map
 from urls import urls
+from data import get_measures
 
 
 logger = logging.getLogger(__name__)
@@ -322,17 +323,14 @@ def show_measure_description_from_url(search):
     """
     """
     if search:
-        text = urllib.parse.parse_qs(search[1:])
-        title = description = ""
-        if "title" in text:
-            title = text["title"][0]
-        if "description" in text:
-            description = text["description"][0]
-        if title or description:
-            return [
-                dcc.Markdown(
-                    f"## {title}\n\n{description}", className="alert alert-info"
-                )
-            ]
+        measure_id = urllib.parse.parse_qs(search[1:])["id"][0]
+        measures = get_measures()
+        measure = measures[measures["id"] == measure_id].to_dict("records")[0]
+        return [
+            dcc.Markdown(
+                f"## {measure['title']}\n\n{measure['description']}",
+                className="alert alert-info",
+            )
+        ]
     else:
         return []
