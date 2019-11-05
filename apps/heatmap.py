@@ -39,6 +39,7 @@ def update_heatmap(page_state):
     entity_ids_for_practice_filter = page_state.get(
         "entity_ids_for_practice_filter", []
     )
+    calc_value_range_filter = page_state.get("calc_value_range_filter", [0, 100])
     if groupby == "practice":
         col_name = "practice_id"
     else:
@@ -51,6 +52,13 @@ def update_heatmap(page_state):
         entity_ids_for_practice_filter=entity_ids_for_practice_filter,
         by=col_name,
     )
+    calc_value_min = trace_df.calc_value.min()
+    calc_value_range = trace_df.calc_value.max() - calc_value_min
+    clip_bounds = [
+        calc_value_min + (calc_value_range * percentage / 100.0)
+        for percentage in calc_value_range_filter
+    ]
+    trace_df['calc_value'] = trace_df['calc_value'].clip(*clip_bounds)
     vals_by_entity = sort_by_index(
         trace_df.pivot(index=col_name, columns="month", values="calc_value")
     )

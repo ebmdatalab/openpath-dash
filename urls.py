@@ -15,6 +15,14 @@ class ListConverter(UnicodeConverter):
         return value
 
 
+class RangeConverter(UnicodeConverter):
+    def to_python(self, value):
+        return [float(v) for v in value.split("-")]
+
+    def to_url(self, value):
+        return f"{value[0]}-{value[1]}"
+
+
 class AppConverter(BaseConverter):
     regex = r"(?:deciles|heatmap|counts|measures)"
 
@@ -30,7 +38,7 @@ url_map = Map(
             [
                 Rule("/<app:page_id>", endpoint="index"),
                 Rule(
-                    "/<app:page_id>/by/<entity_type:groupby>/showing/<entity_type:practice_filter_entity>/<list:entity_ids_for_practice_filter>/numerators/<list:numerators>/denominators/<list:denominators>/filter/<string:result_filter>",
+                    "/<app:page_id>/by/<entity_type:groupby>/showing/<entity_type:practice_filter_entity>/<list:entity_ids_for_practice_filter>/numerators/<list:numerators>/denominators/<list:denominators>/filter/<string:result_filter>/range-filter/<range:calc_value_range_filter>",
                     endpoint="analysis",
                 ),
             ],
@@ -40,6 +48,7 @@ url_map = Map(
         "list": ListConverter,
         "app": AppConverter,
         "entity_type": EntityConverter,
+        "range": RangeConverter,
     },
 )
 
