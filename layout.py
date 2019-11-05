@@ -169,19 +169,6 @@ def layout(tests_df, ccgs_list, measures):
             )
         ]
     )
-    chart_selector_form = dbc.FormGroup(
-        [
-            dbc.Label("Chart type"),
-            dcc.Dropdown(
-                id="chart-dropdown",
-                options=[
-                    {"value": "heatmap", "label": "Heatmap"},
-                    {"value": "counts", "label": "Counts"},
-                    {"value": "deciles", "label": "Deciles"},
-                ],
-            ),
-        ]
-    )
     calc_value_range_filter_form = dbc.FormGroup(
         [
             dbc.Label("Trim extreme values (percent)"),
@@ -198,6 +185,13 @@ def layout(tests_df, ccgs_list, measures):
             ),
         ]
     )
+    chart_selector_tabs = dbc.Tabs(
+        id="chart-selector-tabs", active_tab='heatmap', children=[
+            dbc.Tab(label='Heatmap', tab_id='heatmap'),
+            dbc.Tab(label='Counts', tab_id='counts'),
+            dbc.Tab(label='Deciles', tab_id='deciles'),
+        ]
+    )
     form = dbc.Container(
         dbc.Row(
             [
@@ -206,7 +200,6 @@ def layout(tests_df, ccgs_list, measures):
                     [
                         filters_form,
                         ccg_filter_form,
-                        chart_selector_form,
                         calc_value_range_filter_form,
                         datatable_toggle_form,
                     ]
@@ -221,6 +214,7 @@ def layout(tests_df, ccgs_list, measures):
                     [
                         html.Div(id="description-container"),
                         html.Div(id="error-container"),
+                        chart_selector_tabs,
                         # All the charts we're interested in, in a spinner container
                         dcc.Loading(
                             id="loading-heatmap",
