@@ -169,7 +169,7 @@ def get_count_data(
             num_df_agg["count"] / num_df_agg["count_denom"]
         )
         num_df_agg.loc[:, "calc_value_error"] = (
-            num_df_agg["error"] / num_df_agg["error_denom"]
+            num_df_agg["error"] / num_df_agg["count_denom"]
         )
         num_df_agg = num_df_agg.rename(
             columns={"count_denom": "denominator", "error_denom": "denominator_error"}
