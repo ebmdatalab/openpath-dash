@@ -99,7 +99,7 @@ def update_url_from_page_state(page_state):
         Input("groupby-dropdown", "value"),
         Input("test-filter-dropdown", "value"),
         Input("ccg-dropdown", "value"),
-        Input("chart-dropdown", "value"),
+        Input("chart-selector-tabs", "active_tab"),
         Input("calc-value-range-slider", "value"),
     ],
     [State("page-state", "children"), State("url-for-update", "pathname")],
@@ -256,11 +256,25 @@ for selector_id, page_state_key, is_multi in [
     ("test-filter-dropdown", "result_filter", False),
     ("groupby-dropdown", "groupby", False),
     ("ccg-dropdown", "entity_ids_for_practice_filter", True),
-    ("chart-dropdown", "page_id", False),
 ]:
     app.callback(Output(selector_id, "value"), [Input("url-from-user", "pathname")])(
         _create_dropdown_update_func(selector_id, page_state_key, is_multi)
     )
+
+
+@app.callback(
+    Output("chart-selector-tabs", "active_tab"), [Input("url-from-user", "pathname")]
+)
+def update_chart_selector_tabs_from_url(pathname):
+    if pathname:
+        # Sometimes None for reasons explained here:
+        # https://github.com/plotly/dash/issues/133#issuecomment-330714608
+        try:
+            _, url_state = urls.match(pathname)
+            return url_state["page_id"]
+        except NotFound:
+            return ""
+    raise PreventUpdate
 
 
 # XXX can I use the _create_multi_dropdown_update_func pattern above for this?
