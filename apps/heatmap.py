@@ -50,6 +50,7 @@ def update_heatmap(page_state):
         practice_filter_entity=practice_filter_entity,
         entity_ids_for_practice_filter=entity_ids_for_practice_filter,
         by=col_name,
+        hide_entities_with_sparse_data=page_state.get("sparse_data_toggle"),
     )
     vals_by_entity = sort_by_index(
         trace_df.pivot(index=col_name, columns="month", values="calc_value")

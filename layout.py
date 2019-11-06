@@ -160,6 +160,19 @@ def layout(tests_df, ccgs_list, measures):
             ),
         ]
     )
+    sparse_data_toggle_form = dbc.FormGroup(
+        [
+            daq.ToggleSwitch(
+                id="sparse-data-toggle",
+                label=(
+                    f"Show only rows with data for at least "
+                    f"{settings.NUM_MONTHS_REQUIRED} of the last "
+                    f"{settings.NUM_MONTHS_TO_CHECK} months"
+                ),
+                value=True,
+            )
+        ]
+    )
     datatable_toggle_form = dbc.FormGroup(
         [
             daq.ToggleSwitch(
@@ -184,6 +197,7 @@ def layout(tests_df, ccgs_list, measures):
                     [
                         filters_form,
                         ccg_filter_form,
+                        sparse_data_toggle_form,
                         datatable_toggle_form,
                     ]
                 ),

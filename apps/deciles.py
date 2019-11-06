@@ -79,6 +79,7 @@ def update_deciles(page_state):
         practice_filter_entity=practice_filter_entity,
         entity_ids_for_practice_filter=entity_ids_for_practice_filter,
         by=col_name,
+        hide_entities_with_sparse_data=page_state.get("sparse_data_toggle"),
     )
     traces = []
     deciles_traces = get_practice_decile_traces(trace_df)
