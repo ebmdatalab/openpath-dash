@@ -168,11 +168,13 @@ def layout(tests_df, ccgs_list, measures):
         ]
     )
     chart_selector_tabs = dbc.Tabs(
-        id="chart-selector-tabs", active_tab='heatmap', children=[
-            dbc.Tab(label='Heatmap', tab_id='heatmap'),
-            dbc.Tab(label='Counts', tab_id='counts'),
-            dbc.Tab(label='Deciles', tab_id='deciles'),
-        ]
+        id="chart-selector-tabs",
+        active_tab="heatmap",
+        children=[
+            dbc.Tab(label="Heatmap", tab_id="heatmap"),
+            dbc.Tab(label="Counts", tab_id="counts"),
+            dbc.Tab(label="Deciles", tab_id="deciles"),
+        ],
     )
     form = dbc.Container(
         dbc.Row(
