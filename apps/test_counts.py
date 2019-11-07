@@ -41,6 +41,7 @@ def update_counts(page_state):
         practice_filter_entity=practice_filter_entity,
         entity_ids_for_practice_filter=entity_ids_for_practice_filter,
         result_filter=result_filter,
+        hide_entities_with_sparse_data=page_state.get("sparse_data_toggle"),
     )
     traces = []
     title = get_chart_title(numerators, denominators, result_filter, col_name)
