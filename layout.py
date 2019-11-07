@@ -18,12 +18,10 @@ def pairs(seq):
 
 
 def make_measure_card(measure):
-    # Default values for URL arguments which are required but don't form part
-    # of the measure definition
-    url_args = {"calc_value_range_filter": [0, 100]}
     drop_keys = ["title", "description"]
-    url_args.update((x, y) for x, y in measure.items() if x not in drop_keys)
-    measure_url = urls.build("analysis", url_args)
+    measure_url = urls.build(
+        "analysis", dict((x, y) for x, y in measure.items() if x not in drop_keys)
+    )
 
     return dbc.Card(
         [
@@ -152,24 +150,24 @@ def layout(tests_df, ccgs_list, measures):
             ),
         ]
     )
+    sparse_data_toggle_form = dbc.FormGroup(
+        [
+            daq.ToggleSwitch(
+                id="sparse-data-toggle",
+                label=(
+                    f"Show only rows with data for at least "
+                    f"{settings.NUM_MONTHS_REQUIRED} of the last "
+                    f"{settings.NUM_MONTHS_TO_CHECK} months"
+                ),
+                value=True,
+            )
+        ]
+    )
     datatable_toggle_form = dbc.FormGroup(
         [
             daq.ToggleSwitch(
                 id="datatable-toggle", label="Show raw practice-level data", value=False
             )
-        ]
-    )
-    calc_value_range_filter_form = dbc.FormGroup(
-        [
-            dbc.Label("Trim extreme values (percent)"),
-            dcc.RangeSlider(
-                id="calc-value-range-slider",
-                min=0,
-                max=100,
-                step=1,
-                value=[0, 100],
-                tooltip={"always_visible": True, "placement": "bottom"},
-            ),
         ]
     )
     chart_selector_tabs = dbc.Tabs(
@@ -189,7 +187,7 @@ def layout(tests_df, ccgs_list, measures):
                     [
                         filters_form,
                         ccg_filter_form,
-                        calc_value_range_filter_form,
+                        sparse_data_toggle_form,
                         datatable_toggle_form,
                     ]
                 ),
