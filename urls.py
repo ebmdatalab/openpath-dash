@@ -34,7 +34,7 @@ class EntityConverter(BaseConverter):
 url_map = Map(
     [
         Submount(
-            "/apps",
+            "/data",
             [
                 Rule("/<app:page_id>", endpoint="index"),
                 Rule(

@@ -56,16 +56,6 @@ def make_index_content(measures):
 
 
 def layout(tests_df, ccgs_list, measures):
-    navbar = dbc.NavbarSimple(
-        children=[
-            dbc.NavItem(
-                dbc.NavLink("Measures", id="measures-link", href="/apps/measures")
-            )
-        ],
-        brand="OpenPathology",
-        brand_href="#",
-        sticky="top",
-    )
     state_components = html.Div(
         [
             # Hidden div inside the app that stores the page state
@@ -178,19 +168,18 @@ def layout(tests_df, ccgs_list, measures):
                 max=100,
                 step=1,
                 value=[0, 100],
-                tooltip={
-                    "always_visible": True,
-                    "placement": "bottom",
-                },
+                tooltip={"always_visible": True, "placement": "bottom"},
             ),
         ]
     )
     chart_selector_tabs = dbc.Tabs(
-        id="chart-selector-tabs", active_tab='heatmap', children=[
-            dbc.Tab(label='Heatmap', tab_id='heatmap'),
-            dbc.Tab(label='Counts', tab_id='counts'),
-            dbc.Tab(label='Deciles', tab_id='deciles'),
-        ]
+        id="chart-selector-tabs",
+        active_tab="heatmap",
+        children=[
+            dbc.Tab(label="Heatmap", tab_id="heatmap"),
+            dbc.Tab(label="Counts", tab_id="counts"),
+            dbc.Tab(label="Deciles", tab_id="deciles"),
+        ],
     )
     form = dbc.Container(
         dbc.Row(
@@ -291,4 +280,5 @@ def layout(tests_df, ccgs_list, measures):
             )
         )
     )
-    return html.Div([navbar, state_components, form, body])
+    dash_app = html.Div([state_components, form, body])
+    return dash_app
