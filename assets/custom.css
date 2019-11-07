@@ -3,3 +3,65 @@
 .nav-tabs li {
   cursor: pointer;
 }
+
+.bd-placeholder-img {
+  font-size: 1.125rem;
+  text-anchor: middle;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+@media (min-width: 768px) {
+  .bd-placeholder-img-lg {
+    font-size: 3.5rem;
+  }
+}
+body {
+  padding-top: 5rem;
+}
+
+.img-big {
+  padding: 1.5rem;
+}
+
+.required {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.required::before {
+  content: "*";
+}
+
+.figure-caption-title {
+  font-size: 1.2em;
+}
+
+.footer {
+  background-color: #f5f5f5;
+}
+
+.jumbotron {
+  padding: 2rem;
+}
+
+.nav-tabs {
+  margin-bottom: 1rem;
+}
+.navbar-brand {
+  text-align: center;
+  font-size: 2rem;
+  margin-top: -1rem;
+}
+.navbar-brand small {
+  display:none;
+  font-size:0.8rem;
+  margin-top:-0.6rem;
+}
+@media (min-width: 576px) {
+  .navbar-brand small {
+    display:block;
+  }
+}

@@ -54,16 +54,6 @@ def make_index_content(measures):
 
 
 def layout(tests_df, ccgs_list, measures):
-    navbar = dbc.NavbarSimple(
-        children=[
-            dbc.NavItem(
-                dbc.NavLink("Measures", id="measures-link", href="/apps/measures")
-            )
-        ],
-        brand="OpenPathology",
-        brand_href="#",
-        sticky="top",
-    )
     state_components = html.Div(
         [
             # Hidden div inside the app that stores the page state
@@ -288,4 +278,5 @@ def layout(tests_df, ccgs_list, measures):
             )
         )
     )
-    return html.Div([navbar, state_components, form, body])
+    dash_app = html.Div([state_components, form, body])
+    return dash_app
