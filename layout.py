@@ -151,16 +151,18 @@ def layout(tests_df, ccgs_list, measures):
             ),
         ]
     )
-    sparse_data_toggle_form = dbc.FormGroup(
+    tweak_form = dbc.FormGroup(
         [
-            daq.ToggleSwitch(
-                id="sparse-data-toggle",
-                label=(
-                    f"Show only rows with data for at least "
-                    f"{settings.NUM_MONTHS_REQUIRED} of the last "
-                    f"{settings.NUM_MONTHS_TO_CHECK} months"
-                ),
-                value=True,
+            dbc.Checklist(
+                id="tweak-form",
+                options=[
+                    {
+                        "label": "Hide organisations with low numbers",
+                        "value": "suppress_sparse_data",
+                    },
+                    {"label": "Equalise heatmap colours", "value": "equalise_colours"},
+                ],
+                value=["suppress_sparse_data"],
             )
         ]
     )
@@ -185,12 +187,7 @@ def layout(tests_df, ccgs_list, measures):
             [
                 dbc.Col([numerators_form, denominators_form, groupby_form]),
                 dbc.Col(
-                    [
-                        filters_form,
-                        ccg_filter_form,
-                        sparse_data_toggle_form,
-                        datatable_toggle_form,
-                    ]
+                    [filters_form, ccg_filter_form, tweak_form, datatable_toggle_form]
                 ),
             ]
         )

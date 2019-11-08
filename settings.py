@@ -19,9 +19,12 @@ DECILES_CHART_ID = "deciles"
 COUNTS_CHART_ID = "counts"
 CHARTS = [HEATMAP_CHART_ID, DECILES_CHART_ID, COUNTS_CHART_ID, "measures"]
 
-# Sparse data filtering (require data in at least 6 of the last 9 months)
+# Sparse data filtering
 NUM_MONTHS_REQUIRED = 6
-NUM_MONTHS_TO_CHECK = 9
+NUM_MONTHS_TO_CHECK = 12
+
+# Matplotlib colorscale for heatmaps
+COLORSCALE = "viridis"
 
 CSV_DIR = Path(__file__).parents[0] / "data_csvs"
 
