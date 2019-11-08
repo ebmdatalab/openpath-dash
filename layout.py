@@ -75,6 +75,7 @@ def layout(tests_df, ccgs_list, measures):
             dcc.Dropdown(
                 id="numerators-dropdown",
                 multi=True,
+                value=["K"],
                 # XXX use clientside javascript to make "all tests"
                 # disappear if you select just one:
                 # https://community.plot.ly/t/dash-0-41-0-released/22131

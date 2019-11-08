@@ -127,7 +127,7 @@ def update_state_from_inputs(
 
     # add defaults
     if "numerators" not in page_state:
-        update_state(page_state, numerators=["all"])
+        update_state(page_state, numerators=["K"])
     if "denominators" not in page_state:
         update_state(page_state, denominators=["per1000"])
     if "groupby" not in page_state:
@@ -197,7 +197,12 @@ def update_state_from_inputs(
     return json.dumps(page_state)
 
 
-def _get_dropdown_default_by_id(component_id):
+def _get_dropdown_current_value_by_id(component_id):
+    """Given a layout, find the component with the specified id, and then
+    return the selected value, or if not set, the first value in its
+    options
+
+    """
     # XXX find out if this can be made safe to use. Seems like a useful method
     # to make public.
     component = None
@@ -205,13 +210,16 @@ def _get_dropdown_default_by_id(component_id):
         if getattr(component, "id", None) == component_id:
             break
     if component is not None:
-        return component.options[0]["value"]
+        if hasattr(component, "value"):
+            return component.value[0]
+        else:
+            return component.options[0]["value"]
     else:
         return ""
 
 
 def _create_dropdown_update_func(selector_id, page_state_key, is_multi):
-    """Create a callback function that updates a dropdown from a URL
+    """Create a callback function that updates a dropdown based on the current URL
     """
 
     def update_dropdown_from_url(pathname):
@@ -221,16 +229,16 @@ def _create_dropdown_update_func(selector_id, page_state_key, is_multi):
         if pathname:
             # Sometimes None for reasons explained here:
             # https://github.com/plotly/dash/issues/133#issuecomment-330714608
-            default = _get_dropdown_default_by_id(selector_id)
+            current_value = _get_dropdown_current_value_by_id(selector_id)
             try:
                 _, url_state = urls.match(pathname)
                 if page_state_key in url_state:
                     return url_state[page_state_key]
                 else:
-                    logger.info("****-> %s", default)
-                    return is_multi and [default] or default
+                    logger.info("****-> %s", current_value)
+                    return is_multi and [current_value] or current_value
             except NotFound:
-                return is_multi and [default] or default
+                return is_multi and [current_value] or current_value
         raise PreventUpdate
 
     return update_dropdown_from_url
@@ -282,9 +290,9 @@ def update_chart_selector_tabs_from_url(pathname):
     Output("denominators-dropdown", "value"), [Input("url-from-user", "pathname")]
 )
 def update_denominator_dropdown_from_url(pathname):
-    """Cause the numerator dropdown to match the current page location
+    """Cause the denom dropdown to match the current page location
     """
-    logger.info("-- numerator dropdown being set from URL %s", pathname)
+    logger.info("-- denom dropdown being set from URL %s", pathname)
     if pathname:
         # Sometimes None for reasons explained here:
         # https://github.com/plotly/dash/issues/133#issuecomment-330714608
