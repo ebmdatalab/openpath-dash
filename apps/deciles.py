@@ -148,7 +148,6 @@ def update_deciles(page_state):
                 "data": traces,
                 "layout": go.Layout(
                     title=title,
-                    yaxis={"range": [0, ymax]},
                     xaxis={"range": [months[0], months[-1]]},
                     showlegend=False,
                 ),
