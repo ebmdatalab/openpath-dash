@@ -100,7 +100,7 @@ def update_url_from_page_state(page_state):
         Input("test-filter-dropdown", "value"),
         Input("ccg-dropdown", "value"),
         Input("chart-selector-tabs", "active_tab"),
-        Input("sparse-data-toggle", "value"),
+        Input("tweak-form", "value"),
     ],
     [State("page-state", "children"), State("url-for-update", "pathname")],
 )
@@ -113,7 +113,7 @@ def update_state_from_inputs(
     selected_filter,
     selected_ccg,
     selected_chart,
-    sparse_data_toggle,
+    tweak_form,
     page_state,
     current_path,
 ):
@@ -138,8 +138,6 @@ def update_state_from_inputs(
         update_state(page_state, entity_ids_for_practice_filter=["all"])
     if "result_filter" not in page_state:
         update_state(page_state, result_filter="all")
-    if "sparse_data_toggle" not in page_state:
-        update_state(page_state, sparse_data_toggle=True)
 
     # Errors should already have been shown by this point. Reset error state.
     if "error" in page_state:
@@ -163,6 +161,8 @@ def update_state_from_inputs(
         stored_denominators = denominator_tests
     else:
         stored_denominators = [selected_denominator]
+    sparse_data_toggle = "suppress_sparse_data" in tweak_form
+    equalise_colorscale = "equalise_colours" in tweak_form
     update_state(
         page_state,
         numerators=selected_numerator,
@@ -172,6 +172,7 @@ def update_state_from_inputs(
         entity_ids_for_practice_filter=selected_ccg,
         page_id=selected_chart,
         sparse_data_toggle=sparse_data_toggle,
+        equalise_colorscale=equalise_colorscale,
     )
 
     if "heatmap-graph" in triggered_inputs:
