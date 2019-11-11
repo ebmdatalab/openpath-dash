@@ -16,7 +16,7 @@ class ListConverter(UnicodeConverter):
 
 
 class AppConverter(BaseConverter):
-    regex = r"(?:deciles|heatmap|counts|measures)"
+    regex = r"(?:deciles|heatmap|counts|measures|datatable)"
 
 
 class EntityConverter(BaseConverter):

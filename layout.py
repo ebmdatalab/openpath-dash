@@ -1,4 +1,3 @@
-import dash_daq as daq
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
@@ -166,13 +165,6 @@ def layout(tests_df, ccgs_list, measures):
             )
         ]
     )
-    datatable_toggle_form = dbc.FormGroup(
-        [
-            daq.ToggleSwitch(
-                id="datatable-toggle", label="Show raw practice-level data", value=False
-            )
-        ]
-    )
     chart_selector_tabs = dbc.Tabs(
         id="chart-selector-tabs",
         active_tab="heatmap",
@@ -180,15 +172,14 @@ def layout(tests_df, ccgs_list, measures):
             dbc.Tab(label="Heatmap", tab_id="heatmap"),
             dbc.Tab(label="Counts", tab_id="counts"),
             dbc.Tab(label="Deciles", tab_id="deciles"),
+            dbc.Tab(label="Practice-level data table", tab_id="datatable"),
         ],
     )
     form = dbc.Container(
         dbc.Row(
             [
                 dbc.Col([numerators_form, denominators_form, groupby_form]),
-                dbc.Col(
-                    [filters_form, ccg_filter_form, tweak_form, datatable_toggle_form]
-                ),
+                dbc.Col([filters_form, ccg_filter_form, tweak_form]),
             ]
         )
     )
@@ -224,17 +215,12 @@ def layout(tests_df, ccgs_list, measures):
                                     style={"display": "none"},
                                     children=make_index_content(measures),
                                 ),
-                            ],
-                        ),
-                        html.Div(
-                            id="counts-table-container",
-                            style={"display": "none"},
-                            children=[
-                                dcc.Loading(
-                                    id="loading-table",
+                                html.Div(
+                                    id="datatable-container",
+                                    style={"display": "none"},
                                     children=[
                                         dash_table.DataTable(
-                                            id="counts-table",
+                                            id="datatable",
                                             columns=[
                                                 {
                                                     "name": "month",
@@ -268,7 +254,7 @@ def layout(tests_df, ccgs_list, measures):
                                             page_size=50,
                                         )
                                     ],
-                                )
+                                ),
                             ],
                         ),
                     ]
