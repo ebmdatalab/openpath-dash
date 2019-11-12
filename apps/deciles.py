@@ -86,7 +86,6 @@ def update_deciles(page_state):
     if not deciles_traces:
         return html.Div()
     months = deciles_traces[0].x
-    ymax = trace_df.calc_value.max() + trace_df.calc_value_error.max()
     if (
         col_name in ["practice_id", "ccg_id"]
         and "all" not in entity_ids_for_practice_filter
