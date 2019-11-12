@@ -76,8 +76,6 @@ def update_deciles(page_state):
         numerators=numerators,
         denominators=denominators,
         result_filter=result_filter,
-        practice_filter_entity=practice_filter_entity,
-        entity_ids_for_practice_filter=entity_ids_for_practice_filter,
         by=col_name,
         hide_entities_with_sparse_data=page_state.get("sparse_data_toggle"),
     )
@@ -91,7 +89,7 @@ def update_deciles(page_state):
         and "all" not in entity_ids_for_practice_filter
     ):
         entity_ids = get_sorted_group_keys(
-            trace_df[trace_df.ccg_id.isin(entity_ids_for_practice_filter)], col_name
+            trace_df[trace_df[practice_filter_entity].isin(entity_ids_for_practice_filter)], col_name
         )
     else:
         entity_ids = get_sorted_group_keys(trace_df, col_name)
