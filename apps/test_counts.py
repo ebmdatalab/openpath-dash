@@ -30,10 +30,7 @@ def update_counts(page_state):
         "entity_ids_for_practice_filter", []
     )
 
-    if groupby == "practice":
-        col_name = "practice_id"
-    else:
-        col_name = groupby
+    col_name = groupby
     df = get_count_data(
         numerators=numerators,
         denominators=denominators,

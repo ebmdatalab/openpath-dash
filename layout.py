@@ -133,7 +133,7 @@ def layout(tests_df, ccgs_list, measures):
             dcc.Dropdown(
                 id="groupby-dropdown",
                 options=[
-                    {"value": "practice", "label": "Practice"},
+                    {"value": "practice_id", "label": "Practice"},
                     {"value": "test_code", "label": "Test code"},
                     {"value": "ccg_id", "label": "CCG"},
                     {"value": "result_category", "label": "Result"},

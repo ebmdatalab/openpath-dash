@@ -67,10 +67,7 @@ def update_deciles(page_state):
         "entity_ids_for_practice_filter", []
     )
 
-    if groupby == "practice":
-        col_name = "practice_id"
-    else:
-        col_name = groupby
+    col_name = groupby
 
     trace_df = get_count_data(
         numerators=numerators,
