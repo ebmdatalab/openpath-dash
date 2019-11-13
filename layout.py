@@ -57,7 +57,7 @@ def layout(tests_df, ccgs_list, measures):
         [
             # Hidden div inside the app that stores the page state
             # XXX possibly use https://dash.plot.ly/dash-core-components/store
-            html.Pre(id="page-state", style={"display": "none"}),
+            html.Pre(id="page-state", style={"display": "block"}),
             # Two "locations" with the same function, to allow two
             # different callbacks to use them without cycles in the
             # graph.  This one represents URLs from the user,
@@ -190,21 +190,26 @@ def layout(tests_df, ccgs_list, measures):
                         html.Div(id="error-container"),
                         chart_selector_tabs,
                         # All the charts we're interested in, in a spinner container
-                        dcc.Loading(
-                            id="loading-heatmap",
+                        html.Div(
+                            id="chart-container",
+                            style={"display": "none"},
                             children=[
-                                html.Div(
-                                    id="chart-container",
-                                    style={"display": "none"},
+                                dcc.Loading(
+                                    id="loading-deciles",
                                     children=[
                                         html.Div(
                                             id="deciles-container",
                                             children=[dcc.Graph(id="deciles-graph")],
-                                        ),
+                                        )
+                                    ],
+                                ),
+                                dcc.Loading(
+                                    id="loading-heatmap",
+                                    children=[
                                         html.Div(
                                             id="heatmap-container",
                                             children=[dcc.Graph(id="heatmap-graph")],
-                                        ),
+                                        )
                                     ],
                                 ),
                                 html.Div(

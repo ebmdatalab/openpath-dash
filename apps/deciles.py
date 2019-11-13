@@ -1,9 +1,10 @@
 import logging
-import dash_core_components as dcc
+import urllib
+
 import dash_html_components as html
 import pandas as pd
 import plotly.graph_objs as go
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 
 import numpy as np
 from app import app
@@ -50,8 +51,22 @@ def get_practice_decile_traces(df):
     return deciles_traces
 
 
-@app.callback(Output("deciles-graph", "figure"), [Input("page-state", "children")])
-def update_deciles(page_state):
+@app.callback(
+    [Output("deciles-graph", "figure"), Output("url-for-update", "search")],
+    [Input("page-state", "children"), Input("heatmap-graph", "clickData")],
+    [State("url-for-update", "search")],
+)
+def update_deciles(page_state, click_data, current_qs):
+    query_string = urllib.parse.parse_qs(current_qs[1:])
+    highlight_entities = set(query_string.get("highlight_entities", []))
+    if click_data:
+        # Hack: extract practice id from chart label data, which looks
+        # like this: {'points': [{'curveNumber': 0, 'x': '2016-05-01',
+        # 'y': 'practice 84', 'z': 86.10749488t62395}]}. I think
+        # there's a cleaner way to pass ids as chart metadata
+        entity_id = click_data["points"][0]["y"].split(" ")[-1]
+        highlight_entities.add(entity_id)
+
     page_state = get_state(page_state)
     if page_state.get("page_id") != settings.CHART_ID:
         return html.Div()
@@ -60,8 +75,6 @@ def update_deciles(page_state):
     denominators = page_state.get("denominators", [])
     result_filter = page_state.get("result_filter", [])
     groupby = page_state.get("groupby", None)
-    practice_filter_entity = page_state.get("practice_filter_entity", None)
-    highlight_entities = page_state.get("highlight_entities", [])
 
     col_name = groupby
 
@@ -118,9 +131,12 @@ def update_deciles(page_state):
                 )
             )
     title = get_chart_title(numerators, denominators, result_filter, list(entity_ids))
-    return {
-        "data": traces,
-        "layout": go.Layout(
-            title=title, xaxis={"range": [months[0], months[-1]]}, showlegend=False
-        ),
-    }
+    return (
+        {
+            "data": traces,
+            "layout": go.Layout(
+                title=title, xaxis={"range": [months[0], months[-1]]}, showlegend=False
+            ),
+        },
+        "?" + "&".join([f"highlight_entities={x}" for x in highlight_entities]),
+    )  # XXX do this properly

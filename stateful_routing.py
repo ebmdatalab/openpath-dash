@@ -71,8 +71,6 @@ def _url_from_state(page_state):
             logger.debug("  trying endpoint %s for state %s", endpoint, page_state)
             url = urls.build(endpoint, page_state, append_unknown=False)
             logger.debug("Found url %s", url)
-            # Now add the rest to the query string
-            url = urls.build(endpoint, page_state, append_unknown=True)
             break
         except BuildError:
             pass
@@ -82,27 +80,18 @@ def _url_from_state(page_state):
     return url
 
 
-@app.callback(
-    [Output("url-for-update", "pathname"), Output("url-for-update", "search")],
-    [Input("page-state", "children")],
-)
+@app.callback(Output("url-for-update", "pathname"), [Input("page-state", "children")])
 def update_url_from_page_state(page_state):
     """Cause the page location to match the current page state
     """
     page_state = get_state(page_state)
     logger.debug("Getting URL from page state %s", page_state)
-    url = _url_from_state(page_state)
-    search = ""
-    if "?" in url:
-        url, search = url.split("?")
-        search = "?" + search
-    return url, search
+    return _url_from_state(page_state)
 
 
 @app.callback(
     Output("page-state", "children"),
     [
-        Input("heatmap-graph", "clickData"),
         Input("numerators-dropdown", "value"),
         Input("denominators-dropdown", "value"),
         Input("denominator-tests-dropdown", "value"),
@@ -112,14 +101,9 @@ def update_url_from_page_state(page_state):
         Input("chart-selector-tabs", "active_tab"),
         Input("tweak-form", "value"),
     ],
-    [
-        State("page-state", "children"),
-        State("url-for-update", "pathname"),
-        State("url-for-update", "search"),
-    ],
+    [State("page-state", "children"), State("url-for-update", "pathname")],
 )
 def update_state_from_inputs(
-    click_data,
     selected_numerator,
     selected_denominator,
     denominator_tests,
@@ -130,7 +114,6 @@ def update_state_from_inputs(
     tweak_form,
     page_state,
     current_path,
-    current_qs,
 ):
     """
     Given a series of possible user inputs, update the state if it needs to be changed.
@@ -139,7 +122,6 @@ def update_state_from_inputs(
     triggered_inputs = [x["prop_id"].split(".")[0] for x in ctx.triggered]
     page_state = get_state(page_state)
     orig_page_state = page_state.copy()
-    query_string = urllib.parse.parse_qs(current_qs[1:])
     # add defaults
     if "numerators" not in page_state:
         update_state(page_state, numerators=["K"])
@@ -185,21 +167,10 @@ def update_state_from_inputs(
         result_filter=selected_filter,
         groupby=groupby,
         entity_ids_for_practice_filter=selected_ccg,
-        highlight_entities=query_string.get("highlight_entities", []),
         page_id=selected_chart,
         sparse_data_toggle=sparse_data_toggle,
         equalise_colorscale=equalise_colorscale,
     )
-
-    if "heatmap-graph" in triggered_inputs:
-        # Hack: extract practice id from chart label data, which looks
-        # like this: {'points': [{'curveNumber': 0, 'x': '2016-05-01',
-        # 'y': 'practice 84', 'z': 86.10749488t62395}]}. I think
-        # there's a cleaner way to pass ids as chart metadata
-        entity_id = click_data["points"][0]["y"].split(" ")[-1]
-        highlights = page_state.get("highlight_entities", [])
-        highlights.append(entity_id)
-        update_state(page_state, highlight_entities=highlights)
 
     # Only trigger state changes if something has changed
     if "_dirty" not in page_state:
