@@ -9,7 +9,9 @@ import settings
 
 # for each chart, generate a function to show only that chart
 def _create_show_chart_func(chart):
-    """creates a callback function"""
+    """Generate a callback function which toggles visibility of the page_id
+    specified in the current page state
+    """
 
     def show_chart(page_state):
         page_state = get_state(page_state)
