@@ -86,7 +86,10 @@ def update_deciles(page_state):
         and "all" not in entity_ids_for_practice_filter
     ):
         entity_ids = get_sorted_group_keys(
-            trace_df[trace_df[practice_filter_entity].isin(entity_ids_for_practice_filter)], col_name
+            trace_df[
+                trace_df[practice_filter_entity].isin(entity_ids_for_practice_filter)
+            ],
+            col_name,
         )
     else:
         entity_ids = get_sorted_group_keys(trace_df, col_name)
