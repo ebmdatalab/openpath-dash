@@ -131,7 +131,7 @@ def update_state_from_inputs(
     if "denominators" not in page_state:
         update_state(page_state, denominators=["per1000"])
     if "groupby" not in page_state:
-        update_state(page_state, groupby="practice")
+        update_state(page_state, groupby="practice_id")
     if "practice_filter_entity" not in page_state:
         update_state(page_state, practice_filter_entity="ccg_id")
     if "entity_ids_for_practice_filter" not in page_state:
