@@ -71,6 +71,8 @@ def _url_from_state(page_state):
             logger.debug("  trying endpoint %s for state %s", endpoint, page_state)
             url = urls.build(endpoint, page_state, append_unknown=False)
             logger.debug("Found url %s", url)
+            # Now add the rest to the query string
+            url = urls.build(endpoint, page_state, append_unknown=True)
             break
         except BuildError:
             pass
@@ -175,7 +177,7 @@ def update_state_from_inputs(
         result_filter=selected_filter,
         groupby=groupby,
         entity_ids_for_practice_filter=selected_ccg,
-        highlight_entities=query_string.get("highlight", []),
+        highlight_entities=query_string.get("highlight_entities", []),
         page_id=selected_chart,
         sparse_data_toggle=sparse_data_toggle,
         equalise_colorscale=equalise_colorscale,
@@ -184,10 +186,12 @@ def update_state_from_inputs(
     if "heatmap-graph" in triggered_inputs:
         # Hack: extract practice id from chart label data, which looks
         # like this: {'points': [{'curveNumber': 0, 'x': '2016-05-01',
-        # 'y': 'practice 84', 'z': 86.10749488562395}]}. I think
+        # 'y': 'practice 84', 'z': 86.10749488t62395}]}. I think
         # there's a cleaner way to pass ids as chart metadata
-        entity_ids = click_data["points"][0]["y"].split(" ")[-1]
-        update_state(page_state, entity_ids=entity_ids, page_id="deciles")
+        entity_id = click_data["points"][0]["y"].split(" ")[-1]
+        highlights = page_state.get("highlight_entities", [])
+        highlights.append(entity_id)
+        update_state(page_state, highlight_entities=highlights)
 
     # Only trigger state changes if something has changed
     if "_dirty" not in page_state:
