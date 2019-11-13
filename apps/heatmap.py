@@ -95,7 +95,8 @@ def update_heatmap(page_state):
         index=col_name, columns="month", values="label"
     ).reindex(vals_by_entity.index)
 
-    entities = ["entity {}".format(x) for x in vals_by_entity.index]
+    entity_type = humanise_entity_type(col_name)
+    entities = [f"{entity_type} {x}" for x in vals_by_entity.index]
     # sort with hottest at top
     trace = go.Heatmap(
         z=vals_by_entity,
@@ -128,3 +129,13 @@ def update_heatmap(page_state):
             },
         ),
     }
+
+
+def humanise_entity_type(column_name):
+    if column_name == "ccg_id":
+        return "CCG"
+    if column_name == "practice_id":
+        return "Practice"
+    if column_name == "test_code":
+        return "Test"
+    return column_name
