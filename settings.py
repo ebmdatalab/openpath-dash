@@ -17,7 +17,14 @@ ERR_NO_TEST_CODE = 8
 HEATMAP_CHART_ID = "heatmap"
 DECILES_CHART_ID = "deciles"
 COUNTS_CHART_ID = "counts"
-CHARTS = [HEATMAP_CHART_ID, DECILES_CHART_ID, COUNTS_CHART_ID, "measures"]
+DATATABLE_CHART_ID = "datatable"
+CHARTS = [
+    HEATMAP_CHART_ID,
+    DECILES_CHART_ID,
+    COUNTS_CHART_ID,
+    DATATABLE_CHART_ID,
+    "measures",
+]
 
 # Sparse data filtering
 NUM_MONTHS_REQUIRED = 6

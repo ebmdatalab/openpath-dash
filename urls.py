@@ -1,6 +1,7 @@
 from werkzeug.routing import Map, Rule, Submount
-from werkzeug.routing import UnicodeConverter, BaseConverter
+from werkzeug.routing import UnicodeConverter, BaseConverter, AnyConverter
 
+import settings
 
 class ListConverter(UnicodeConverter):
     def to_python(self, value):
@@ -15,8 +16,9 @@ class ListConverter(UnicodeConverter):
         return value
 
 
-class AppConverter(BaseConverter):
-    regex = r"(?:deciles|heatmap|counts|measures)"
+class AppConverter(AnyConverter):
+    def __init__(self, map):
+        super().__init__(map, *settings.CHARTS)
 
 
 class EntityConverter(BaseConverter):
