@@ -117,7 +117,6 @@ def update_heatmap(page_state):
         "data": [trace],
         "layout": go.Layout(
             title=title,
-            width=800,
             height=height,
             xaxis={"fixedrange": True},
             yaxis={
