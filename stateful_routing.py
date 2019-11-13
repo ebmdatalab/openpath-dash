@@ -82,13 +82,21 @@ def _url_from_state(page_state):
     return url
 
 
-@app.callback(Output("url-for-update", "pathname"), [Input("page-state", "children")])
+@app.callback(
+    [Output("url-for-update", "pathname"), Output("url-for-update", "search")],
+    [Input("page-state", "children")],
+)
 def update_url_from_page_state(page_state):
     """Cause the page location to match the current page state
     """
     page_state = get_state(page_state)
     logger.debug("Getting URL from page state %s", page_state)
-    return _url_from_state(page_state)
+    url = _url_from_state(page_state)
+    search = ""
+    if "?" in url:
+        url, search = url.split("?")
+        search = "?" + search
+    return url, search
 
 
 @app.callback(
