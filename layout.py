@@ -197,7 +197,10 @@ def layout(tests_df, ccgs_list, measures):
                                     id="chart-container",
                                     style={"display": "none"},
                                     children=[
-                                        html.Div(id="deciles-container"),
+                                        html.Div(
+                                            id="deciles-container",
+                                            children=[dcc.Graph(id="deciles-graph")],
+                                        ),
                                         html.Div(
                                             id="heatmap-container",
                                             children=[dcc.Graph(id="heatmap-graph")],

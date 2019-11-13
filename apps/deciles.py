@@ -50,9 +50,7 @@ def get_practice_decile_traces(df):
     return deciles_traces
 
 
-@app.callback(
-    Output("deciles-container", "children"), [Input("page-state", "children")]
-)
+@app.callback(Output("deciles-graph", "figure"), [Input("page-state", "children")])
 def update_deciles(page_state):
     page_state = get_state(page_state)
     if page_state.get("page_id") != settings.CHART_ID:
@@ -63,9 +61,7 @@ def update_deciles(page_state):
     result_filter = page_state.get("result_filter", [])
     groupby = page_state.get("groupby", None)
     practice_filter_entity = page_state.get("practice_filter_entity", None)
-    entity_ids_for_practice_filter = page_state.get(
-        "entity_ids_for_practice_filter", []
-    )
+    highlight_entities = page_state.get("highlight_entities", [])
 
     col_name = groupby
 
@@ -76,31 +72,19 @@ def update_deciles(page_state):
         by=col_name,
         hide_entities_with_sparse_data=page_state.get("sparse_data_toggle"),
     )
-    traces = []
     deciles_traces = get_practice_decile_traces(trace_df)
     if not deciles_traces:
         return html.Div()
     months = deciles_traces[0].x
-    if (
-        col_name in ["practice_id", "ccg_id"]
-        and "all" not in entity_ids_for_practice_filter
-    ):
+    if col_name in ["practice_id", "ccg_id"] and "all" not in highlight_entities:
         entity_ids = get_sorted_group_keys(
-            trace_df[
-                trace_df[practice_filter_entity].isin(entity_ids_for_practice_filter)
-            ],
-            col_name,
+            trace_df[trace_df[groupby].isin(highlight_entities)], col_name
         )
     else:
         entity_ids = get_sorted_group_keys(trace_df, col_name)
-    limit = 80  # XXX this is cos we can't draw so many charts without breaking
-    # the browser. Ideally we'd fix this with load-on-scroll
-
-    # Create a graph for each practice
-    graphs = []
-    for entity_id in entity_ids[:limit]:
+    traces = deciles_traces[:]
+    for entity_id in entity_ids:
         entity_df = trace_df[trace_df[col_name] == entity_id]
-        traces = []
         # First, plot the practice line
         traces.append(
             go.Scatter(
@@ -133,23 +117,10 @@ def update_deciles(page_state):
                     hoverinfo="skip",
                 )
             )
-
-        # Add the deciles
-        traces.extend(deciles_traces)
-
-        title = get_chart_title(numerators, denominators, result_filter, entity_id)
-        # Add the traces to per-practice graph
-        graph = dcc.Graph(
-            id="graph-{}".format(entity_id),
-            figure={
-                "data": traces,
-                "layout": go.Layout(
-                    title=title,
-                    xaxis={"range": [months[0], months[-1]]},
-                    showlegend=False,
-                ),
-            },
-            config={"staticPlot": False},  # < -- XXX about twice as fast
-        )
-        graphs.append(graph)
-    return html.Div(graphs)
+    title = get_chart_title(numerators, denominators, result_filter, list(entity_ids))
+    return {
+        "data": traces,
+        "layout": go.Layout(
+            title=title, xaxis={"range": [months[0], months[-1]]}, showlegend=False
+        ),
+    }

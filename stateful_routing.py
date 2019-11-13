@@ -102,7 +102,11 @@ def update_url_from_page_state(page_state):
         Input("chart-selector-tabs", "active_tab"),
         Input("tweak-form", "value"),
     ],
-    [State("page-state", "children"), State("url-for-update", "pathname")],
+    [
+        State("page-state", "children"),
+        State("url-for-update", "pathname"),
+        State("url-for-update", "search"),
+    ],
 )
 def update_state_from_inputs(
     click_data,
@@ -116,6 +120,7 @@ def update_state_from_inputs(
     tweak_form,
     page_state,
     current_path,
+    current_qs,
 ):
     """
     Given a series of possible user inputs, update the state if it needs to be changed.
@@ -124,7 +129,7 @@ def update_state_from_inputs(
     triggered_inputs = [x["prop_id"].split(".")[0] for x in ctx.triggered]
     page_state = get_state(page_state)
     orig_page_state = page_state.copy()
-
+    query_string = urllib.parse.parse_qs(current_qs[1:])
     # add defaults
     if "numerators" not in page_state:
         update_state(page_state, numerators=["K"])
@@ -170,6 +175,7 @@ def update_state_from_inputs(
         result_filter=selected_filter,
         groupby=groupby,
         entity_ids_for_practice_filter=selected_ccg,
+        highlight_entities=query_string.get("highlight", []),
         page_id=selected_chart,
         sparse_data_toggle=sparse_data_toggle,
         equalise_colorscale=equalise_colorscale,
@@ -349,7 +355,7 @@ def show_error_from_page_state(page_state):
 def show_measure_description_from_url(search):
     """
     """
-    if search:
+    if search and "id" in search:
         measure_id = urllib.parse.parse_qs(search[1:])["id"][0]
         measures = get_measures()
         measure = measures[measures["id"] == measure_id].to_dict("records")[0]
