@@ -9,7 +9,7 @@ import settings
 @app.callback(Output("datatable", "data"), [Input("page-state", "children")])
 def update_datatable(page_state):
     page_state = get_state(page_state)
-    if page_state.get("page_id") != settings.DATATABLE_CHART_ID:
+    if page_state.get("page_id") != settings.DATATABLE_ID:
         return []
 
     numerators = page_state.get("numerators", [])

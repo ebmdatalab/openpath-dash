@@ -55,7 +55,7 @@ def get_practice_decile_traces(df):
 )
 def update_deciles(page_state):
     page_state = get_state(page_state)
-    if page_state.get("page_id") != settings.DECILES_CHART_ID:
+    if page_state.get("page_id") != settings.CHART_ID:
         return html.Div()
 
     numerators = page_state.get("numerators", [])
@@ -86,7 +86,10 @@ def update_deciles(page_state):
         and "all" not in entity_ids_for_practice_filter
     ):
         entity_ids = get_sorted_group_keys(
-            trace_df[trace_df[practice_filter_entity].isin(entity_ids_for_practice_filter)], col_name
+            trace_df[
+                trace_df[practice_filter_entity].isin(entity_ids_for_practice_filter)
+            ],
+            col_name,
         )
     else:
         entity_ids = get_sorted_group_keys(trace_df, col_name)

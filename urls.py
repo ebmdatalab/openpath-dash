@@ -3,6 +3,7 @@ from werkzeug.routing import UnicodeConverter, BaseConverter, AnyConverter
 
 import settings
 
+
 class ListConverter(UnicodeConverter):
     def to_python(self, value):
         value = super(ListConverter, self).to_python(value)
@@ -18,7 +19,7 @@ class ListConverter(UnicodeConverter):
 
 class AppConverter(AnyConverter):
     def __init__(self, map):
-        super().__init__(map, *settings.CHARTS)
+        super().__init__(map, *settings.PAGES)
 
 
 class EntityConverter(BaseConverter):

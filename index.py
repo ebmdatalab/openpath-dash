@@ -17,7 +17,6 @@ def setup_callbacks():
     import apps.base
     import apps.deciles
     import apps.heatmap
-    import apps.test_counts
     import apps.datatable
 
     import stateful_routing

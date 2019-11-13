@@ -167,11 +167,9 @@ def layout(tests_df, ccgs_list, measures):
     )
     chart_selector_tabs = dbc.Tabs(
         id="chart-selector-tabs",
-        active_tab="heatmap",
+        active_tab="chart",
         children=[
-            dbc.Tab(label="Heatmap", tab_id="heatmap"),
-            dbc.Tab(label="Counts", tab_id="counts"),
-            dbc.Tab(label="Deciles", tab_id="deciles"),
+            dbc.Tab(label="Chart", tab_id="chart"),
             dbc.Tab(label="Practice-level data table", tab_id="datatable"),
         ],
     )
@@ -195,20 +193,16 @@ def layout(tests_df, ccgs_list, measures):
                         dcc.Loading(
                             id="loading-heatmap",
                             children=[
-                                # We make empty graph objects for every graph we might
-                                # draw, and show/hide them based on current state
                                 html.Div(
-                                    id="heatmap-container",
+                                    id="chart-container",
                                     style={"display": "none"},
-                                    children=[dcc.Graph(id="heatmap-graph")],
-                                ),
-                                html.Div(
-                                    id="counts-container",
-                                    style={"display": "none"},
-                                    children=[dcc.Graph(id="counts-graph")],
-                                ),
-                                html.Div(
-                                    id="deciles-container", style={"display": "block"}
+                                    children=[
+                                        html.Div(id="deciles-container"),
+                                        html.Div(
+                                            id="heatmap-container",
+                                            children=[dcc.Graph(id="heatmap-graph")],
+                                        ),
+                                    ],
                                 ),
                                 html.Div(
                                     id="measures-container",

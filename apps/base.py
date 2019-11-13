@@ -23,10 +23,11 @@ def _create_show_chart_func(chart):
 
 # Register callbacks such that when the page state changes, only the
 # page id currently indicated in the page state is shown
-for chart in settings.CHARTS:
+for page_id in settings.PAGES:
     app.callback(
-        Output("{}-container".format(chart), "style"), [Input("page-state", "children")]
-    )(_create_show_chart_func(chart))
+        Output("{}-container".format(page_id), "style"),
+        [Input("page-state", "children")],
+    )(_create_show_chart_func(page_id))
 
 
 def get_sorted_group_keys(df, group_by):

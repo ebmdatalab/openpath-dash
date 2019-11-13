@@ -14,17 +14,9 @@ ERR_NO_TEST_CODE = 8
 
 
 # A list of all the charts that appear in the app
-HEATMAP_CHART_ID = "heatmap"
-DECILES_CHART_ID = "deciles"
-COUNTS_CHART_ID = "counts"
-DATATABLE_CHART_ID = "datatable"
-CHARTS = [
-    HEATMAP_CHART_ID,
-    DECILES_CHART_ID,
-    COUNTS_CHART_ID,
-    DATATABLE_CHART_ID,
-    "measures",
-]
+CHART_ID = "chart"
+DATATABLE_ID = "datatable"
+PAGES = [CHART_ID, DATATABLE_ID, "measures"]
 
 # Sparse data filtering
 NUM_MONTHS_REQUIRED = 6

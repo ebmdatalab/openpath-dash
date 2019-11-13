@@ -59,7 +59,7 @@ def get_colorscale(values, cmap):
 @app.callback(Output("heatmap-graph", "figure"), [Input("page-state", "children")])
 def update_heatmap(page_state):
     page_state = get_state(page_state)
-    if page_state.get("page_id") != settings.HEATMAP_CHART_ID:
+    if page_state.get("page_id") != settings.CHART_ID:
         return {}
 
     numerators = page_state.get("numerators", [])
