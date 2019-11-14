@@ -135,7 +135,10 @@ def update_deciles(page_state, click_data, current_qs):
         {
             "data": traces,
             "layout": go.Layout(
-                title=title, xaxis={"range": [months[0], months[-1]]}, showlegend=False
+                title=title,
+                height=450,
+                xaxis={"range": [months[0], months[-1]]},
+                showlegend=False,
             ),
         },
         "?" + "&".join([f"highlight_entities={x}" for x in highlight_entities]),

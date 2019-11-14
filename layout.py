@@ -196,6 +196,7 @@ def layout(tests_df, ccgs_list, measures):
                             children=[
                                 dcc.Loading(
                                     id="loading-deciles",
+                                    style={"height": "450px"},
                                     children=[
                                         html.Div(
                                             id="deciles-container",
