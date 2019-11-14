@@ -110,8 +110,18 @@ def update_heatmap(page_state):
     logger.debug(
         "Target rowheight of {} for {} {}s".format(height, len(entities), groupby)
     )
-    entity_id = f"{col_name}s"
-    title = get_chart_title(numerators, denominators, result_filter, entity_id)
+    if col_name == "practice_id":
+        entity_names = ["all practices"]
+    elif col_name == "ccg_id":
+        entity_names = ["all CCGs"]
+    elif col_name == "test_code":
+        entity_names = ["all tests"]
+    elif col_name == "test_code":
+        entity_names = ["all tests"]
+    elif col_name == "result_category":
+        entity_names = ["all result types"]
+
+    title = get_chart_title(numerators, denominators, result_filter, entity_names)
 
     return {
         "data": [trace],

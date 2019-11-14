@@ -43,7 +43,7 @@ def get_sorted_group_keys(df, group_by):
     return entity_ids
 
 
-def get_chart_title(numerators, denominators, result_filter, entity_ids):
+def get_chart_title(numerators, denominators, result_filter, entity_names):
 
     # Make a title
 
@@ -68,7 +68,8 @@ def get_chart_title(numerators, denominators, result_filter, entity_ids):
     else:
         filter_text = ""
 
+    entity_names = " + ".join(entity_names)
     title = "Count of {} {} for {}{}".format(
-        numerators_text, denominators_text, entity_ids, filter_text
+        numerators_text, denominators_text, entity_names, filter_text
     )
     return title
