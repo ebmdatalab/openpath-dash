@@ -101,12 +101,9 @@ def update_deciles(page_state, click_data, current_qs):
     if not deciles_traces:
         return html.Div()
     months = deciles_traces[0].x
-    if col_name in ["practice_id", "ccg_id"] and "all" not in highlight_entities:
-        entity_ids = get_sorted_group_keys(
-            trace_df[trace_df[groupby].isin(highlight_entities)], col_name
-        )
-    else:
-        entity_ids = get_sorted_group_keys(trace_df, col_name)
+    entity_ids = get_sorted_group_keys(
+        trace_df[trace_df[groupby].isin(highlight_entities)], col_name
+    )
     traces = deciles_traces[:]
     for colour, entity_id in zip(cycle(settings.LINE_COLOUR_CYCLE), entity_ids):
         entity_df = trace_df[trace_df[col_name] == entity_id]
