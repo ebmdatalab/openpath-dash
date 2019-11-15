@@ -3,6 +3,7 @@ from werkzeug.routing import UnicodeConverter, BaseConverter, AnyConverter
 
 import settings
 
+
 class ListConverter(UnicodeConverter):
     def to_python(self, value):
         value = super(ListConverter, self).to_python(value)
