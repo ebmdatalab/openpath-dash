@@ -1,5 +1,6 @@
 import logging
 import urllib
+from itertools import cycle
 
 import dash_html_components as html
 import pandas as pd
@@ -34,18 +35,26 @@ def get_practice_decile_traces(df):
     """
     deciles_traces = []
     months = pd.to_datetime(df["month"].unique())
+    added_legend = False
     for n, decile in get_practice_deciles(df):
         if n == 50:
             style = "dash"
         else:
             style = "dot"
+        if not added_legend:
+            showlegend = True
+            added_legend = True
+        else:
+            showlegend = False
         deciles_traces.append(
             go.Scatter(
                 x=months,
                 y=decile,
-                name="{}th".format(n),
+                legendgroup="deciles",
+                name="deciles",
                 line=dict(color="blue", width=1, dash=style),
                 hoverinfo="skip",
+                showlegend=showlegend,
             )
         )
     return deciles_traces
@@ -96,38 +105,44 @@ def update_deciles(page_state, click_data, current_qs):
     else:
         entity_ids = get_sorted_group_keys(trace_df, col_name)
     traces = deciles_traces[:]
-    for entity_id in entity_ids:
+    for colour, entity_id in zip(cycle(settings.LINE_COLOUR_CYCLE), entity_ids):
         entity_df = trace_df[trace_df[col_name] == entity_id]
         # First, plot the practice line
         traces.append(
             go.Scatter(
+                legendgroup=entity_id,
                 x=entity_df["month"],
                 y=entity_df["calc_value"],
                 text=entity_df["label"],
                 hoverinfo="text",
                 name=str(entity_id),
-                line=dict(color="red", width=1, dash="solid"),
+                line_width=2,
+                line=dict(color=colour, width=1, dash="solid"),
             )
         )
         if entity_df["calc_value_error"].sum() > 0:
             # If there's any error, bounds and fill
             traces.append(
                 go.Scatter(
+                    legendgroup=entity_id,
                     x=entity_df["month"],
                     y=entity_df["calc_value"] + entity_df["calc_value_error"],
                     name=str(entity_id),
-                    line=dict(color="red", width=1, dash="dot"),
+                    line=dict(color=colour, width=1, dash="dot"),
                     hoverinfo="skip",
+                    showlegend=False,
                 )
             )
             traces.append(
                 go.Scatter(
+                    legendgroup=entity_id,
                     x=entity_df["month"],
                     y=entity_df["calc_value"] - entity_df["calc_value_error"],
                     name=str(entity_id),
                     fill="tonexty",
-                    line=dict(color="red", width=1, dash="dot"),
+                    line=dict(color=colour, width=1, dash="dot"),
                     hoverinfo="skip",
+                    showlegend=False,
                 )
             )
     title = get_chart_title(numerators, denominators, result_filter, list(entity_ids))
@@ -138,7 +153,7 @@ def update_deciles(page_state, click_data, current_qs):
                 title=title,
                 height=450,
                 xaxis={"range": [months[0], months[-1]]},
-                showlegend=False,
+                showlegend=True,
             ),
         },
         "?" + "&".join([f"highlight_entities={x}" for x in highlight_entities]),
