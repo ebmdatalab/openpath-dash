@@ -33,9 +33,17 @@ CACHE_CONFIG = {
     "CACHE_DIR": "/tmp/",
 }
 
-# This is a divergent, colourblind-safe scheme from colorbrewer2.org,
-# minus the light-coloured ones
-LINE_COLOUR_CYCLE = ["#c51b7d", "#de77ae", "#f1b6da", "#b8e186", "#7fbc41", "#4d9221"]
+# This are from the divergent, colourblind-safe "Wong" scheme taken from https://davidmathlogic.com/colorblind/
+DECILE_COLOUR = "#56B4E9"
+LINE_COLOUR_CYCLE = [
+    "#000000",
+    "#E69F00",
+    "#009E73",
+    "#F0E442",
+    "#0072B2",
+    "#D55E00",
+    "#CC79A7",
+]
 
 
 ERROR_CODES = {
