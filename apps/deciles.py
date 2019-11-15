@@ -155,6 +155,8 @@ def update_deciles(page_state, click_data, current_qs):
                 )
             )
     title = get_chart_title(numerators, denominators, result_filter, list(entity_ids))
+    if not highlight_entities:
+        title += "<br><sub>Select a row from the heatmap below to add lines to this chart</sub>"
     return (
         {
             "data": traces,
