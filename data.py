@@ -159,8 +159,12 @@ def get_count_data(
             # The denominator needs to be summed across all tests
             groupby = ["month"]
         denominator_and_query = base_and_query[:]
-        denominator_and_query += [f"test_code.isin({denominators})"]
-        filtered_df = df.query(" & ".join(denominator_and_query))
+        if "all" not in denominators:
+            denominator_and_query += [f"test_code.isin({denominators})"]
+        if denominator_and_query:
+            filtered_df = df.query(" & ".join(denominator_and_query))
+        else:
+            filtered_df = df
         denom_df_agg = filtered_df[cols].groupby(groupby).sum().reset_index()
         num_df_agg = num_df_agg.merge(
             denom_df_agg,

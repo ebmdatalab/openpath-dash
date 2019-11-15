@@ -70,7 +70,7 @@ def layout(tests_df, ccgs_list, measures):
     )
     numerators_form = dbc.FormGroup(
         [
-            dbc.Label("Numerators"),
+            dbc.Label("Select tests"),
             dcc.Dropdown(
                 id="numerators-dropdown",
                 multi=True,
@@ -84,37 +84,35 @@ def layout(tests_df, ccgs_list, measures):
         ]
     )
 
-    filters_form = dbc.FormGroup(
-        [
-            dbc.Label("Filter numerator"),
-            dcc.Dropdown(
-                id="test-filter-dropdown",
-                options=[
-                    {"value": "all", "label": "No filter"},
-                    {
-                        "value": "within_range",
-                        "label": "Results within reference range",
-                    },
-                    {"value": "under_range", "label": "Results under reference range"},
-                    {"value": "over_range", "label": "Results over reference range"},
-                ]
-                + [
-                    {"value": x, "label": "Specific error: " + y}
-                    for x, y in settings.ERROR_CODES.items()
-                    if x > 1 and x < 4
-                ],
-            ),
-        ]
-    )
     denominators_form = dbc.FormGroup(
         [
-            dbc.Label("Denominators"),
+            dbc.Label("Showing"),
             dcc.Dropdown(
                 id="denominators-dropdown",
                 options=[
-                    {"value": "per1000", "label": "Per 1000 patients"},
-                    {"value": "raw", "label": "Raw numbers"},
-                    {"value": "other", "label": "As a proportion of other tests"},
+                    {"value": "per1000", "label": "Number of tests per 1000 patients"},
+                    {"value": "raw", "label": "Number of tests"},
+                    {
+                        "value": "within_range",
+                        "label": "Proportion of results within reference range",
+                    },
+                    {
+                        "value": "under_range",
+                        "label": "Proportion of results under reference range",
+                    },
+                    {
+                        "value": "over_range",
+                        "label": "Proportion of results over reference range",
+                    },
+                    {
+                        "value": settings.ERR_NO_REF_RANGE,
+                        "label": "Proportion of results where no reference range available",
+                    },
+                    {
+                        "value": settings.ERR_UNPARSEABLE_RESULT,
+                        "label": "Proportion of non-numeric results",
+                    },
+                    {"value": "other", "label": "Compared with other test numbers"},
                 ],
             ),
             dcc.Dropdown(
@@ -177,7 +175,7 @@ def layout(tests_df, ccgs_list, measures):
         dbc.Row(
             [
                 dbc.Col([numerators_form, denominators_form, groupby_form]),
-                dbc.Col([filters_form, ccg_filter_form, tweak_form]),
+                dbc.Col([ccg_filter_form, tweak_form]),
             ]
         )
     )
