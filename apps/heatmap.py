@@ -140,7 +140,7 @@ def update_heatmap(page_state, current_qs, current_fig):
             "x1": 1,
             "y1": y_index + 0.5,
             "line": {"color": "#d53e4f", "width": 1},
-            "fillcolor": "rgba(255,255,255,0.2)",
+            "fillcolor": "rgba(255, 255, 255, 0.3)",
         }
 
     highlight_rectangles = [
