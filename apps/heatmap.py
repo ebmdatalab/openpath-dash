@@ -1,6 +1,8 @@
 import logging
+import urllib
+
 import plotly.graph_objs as go
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 
 from app import app
 from apps.base import get_chart_title
@@ -56,12 +58,17 @@ def get_colorscale(values, cmap):
     return scale
 
 
-@app.callback(Output("heatmap-graph", "figure"), [Input("page-state", "children")])
-def update_heatmap(page_state):
+@app.callback(
+    Output("heatmap-graph", "figure"),
+    [Input("page-state", "children"), Input("url-for-update", "search")],
+    [State("deciles-graph", "figure")],
+)
+def update_heatmap(page_state, current_qs, current_fig):
     page_state = get_state(page_state)
     if page_state.get("page_id") != settings.CHART_ID:
         return {}
-
+    query_string = urllib.parse.parse_qs(current_qs[1:])
+    highlight_entities = set(query_string.get("highlight_entities", []))
     numerators = page_state.get("numerators", [])
     denominators = page_state.get("denominators", [])
     result_filter = page_state.get("result_filter", [])
@@ -123,9 +130,27 @@ def update_heatmap(page_state):
 
     title = get_chart_title(numerators, denominators, result_filter, entity_names)
 
+    def make_highlight_rect(y_index):
+        return {
+            "layer": "above",
+            "xref": "paper",
+            "type": "rect",
+            "x0": 0,
+            "y0": y_index - 0.5,
+            "x1": 1,
+            "y1": y_index + 0.5,
+            "line": {"color": "#d53e4f", "width": 1},
+            "fillcolor": "rgba(255,255,255,0.1)",
+        }
+
+    highlight_rectangles = [
+        make_highlight_rect(vals_by_entity.index.get_loc(x)) for x in highlight_entities
+    ]
+
     return {
         "data": [trace],
         "layout": go.Layout(
+            shapes=highlight_rectangles,
             title=title,
             height=height,
             xaxis={"fixedrange": True},

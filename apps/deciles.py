@@ -67,14 +67,17 @@ def get_practice_decile_traces(df):
 )
 def update_deciles(page_state, click_data, current_qs):
     query_string = urllib.parse.parse_qs(current_qs[1:])
-    highlight_entities = set(query_string.get("highlight_entities", []))
+    highlight_entities = query_string.get("highlight_entities", [])
     if click_data:
         # Hack: extract practice id from chart label data, which looks
         # like this: {'points': [{'curveNumber': 0, 'x': '2016-05-01',
         # 'y': 'practice 84', 'z': 86.10749488t62395}]}. I think
         # there's a cleaner way to pass ids as chart metadata
         entity_id = click_data["points"][0]["y"].split(" ")[-1]
-        highlight_entities.add(entity_id)
+        if entity_id not in highlight_entities:
+            highlight_entities.append(entity_id)
+        else:
+            highlight_entities.remove(entity_id)
 
     page_state = get_state(page_state)
     if page_state.get("page_id") != settings.CHART_ID:
