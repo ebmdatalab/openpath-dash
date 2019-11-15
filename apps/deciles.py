@@ -52,7 +52,7 @@ def get_practice_decile_traces(df):
                 y=decile,
                 legendgroup="deciles",
                 name="deciles",
-                line=dict(color="blue", width=1, dash=style),
+                line=dict(color=settings.DECILE_COLOUR, width=1, dash=style),
                 hoverinfo="skip",
                 showlegend=showlegend,
             )
