@@ -67,9 +67,14 @@ def get_chart_title(numerators, denominators, result_filter, entity_names):
 
     else:
         filter_text = ""
+    if entity_names:
+        entity_names = " + ".join(entity_names)
+        title = "Number of {} {} at {}{}".format(
+            numerators_text, denominators_text, entity_names, filter_text
+        )
+    else:
+        title = "Global deciles of {} {}{} ".format(
+            numerators_text, denominators_text, filter_text
+        )
 
-    entity_names = " + ".join(entity_names)
-    title = "Count of {} {} for {}{}".format(
-        numerators_text, denominators_text, entity_names, filter_text
-    )
     return title
