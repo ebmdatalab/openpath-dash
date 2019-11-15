@@ -16,7 +16,7 @@ def _create_show_chart_func(chart):
     def show_chart(page_state):
         page_state = get_state(page_state)
         if page_state.get("page_id") == chart:
-            return {"display": "flex"}
+            return {"display": "block"}
         else:
             return {"display": "none"}
 

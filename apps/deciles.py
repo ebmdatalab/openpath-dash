@@ -154,7 +154,7 @@ def update_deciles(page_state, click_data, current_qs):
                 height=350,
                 xaxis={"range": [months[0], months[-1]]},
                 showlegend=True,
-                legend={"orientation": "h"},
+                legend={"orientation": "v"},
             ),
         },
         "?" + "&".join([f"highlight_entities={x}" for x in highlight_entities]),

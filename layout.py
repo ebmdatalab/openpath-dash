@@ -65,7 +65,7 @@ def layout(tests_df, ccgs_list, measures):
             dcc.Location(id="url-from-user", refresh=False),
             # This one represents the URL that was want to change to
             # reflect the current page state
-            dcc.Location(id="url-for-update", refresh=True),
+            dcc.Location(id="url-for-update", refresh=False),
         ]
     )
     numerators_form = dbc.FormGroup(
@@ -195,41 +195,37 @@ def layout(tests_df, ccgs_list, measures):
                 )
             ),
             dbc.Row(
-                [
-                    dbc.Col(
-                        html.Div(
-                            # All the charts we're interested in, in a spinner container
-                            dcc.Loading(
-                                id="loading-deciles",
-                                style={"height": "350px"},
-                                children=[
-                                    html.Div(
-                                        id="deciles-container",
-                                        children=[dcc.Graph(id="deciles-graph")],
-                                        className="position-fixed",
-                                    )
-                                ],
-                            )
-                        ),
-                        width=7,
-                    ),
-                    dbc.Col(
-                        html.Div(
-                            dcc.Loading(
-                                id="loading-heatmap",
-                                children=[
-                                    html.Div(
-                                        id="heatmap-container",
-                                        children=[dcc.Graph(id="heatmap-graph")],
-                                    )
-                                ],
-                            )
-                        ),
-                        width=5,
-                    ),
-                ],
-                id="chart-container",
-                style={"display": "none"},
+                dbc.Col(
+                    html.Div(
+                        id="chart-container",
+                        style={"display": "none"},
+                        children=[
+                            html.Div(
+                                dcc.Loading(
+                                    id="loading-deciles",
+                                    style={"height": "350px"},
+                                    children=[
+                                        html.Div(
+                                            id="deciles-container",
+                                            children=[dcc.Graph(id="deciles-graph")],
+                                        )
+                                    ],
+                                )
+                            ),
+                            html.Div(
+                                dcc.Loading(
+                                    id="loading-heatmap",
+                                    children=[
+                                        html.Div(
+                                            id="heatmap-container",
+                                            children=[dcc.Graph(id="heatmap-graph")],
+                                        )
+                                    ],
+                                )
+                            ),
+                        ],
+                    )
+                )
             ),
             dbc.Row(
                 dbc.Col(
