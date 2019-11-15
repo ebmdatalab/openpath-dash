@@ -68,8 +68,9 @@ def get_practice_decile_traces(df):
 def update_deciles(page_state, click_data, current_qs):
     query_string = urllib.parse.parse_qs(current_qs[1:])
     page_state = get_state(page_state)
+    EMPTY_RESPONSE = ({}, "")
     if page_state.get("page_id") != settings.CHART_ID:
-        return html.Div()
+        return EMPTY_RESPONSE
 
     numerators = page_state.get("numerators", [])
     denominators = page_state.get("denominators", [])
@@ -87,7 +88,7 @@ def update_deciles(page_state, click_data, current_qs):
     )
     deciles_traces = get_practice_decile_traces(trace_df)
     if not deciles_traces:
-        return html.Div()
+        return EMPTY_RESPONSE
 
     # Remove any highlight entities that are not a valie groupby key
     # (for example, practice ids when we're grouping by ccg id)
