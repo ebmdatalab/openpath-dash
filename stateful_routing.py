@@ -96,7 +96,6 @@ def update_url_from_page_state(page_state):
         Input("denominators-dropdown", "value"),
         Input("denominator-tests-dropdown", "value"),
         Input("groupby-dropdown", "value"),
-        Input("test-filter-dropdown", "value"),
         Input("ccg-dropdown", "value"),
         Input("chart-selector-tabs", "active_tab"),
         Input("tweak-form", "value"),
@@ -108,7 +107,6 @@ def update_state_from_inputs(
     selected_denominator,
     denominator_tests,
     groupby,
-    selected_filter,
     selected_ccg,
     selected_chart,
     tweak_form,
@@ -136,6 +134,14 @@ def update_state_from_inputs(
     if "result_filter" not in page_state:
         update_state(page_state, result_filter="all")
 
+    # Infer `selected_filter` value from the denominators dropdown
+    if selected_denominator not in ["per1000", "raw", "other"]:
+        # It's actually a filter
+        selected_filter = selected_denominator
+        selected_denominator = "other"
+        denominator_tests = selected_numerator
+    else:
+        selected_filter = "all"
     # Errors should already have been shown by this point. Reset error state.
     if "error" in page_state:
         del page_state["error"]
@@ -251,7 +257,6 @@ def _create_link_update_func(selector_id):
 for selector_id, page_state_key, is_multi in [
     ("numerators-dropdown", "numerators", True),
     ("denominator-tests-dropdown", "denominators", True),
-    ("test-filter-dropdown", "result_filter", False),
     ("groupby-dropdown", "groupby", False),
     ("ccg-dropdown", "entity_ids_for_practice_filter", True),
 ]:
@@ -288,14 +293,14 @@ def update_denominator_dropdown_from_url(pathname):
         # https://github.com/plotly/dash/issues/133#issuecomment-330714608
         try:
             _, url_state = urls.match(pathname)
+            # if it's raw, per1000 or other, leave as-is
+            # otherwise, pick based on the result_filter
             if "denominators" in url_state:
-                if url_state["denominators"] == ["per1000"] or url_state[
-                    "denominators"
-                ] == ["raw"]:
+                if url_state["denominators"][0] in ["per1000", "other", "raw"]:
                     logger.info("  setting to %s", url_state["denominators"][0])
                     return url_state["denominators"][0]
                 else:
-                    return "other"
+                    return url_state["result_filter"]
             else:
                 # default for when someone visits /apps/decile (for example)
                 return "per1000"

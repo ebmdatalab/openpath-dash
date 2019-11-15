@@ -57,16 +57,7 @@ def get_chart_title(numerators, denominators, result_filter, entity_names):
         denominators_text = "per 1000 patients"
     else:
         denominators_text = "as a proportion of " + " + ".join(denominators)
-    if result_filter and result_filter != "all":
-        try:
-            filter_text = (
-                ", only showing results " + settings.ERROR_CODES[int(result_filter)]
-            )
-        except ValueError:
-            filter_text = ", only showing results " + result_filter
-
-    else:
-        filter_text = ""
+    filter_text = ""  # XXX <- this needs to include under range , over range, etc
     if entity_names:
         entity_names = " + ".join(entity_names)
         title = "Number of {} {} at {}{}".format(
