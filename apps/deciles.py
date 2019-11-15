@@ -67,18 +67,6 @@ def get_practice_decile_traces(df):
 )
 def update_deciles(page_state, click_data, current_qs):
     query_string = urllib.parse.parse_qs(current_qs[1:])
-    highlight_entities = query_string.get("highlight_entities", [])
-    if click_data:
-        # Hack: extract practice id from chart label data, which looks
-        # like this: {'points': [{'curveNumber': 0, 'x': '2016-05-01',
-        # 'y': 'practice 84', 'z': 86.10749488t62395}]}. I think
-        # there's a cleaner way to pass ids as chart metadata
-        entity_id = click_data["points"][0]["y"].split(" ")[-1]
-        if entity_id not in highlight_entities:
-            highlight_entities.append(entity_id)
-        else:
-            highlight_entities.remove(entity_id)
-
     page_state = get_state(page_state)
     if page_state.get("page_id") != settings.CHART_ID:
         return html.Div()
@@ -100,11 +88,31 @@ def update_deciles(page_state, click_data, current_qs):
     deciles_traces = get_practice_decile_traces(trace_df)
     if not deciles_traces:
         return html.Div()
-    months = deciles_traces[0].x
+
+    # Remove any highlight entities that are not a valie groupby key
+    # (for example, practice ids when we're grouping by ccg id)
+    highlight_entities = list(
+        np.intersect1d(
+            query_string.get("highlight_entities", []), trace_df[groupby].unique()
+        )
+    )
+
+    if click_data:
+        # Hack: extract practice id from chart label data, which looks
+        # like this: {'points': [{'curveNumber': 0, 'x': '2016-05-01',
+        # 'y': 'practice 84', 'z': 86.10749488t62395}]}. I think
+        # there's a cleaner way to pass ids as chart metadata
+        entity_id = click_data["points"][0]["y"].split(" ")[-1]
+        if entity_id not in highlight_entities:
+            highlight_entities.append(entity_id)
+        else:
+            highlight_entities.remove(entity_id)
+
     entity_ids = get_sorted_group_keys(
         trace_df[trace_df[groupby].isin(highlight_entities)], col_name
     )
     traces = deciles_traces[:]
+    months = deciles_traces[0].x
     for colour, entity_id in zip(cycle(settings.LINE_COLOUR_CYCLE), entity_ids):
         entity_df = trace_df[trace_df[col_name] == entity_id]
         # First, plot the practice line
