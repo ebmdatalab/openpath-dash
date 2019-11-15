@@ -65,7 +65,7 @@ def layout(tests_df, ccgs_list, measures):
             dcc.Location(id="url-from-user", refresh=False),
             # This one represents the URL that was want to change to
             # reflect the current page state
-            dcc.Location(id="url-for-update", refresh=False),
+            dcc.Location(id="url-for-update", refresh=True),
         ]
     )
     numerators_form = dbc.FormGroup(

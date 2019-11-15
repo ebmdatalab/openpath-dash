@@ -144,7 +144,9 @@ def update_heatmap(page_state, current_qs, current_fig):
         }
 
     highlight_rectangles = [
-        make_highlight_rect(vals_by_entity.index.get_loc(x)) for x in highlight_entities
+        make_highlight_rect(vals_by_entity.index.get_loc(x))
+        for x in highlight_entities
+        if x in vals_by_entity.index
     ]
 
     return {
