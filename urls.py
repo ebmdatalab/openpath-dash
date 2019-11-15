@@ -19,7 +19,7 @@ class ListConverter(UnicodeConverter):
 
 class AppConverter(AnyConverter):
     def __init__(self, map):
-        super().__init__(map, *settings.CHARTS)
+        super().__init__(map, *settings.PAGES)
 
 
 class EntityConverter(BaseConverter):

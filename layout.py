@@ -167,11 +167,9 @@ def layout(tests_df, ccgs_list, measures):
     )
     chart_selector_tabs = dbc.Tabs(
         id="chart-selector-tabs",
-        active_tab="heatmap",
+        active_tab="chart",
         children=[
-            dbc.Tab(label="Heatmap", tab_id="heatmap"),
-            dbc.Tab(label="Counts", tab_id="counts"),
-            dbc.Tab(label="Deciles", tab_id="deciles"),
+            dbc.Tab(label="Chart", tab_id="chart"),
             dbc.Tab(label="Practice-level data table", tab_id="datatable"),
         ],
     )
@@ -184,83 +182,91 @@ def layout(tests_df, ccgs_list, measures):
         )
     )
     body = dbc.Container(
-        dbc.Row(
-            dbc.Col(
-                html.Div(
-                    [
-                        html.Div(id="description-container"),
-                        html.Div(id="error-container"),
-                        chart_selector_tabs,
-                        # All the charts we're interested in, in a spinner container
-                        dcc.Loading(
-                            id="loading-heatmap",
-                            children=[
-                                # We make empty graph objects for every graph we might
-                                # draw, and show/hide them based on current state
-                                html.Div(
-                                    id="heatmap-container",
-                                    style={"display": "none"},
-                                    children=[dcc.Graph(id="heatmap-graph")],
-                                ),
-                                html.Div(
-                                    id="counts-container",
-                                    style={"display": "none"},
-                                    children=[dcc.Graph(id="counts-graph")],
-                                ),
-                                html.Div(
-                                    id="deciles-container", style={"display": "block"}
-                                ),
-                                html.Div(
-                                    id="measures-container",
-                                    style={"display": "none"},
-                                    children=make_index_content(measures),
-                                ),
-                                html.Div(
-                                    id="datatable-container",
-                                    style={"display": "none"},
+        [
+            dbc.Row(
+                dbc.Col(
+                    html.Div(
+                        [
+                            html.Div(id="description-container"),
+                            html.Div(id="error-container"),
+                            chart_selector_tabs,
+                        ]
+                    )
+                )
+            ),
+            dbc.Row(
+                dbc.Col(
+                    html.Div(
+                        id="chart-container",
+                        style={"display": "none"},
+                        children=[
+                            html.Div(
+                                dcc.Loading(
+                                    id="loading-deciles",
+                                    style={"height": "350px"},
                                     children=[
-                                        dash_table.DataTable(
-                                            id="datatable",
-                                            columns=[
-                                                {
-                                                    "name": "month",
-                                                    "id": "month",
-                                                    "type": "datetime",
-                                                },
-                                                {"name": "test", "id": "test_code"},
-                                                {
-                                                    "name": "result",
-                                                    "id": "result_category",
-                                                },
-                                                {"name": "ccg", "id": "ccg_id"},
-                                                {
-                                                    "name": "practice",
-                                                    "id": "practice_id",
-                                                },
-                                                {
-                                                    "name": "numerator",
-                                                    "id": "numerator",
-                                                },
-                                                {
-                                                    "name": "denominator",
-                                                    "id": "denominator",
-                                                },
-                                            ],
-                                            filter_action="native",
-                                            sort_action="native",
-                                            sort_mode="multi",
-                                            page_action="native",
-                                            page_current=0,
-                                            page_size=50,
+                                        html.Div(
+                                            id="deciles-container",
+                                            children=[dcc.Graph(id="deciles-graph")],
                                         )
                                     ],
-                                ),
+                                )
+                            ),
+                            html.Div(
+                                dcc.Loading(
+                                    id="loading-heatmap",
+                                    children=[
+                                        html.Div(
+                                            id="heatmap-container",
+                                            children=[dcc.Graph(id="heatmap-graph")],
+                                        )
+                                    ],
+                                )
+                            ),
+                        ],
+                    )
+                )
+            ),
+            dbc.Row(
+                dbc.Col(
+                    [
+                        html.Div(
+                            id="measures-container",
+                            style={"display": "none"},
+                            children=make_index_content(measures),
+                        ),
+                        html.Div(
+                            id="datatable-container",
+                            style={"display": "none"},
+                            children=[
+                                dash_table.DataTable(
+                                    id="datatable",
+                                    columns=[
+                                        {
+                                            "name": "month",
+                                            "id": "month",
+                                            "type": "datetime",
+                                        },
+                                        {"name": "test", "id": "test_code"},
+                                        {"name": "result", "id": "result_category"},
+                                        {"name": "ccg", "id": "ccg_id"},
+                                        {"name": "practice", "id": "practice_id"},
+                                        {"name": "numerator", "id": "numerator"},
+                                        {"name": "denominator", "id": "denominator"},
+                                    ],
+                                    filter_action="native",
+                                    sort_action="native",
+                                    sort_mode="multi",
+                                    page_action="native",
+                                    page_current=0,
+                                    page_size=50,
+                                )
                             ],
                         ),
                     ]
                 )
-            )
-        )
+            ),
+        ]
     )
     dash_app = html.Div([state_components, form, body])
     return dash_app

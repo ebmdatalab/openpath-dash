@@ -92,7 +92,6 @@ def update_url_from_page_state(page_state):
 @app.callback(
     Output("page-state", "children"),
     [
-        Input("heatmap-graph", "clickData"),
         Input("numerators-dropdown", "value"),
         Input("denominators-dropdown", "value"),
         Input("denominator-tests-dropdown", "value"),
@@ -105,7 +104,6 @@ def update_url_from_page_state(page_state):
     [State("page-state", "children"), State("url-for-update", "pathname")],
 )
 def update_state_from_inputs(
-    click_data,
     selected_numerator,
     selected_denominator,
     denominator_tests,
@@ -124,7 +122,6 @@ def update_state_from_inputs(
     triggered_inputs = [x["prop_id"].split(".")[0] for x in ctx.triggered]
     page_state = get_state(page_state)
     orig_page_state = page_state.copy()
-
     # add defaults
     if "numerators" not in page_state:
         update_state(page_state, numerators=["K"])
@@ -174,14 +171,6 @@ def update_state_from_inputs(
         sparse_data_toggle=sparse_data_toggle,
         equalise_colorscale=equalise_colorscale,
     )
-
-    if "heatmap-graph" in triggered_inputs:
-        # Hack: extract practice id from chart label data, which looks
-        # like this: {'points': [{'curveNumber': 0, 'x': '2016-05-01',
-        # 'y': 'practice 84', 'z': 86.10749488562395}]}. I think
-        # there's a cleaner way to pass ids as chart metadata
-        entity_ids = click_data["points"][0]["y"].split(" ")[-1]
-        update_state(page_state, entity_ids=entity_ids, page_id="deciles")
 
     # Only trigger state changes if something has changed
     if "_dirty" not in page_state:
@@ -349,7 +338,7 @@ def show_error_from_page_state(page_state):
 def show_measure_description_from_url(search):
     """
     """
-    if search:
+    if search and "id" in search:
         measure_id = urllib.parse.parse_qs(search[1:])["id"][0]
         measures = get_measures()
         measure = measures[measures["id"] == measure_id].to_dict("records")[0]

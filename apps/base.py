@@ -9,7 +9,9 @@ import settings
 
 # for each chart, generate a function to show only that chart
 def _create_show_chart_func(chart):
-    """creates a callback function"""
+    """Generate a callback function which toggles visibility of the page_id
+    specified in the current page state
+    """
 
     def show_chart(page_state):
         page_state = get_state(page_state)
@@ -23,10 +25,11 @@ def _create_show_chart_func(chart):
 
 # Register callbacks such that when the page state changes, only the
 # page id currently indicated in the page state is shown
-for chart in settings.CHARTS:
+for page_id in settings.PAGES:
     app.callback(
-        Output("{}-container".format(chart), "style"), [Input("page-state", "children")]
-    )(_create_show_chart_func(chart))
+        Output("{}-container".format(page_id), "style"),
+        [Input("page-state", "children")],
+    )(_create_show_chart_func(page_id))
 
 
 def get_sorted_group_keys(df, group_by):
@@ -40,7 +43,7 @@ def get_sorted_group_keys(df, group_by):
     return entity_ids
 
 
-def get_chart_title(numerators, denominators, result_filter, entity_id):
+def get_chart_title(numerators, denominators, result_filter, entity_names):
 
     # Make a title
 
@@ -64,8 +67,14 @@ def get_chart_title(numerators, denominators, result_filter, entity_id):
 
     else:
         filter_text = ""
+    if entity_names:
+        entity_names = " + ".join(entity_names)
+        title = "Number of {} {} at {}{}".format(
+            numerators_text, denominators_text, entity_names, filter_text
+        )
+    else:
+        title = "Global deciles of {} {}{} ".format(
+            numerators_text, denominators_text, filter_text
+        )
 
-    title = "Count of {} {} for {}{}".format(
-        numerators_text, denominators_text, entity_id, filter_text
-    )
     return title

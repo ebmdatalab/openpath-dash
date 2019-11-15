@@ -1,9 +1,11 @@
 import logging
-import dash_core_components as dcc
+import urllib
+from itertools import cycle
+
 import dash_html_components as html
 import pandas as pd
 import plotly.graph_objs as go
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 
 import numpy as np
 from app import app
@@ -33,39 +35,47 @@ def get_practice_decile_traces(df):
     """
     deciles_traces = []
     months = pd.to_datetime(df["month"].unique())
+    added_legend = False
     for n, decile in get_practice_deciles(df):
         if n == 50:
             style = "dash"
         else:
             style = "dot"
+        if not added_legend:
+            showlegend = True
+            added_legend = True
+        else:
+            showlegend = False
         deciles_traces.append(
             go.Scatter(
                 x=months,
                 y=decile,
-                name="{}th".format(n),
-                line=dict(color="blue", width=1, dash=style),
+                legendgroup="deciles",
+                name="deciles",
+                line=dict(color=settings.DECILE_COLOUR, width=1, dash=style),
                 hoverinfo="skip",
+                showlegend=showlegend,
             )
         )
     return deciles_traces
 
 
 @app.callback(
-    Output("deciles-container", "children"), [Input("page-state", "children")]
+    [Output("deciles-graph", "figure"), Output("url-for-update", "search")],
+    [Input("page-state", "children"), Input("heatmap-graph", "clickData")],
+    [State("url-for-update", "search")],
 )
-def update_deciles(page_state):
+def update_deciles(page_state, click_data, current_qs):
+    query_string = urllib.parse.parse_qs(current_qs[1:])
     page_state = get_state(page_state)
-    if page_state.get("page_id") != settings.DECILES_CHART_ID:
-        return html.Div()
+    EMPTY_RESPONSE = ({}, "")
+    if page_state.get("page_id") != settings.CHART_ID:
+        return EMPTY_RESPONSE
 
     numerators = page_state.get("numerators", [])
     denominators = page_state.get("denominators", [])
     result_filter = page_state.get("result_filter", [])
     groupby = page_state.get("groupby", None)
-    practice_filter_entity = page_state.get("practice_filter_entity", None)
-    entity_ids_for_practice_filter = page_state.get(
-        "entity_ids_for_practice_filter", []
-    )
 
     col_name = groupby
 
@@ -76,80 +86,87 @@ def update_deciles(page_state):
         by=col_name,
         hide_entities_with_sparse_data=page_state.get("sparse_data_toggle"),
     )
-    traces = []
     deciles_traces = get_practice_decile_traces(trace_df)
     if not deciles_traces:
-        return html.Div()
-    months = deciles_traces[0].x
-    if (
-        col_name in ["practice_id", "ccg_id"]
-        and "all" not in entity_ids_for_practice_filter
-    ):
-        entity_ids = get_sorted_group_keys(
-            trace_df[
-                trace_df[practice_filter_entity].isin(entity_ids_for_practice_filter)
-            ],
-            col_name,
-        )
-    else:
-        entity_ids = get_sorted_group_keys(trace_df, col_name)
-    limit = 80  # XXX this is cos we can't draw so many charts without breaking
-    # the browser. Ideally we'd fix this with load-on-scroll
+        return EMPTY_RESPONSE
 
-    # Create a graph for each practice
-    graphs = []
-    for entity_id in entity_ids[:limit]:
+    # Remove any highlight entities that are not a valie groupby key
+    # (for example, practice ids when we're grouping by ccg id)
+    highlight_entities = list(
+        np.intersect1d(
+            query_string.get("highlight_entities", []), trace_df[groupby].unique()
+        )
+    )
+
+    if click_data:
+        # Hack: extract practice id from chart label data, which looks
+        # like this: {'points': [{'curveNumber': 0, 'x': '2016-05-01',
+        # 'y': 'practice 84', 'z': 86.10749488t62395}]}. I think
+        # there's a cleaner way to pass ids as chart metadata
+        entity_id = click_data["points"][0]["y"].split(" ")[-1]
+        if entity_id not in highlight_entities:
+            highlight_entities.append(entity_id)
+        else:
+            highlight_entities.remove(entity_id)
+
+    entity_ids = get_sorted_group_keys(
+        trace_df[trace_df[groupby].isin(highlight_entities)], col_name
+    )
+    traces = deciles_traces[:]
+    months = deciles_traces[0].x
+    for colour, entity_id in zip(cycle(settings.LINE_COLOUR_CYCLE), entity_ids):
         entity_df = trace_df[trace_df[col_name] == entity_id]
-        traces = []
         # First, plot the practice line
         traces.append(
             go.Scatter(
+                legendgroup=entity_id,
                 x=entity_df["month"],
                 y=entity_df["calc_value"],
                 text=entity_df["label"],
                 hoverinfo="text",
                 name=str(entity_id),
-                line=dict(color="red", width=1, dash="solid"),
+                line_width=2,
+                line=dict(color=colour, width=1, dash="solid"),
             )
         )
         if entity_df["calc_value_error"].sum() > 0:
             # If there's any error, bounds and fill
             traces.append(
                 go.Scatter(
+                    legendgroup=entity_id,
                     x=entity_df["month"],
                     y=entity_df["calc_value"] + entity_df["calc_value_error"],
                     name=str(entity_id),
-                    line=dict(color="red", width=1, dash="dot"),
+                    line=dict(color=colour, width=1, dash="dot"),
                     hoverinfo="skip",
+                    showlegend=False,
                 )
             )
             traces.append(
                 go.Scatter(
+                    legendgroup=entity_id,
                     x=entity_df["month"],
                     y=entity_df["calc_value"] - entity_df["calc_value_error"],
                     name=str(entity_id),
                     fill="tonexty",
-                    line=dict(color="red", width=1, dash="dot"),
+                    line=dict(color=colour, width=1, dash="dot"),
                     hoverinfo="skip",
+                    showlegend=False,
                 )
             )
-
-        # Add the deciles
-        traces.extend(deciles_traces)
-
-        title = get_chart_title(numerators, denominators, result_filter, entity_id)
-        # Add the traces to per-practice graph
-        graph = dcc.Graph(
-            id="graph-{}".format(entity_id),
-            figure={
-                "data": traces,
-                "layout": go.Layout(
-                    title=title,
-                    xaxis={"range": [months[0], months[-1]]},
-                    showlegend=False,
-                ),
-            },
-            config={"staticPlot": False},  # < -- XXX about twice as fast
-        )
-        graphs.append(graph)
-    return html.Div(graphs)
+    title = get_chart_title(numerators, denominators, result_filter, list(entity_ids))
+    if not highlight_entities:
+        title += "<br><sub>Select a row from the heatmap below to add lines to this chart</sub>"
+    return (
+        {
+            "data": traces,
+            "layout": go.Layout(
+                title=title,
+                height=350,
+                xaxis={"range": [months[0], months[-1]]},
+                showlegend=True,
+                legend={"orientation": "v"},
+            ),
+        },
+        "?" + "&".join([f"highlight_entities={x}" for x in highlight_entities]),
+    )  # XXX do this properly

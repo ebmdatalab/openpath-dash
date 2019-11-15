@@ -1,6 +1,8 @@
 import logging
+import urllib
+
 import plotly.graph_objs as go
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 
 from app import app
 from apps.base import get_chart_title
@@ -56,12 +58,17 @@ def get_colorscale(values, cmap):
     return scale
 
 
-@app.callback(Output("heatmap-graph", "figure"), [Input("page-state", "children")])
-def update_heatmap(page_state):
+@app.callback(
+    Output("heatmap-graph", "figure"),
+    [Input("page-state", "children"), Input("url-for-update", "search")],
+    [State("deciles-graph", "figure")],
+)
+def update_heatmap(page_state, current_qs, current_fig):
     page_state = get_state(page_state)
-    if page_state.get("page_id") != settings.HEATMAP_CHART_ID:
+    if page_state.get("page_id") != settings.CHART_ID:
         return {}
-
+    query_string = urllib.parse.parse_qs(current_qs[1:])
+    highlight_entities = set(query_string.get("highlight_entities", []))
     numerators = page_state.get("numerators", [])
     denominators = page_state.get("denominators", [])
     result_filter = page_state.get("result_filter", [])
@@ -111,14 +118,43 @@ def update_heatmap(page_state):
     logger.debug(
         "Target rowheight of {} for {} {}s".format(height, len(entities), groupby)
     )
-    entity_id = f"{col_name}s"
-    title = get_chart_title(numerators, denominators, result_filter, entity_id)
+    if col_name == "practice_id":
+        entity_names = ["all practices"]
+    elif col_name == "ccg_id":
+        entity_names = ["all CCGs"]
+    elif col_name == "test_code":
+        entity_names = ["all tests"]
+    elif col_name == "test_code":
+        entity_names = ["all tests"]
+    elif col_name == "result_category":
+        entity_names = ["all result types"]
+
+    title = get_chart_title(numerators, denominators, result_filter, entity_names)
+
+    def make_highlight_rect(y_index):
+        return {
+            "layer": "above",
+            "xref": "paper",
+            "type": "rect",
+            "x0": 0,
+            "y0": y_index - 0.5,
+            "x1": 1,
+            "y1": y_index + 0.5,
+            "line": {"color": "#d53e4f", "width": 1},
+            "fillcolor": "rgba(255, 255, 255, 0.3)",
+        }
+
+    highlight_rectangles = [
+        make_highlight_rect(vals_by_entity.index.get_loc(x))
+        for x in highlight_entities
+        if x in vals_by_entity.index
+    ]
 
     return {
         "data": [trace],
         "layout": go.Layout(
+            shapes=highlight_rectangles,
             title=title,
-            width=800,
             height=height,
             xaxis={"fixedrange": True},
             yaxis={

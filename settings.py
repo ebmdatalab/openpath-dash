@@ -14,17 +14,9 @@ ERR_NO_TEST_CODE = 8
 
 
 # A list of all the charts that appear in the app
-HEATMAP_CHART_ID = "heatmap"
-DECILES_CHART_ID = "deciles"
-COUNTS_CHART_ID = "counts"
-DATATABLE_CHART_ID = "datatable"
-CHARTS = [
-    HEATMAP_CHART_ID,
-    DECILES_CHART_ID,
-    COUNTS_CHART_ID,
-    DATATABLE_CHART_ID,
-    "measures",
-]
+CHART_ID = "chart"
+DATATABLE_ID = "datatable"
+PAGES = [CHART_ID, DATATABLE_ID, "measures"]
 
 # Sparse data filtering
 NUM_MONTHS_REQUIRED = 6
@@ -40,6 +32,18 @@ CACHE_CONFIG = {
     "CACHE_TYPE": "filesystem",
     "CACHE_DIR": "/tmp/",
 }
+
+# This are from the divergent, colourblind-safe "Wong" scheme taken from https://davidmathlogic.com/colorblind/
+DECILE_COLOUR = "#56B4E9"
+LINE_COLOUR_CYCLE = [
+    "#000000",
+    "#E69F00",
+    "#009E73",
+    "#F0E442",
+    "#0072B2",
+    "#D55E00",
+    "#CC79A7",
+]
 
 
 ERROR_CODES = {
