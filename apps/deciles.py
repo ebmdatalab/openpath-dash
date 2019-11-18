@@ -86,9 +86,9 @@ def update_deciles(page_state, click_data, current_qs):
         by=col_name,
         hide_entities_with_sparse_data=page_state.get("sparse_data_toggle"),
     )
-    deciles_traces = get_practice_decile_traces(trace_df)
-    if not deciles_traces:
+    if trace_df.empty:
         return EMPTY_RESPONSE
+    deciles_traces = get_practice_decile_traces(trace_df)
 
     # Remove any highlight entities that are not a valie groupby key
     # (for example, practice ids when we're grouping by ccg id)

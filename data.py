@@ -196,16 +196,19 @@ def get_count_data(
     # If `by` is `None` then we're getting the raw, unaggregated data to display in a table
     # and the filtering mechanism below won't work (and also, probably, is less necessary as
     # the table will be too big to parse visually in any case)
-    if hide_entities_with_sparse_data and by is not None:
-        # Remove all rows without data in at least 6 of the last 9 months
-        num_df_agg = _filter_rows_with_sparse_data(
-            num_df_agg,
-            index_col=by,
-            months_to_check=settings.NUM_MONTHS_TO_CHECK,
-            months_required=settings.NUM_MONTHS_REQUIRED,
-        )
-    # The fillname is to work around this bug: https://github.com/plotly/plotly.js/issues/3296
-    return num_df_agg[required_cols].sort_values("month").fillna(0)
+    if not num_df_agg.empty:
+        if hide_entities_with_sparse_data and by is not None:
+            # Remove all rows without data in at least 6 of the last 9 months
+            num_df_agg = _filter_rows_with_sparse_data(
+                num_df_agg,
+                index_col=by,
+                months_to_check=settings.NUM_MONTHS_TO_CHECK,
+                months_required=settings.NUM_MONTHS_REQUIRED,
+            )
+        # The fillname is to work around this bug: https://github.com/plotly/plotly.js/issues/3296
+        return num_df_agg[required_cols].sort_values("month").fillna(0)
+    else:
+        return pd.DataFrame()
 
 
 def _filter_rows_with_sparse_data(df, index_col, months_to_check, months_required):
