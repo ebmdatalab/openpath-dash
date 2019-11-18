@@ -57,3 +57,16 @@ ERROR_CODES = {
     6: "with no ref range calculated for children",
     7: "with no ref range calculated - invalid ref range",
 }
+
+
+ERROR_CODES_SHORT = {
+    0: "Within range",
+    -1: "Under range",
+    1: "Over range",
+    2: "No ref range",
+    3: "Non-numeric result",
+    4: "Invalid sex",
+    5: "Impossible direction",  # What does this mean?
+    6: "Child (no ref range)",
+    7: "Invalid ref range",
+}

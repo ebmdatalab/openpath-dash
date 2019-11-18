@@ -102,8 +102,7 @@ def update_heatmap(page_state, current_qs, current_fig):
         index=col_name, columns="month", values="label"
     ).reindex(vals_by_entity.index)
 
-    entity_type = humanise_entity_type(col_name)
-    entities = [f"{entity_type} {x}" for x in vals_by_entity.index]
+    entities = [humanise_entity_name(col_name, x) for x in vals_by_entity.index]
     # sort with hottest at top
     trace = go.Heatmap(
         z=vals_by_entity,
@@ -159,6 +158,7 @@ def update_heatmap(page_state, current_qs, current_fig):
             xaxis={"fixedrange": True},
             yaxis={
                 "fixedrange": True,
+                "automargin": True,
                 "tickmode": "array",
                 "tickvals": entities,
                 "ticktext": entities,
@@ -167,11 +167,13 @@ def update_heatmap(page_state, current_qs, current_fig):
     }
 
 
-def humanise_entity_type(column_name):
+def humanise_entity_name(column_name, value):
     if column_name == "ccg_id":
-        return "CCG"
+        return f"CCG {value}"
     if column_name == "practice_id":
-        return "Practice"
+        return f"Practice {value}"
     if column_name == "test_code":
-        return "Test"
-    return column_name
+        return f"Test {value}"
+    if column_name == "result_category":
+        return settings.ERROR_CODES_SHORT[value]
+    return f"{column_name} {value}"
