@@ -16,7 +16,7 @@ ERR_NO_TEST_CODE = 8
 # A list of all the charts that appear in the app
 CHART_ID = "chart"
 DATATABLE_ID = "datatable"
-PAGES = [CHART_ID, DATATABLE_ID, "measures"]
+PAGES = [CHART_ID, DATATABLE_ID]
 
 # Sparse data filtering
 NUM_MONTHS_REQUIRED = 6
