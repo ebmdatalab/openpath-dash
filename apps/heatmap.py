@@ -5,7 +5,7 @@ import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
 
 from app import app
-from apps.base import get_chart_title
+from apps.base import get_chart_title, humanise_entity_name
 
 import numpy as np
 
@@ -165,15 +165,3 @@ def update_heatmap(page_state, current_qs, current_fig):
             },
         ),
     }
-
-
-def humanise_entity_name(column_name, value):
-    if column_name == "ccg_id":
-        return f"CCG {value}"
-    if column_name == "practice_id":
-        return f"Practice {value}"
-    if column_name == "test_code":
-        return f"Test {value}"
-    if column_name == "result_category":
-        return settings.ERROR_CODES_SHORT[value]
-    return f"{column_name} {value}"

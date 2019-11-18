@@ -59,7 +59,7 @@ def get_chart_title(numerators, denominators, result_filter, entity_names):
         denominators_text = "as a proportion of " + " + ".join(denominators)
     filter_text = ""  # XXX <- this needs to include under range , over range, etc
     if entity_names:
-        entity_names = " + ".join(entity_names)
+        entity_names = " + ".join(map(str, entity_names))
         title = "Number of {} {} at {}{}".format(
             numerators_text, denominators_text, entity_names, filter_text
         )
@@ -69,3 +69,15 @@ def get_chart_title(numerators, denominators, result_filter, entity_names):
         )
 
     return title
+
+
+def humanise_entity_name(column_name, value):
+    if column_name == "ccg_id":
+        return f"CCG {value}"
+    if column_name == "practice_id":
+        return f"Practice {value}"
+    if column_name == "test_code":
+        return f"Test {value}"
+    if column_name == "result_category":
+        return settings.ERROR_CODES_SHORT[value]
+    return f"{column_name} {value}"

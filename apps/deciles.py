@@ -11,6 +11,7 @@ import numpy as np
 from app import app
 from apps.base import get_sorted_group_keys
 from apps.base import get_chart_title
+from apps.base import humanise_entity_name
 from data import get_count_data
 from stateful_routing import get_state
 import settings
@@ -92,18 +93,24 @@ def update_deciles(page_state, click_data, current_qs):
 
     # Remove any highlight entities that are not a valie groupby key
     # (for example, practice ids when we're grouping by ccg id)
+    available_entities = trace_df[groupby].unique()
     highlight_entities = list(
-        np.intersect1d(
-            query_string.get("highlight_entities", []), trace_df[groupby].unique()
-        )
+        np.intersect1d(query_string.get("highlight_entities", []), available_entities)
     )
 
     if click_data:
-        # Hack: extract practice id from chart label data, which looks
-        # like this: {'points': [{'curveNumber': 0, 'x': '2016-05-01',
-        # 'y': 'practice 84', 'z': 86.10749488t62395}]}. I think
-        # there's a cleaner way to pass ids as chart metadata
-        entity_id = click_data["points"][0]["y"].split(" ")[-1]
+        entity_label = click_data["points"][0]["y"]
+        # Hack: get the entity_id from the Y-axis label by working out the
+        # labels for all entities and finding the one which matches. It ought
+        # to be possible to pass the entity_id through using the `customdata`
+        # property but this seems to have been broken for the last couple of
+        # years. See:
+        # https://community.plot.ly/t/plotly-dash-heatmap-customdata/5871
+        for entity_id in available_entities:
+            if entity_label == humanise_entity_name(col_name, entity_id):
+                break
+        else:
+            entity_id = None
         if entity_id not in highlight_entities:
             highlight_entities.append(entity_id)
         else:
