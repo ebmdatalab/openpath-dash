@@ -121,7 +121,10 @@ def update_deciles(page_state, click_data, current_qs):
     )
     traces = deciles_traces[:]
     months = deciles_traces[0].x
+    entity_names = []
     for colour, entity_id in zip(cycle(settings.LINE_COLOUR_CYCLE), entity_ids):
+        entity_name = humanise_entity_name(col_name, entity_id)
+        entity_names.append(entity_name)
         entity_df = trace_df[trace_df[col_name] == entity_id]
         # First, plot the practice line
         traces.append(
@@ -131,7 +134,7 @@ def update_deciles(page_state, click_data, current_qs):
                 y=entity_df["calc_value"],
                 text=entity_df["label"],
                 hoverinfo="text",
-                name=str(entity_id),
+                name=entity_name,
                 line_width=2,
                 line=dict(color=colour, width=1, dash="solid"),
             )
@@ -161,7 +164,7 @@ def update_deciles(page_state, click_data, current_qs):
                     showlegend=False,
                 )
             )
-    title = get_chart_title(numerators, denominators, result_filter, list(entity_ids))
+    title = get_chart_title(numerators, denominators, result_filter, entity_names)
     if not highlight_entities:
         title += "<br><sub>Select a row from the heatmap below to add lines to this chart</sub>"
     return (
