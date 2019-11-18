@@ -51,5 +51,10 @@ def index():
     return render_template("index.html")
 
 
+@server.route("/measures")
+def measures():
+    return render_template("measures.html")
+
+
 cache = Cache()
 cache.init_app(app.server, config=settings.CACHE_CONFIG)
