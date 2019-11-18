@@ -64,7 +64,7 @@ def get_colorscale(values, cmap):
     [State("deciles-graph", "figure")],
 )
 def update_heatmap(page_state, current_qs, current_fig):
-    EMPTY_RESPONSE = {}
+    EMPTY_RESPONSE = settings.EMPTY_CHART_LAYOUT
     page_state = get_state(page_state)
     if page_state.get("page_id") != settings.CHART_ID:
         return {}

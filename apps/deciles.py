@@ -68,7 +68,9 @@ def get_practice_decile_traces(df):
 def update_deciles(page_state, click_data, current_qs):
     query_string = urllib.parse.parse_qs(current_qs[1:])
     page_state = get_state(page_state)
-    EMPTY_RESPONSE = ({}, "")
+
+    EMPTY_RESPONSE = (settings.EMPTY_CHART_LAYOUT, "")
+
     if page_state.get("page_id") != settings.CHART_ID:
         return EMPTY_RESPONSE
 

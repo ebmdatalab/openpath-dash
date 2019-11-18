@@ -70,3 +70,20 @@ ERROR_CODES_SHORT = {
     6: "Child (no ref range)",
     7: "Invalid ref range",
 }
+
+
+EMPTY_CHART_LAYOUT = {
+    "layout": {
+        "xaxis": {"visible": False},
+        "yaxis": {"visible": False},
+        "annotations": [
+            {
+                "text": "No matching data",
+                "xref": "paper",
+                "yref": "paper",
+                "showarrow": False,
+                "font": {"size": 20},
+            }
+        ],
+    }
+}
