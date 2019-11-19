@@ -19,43 +19,7 @@ def pairs(seq):
         yield item, item_2
 
 
-def make_measure_card(measure):
-    drop_keys = ["title", "description"]
-    measure_url = urls.build(
-        "analysis", dict((x, y) for x, y in measure.items() if x not in drop_keys)
-    )
-
-    return dbc.Card(
-        [
-            dbc.CardBody(
-                [
-                    html.H4(measure["title"], className="card-title"),
-                    html.P(measure["description"]),
-                    dcc.Link("Read more", href=measure_url),
-                ]
-            )
-        ],
-        className="mb3",
-    )
-
-
-def make_index_content(measures):
-    container = dbc.Container()
-    rows = []
-    for x, y in pairs(measures.to_dict("records")):
-        row = dbc.Row()
-        cols = []
-        if x:
-            cols.append(dbc.Col(make_measure_card(x)))
-        if y:
-            cols.append(dbc.Col(make_measure_card(y)))
-        row.children = cols
-        rows.append(row)
-    container.children = rows
-    return container
-
-
-def layout(tests_df, ccgs_list, measures):
+def layout(tests_df, ccgs_list):
     state_components = html.Div(
         [
             # Hidden div inside the app that stores the page state
@@ -234,11 +198,6 @@ def layout(tests_df, ccgs_list, measures):
                 dbc.Col(
                     [
                         html.Div(
-                            id="measures-container",
-                            style={"display": "none"},
-                            children=make_index_content(measures),
-                        ),
-                        html.Div(
                             id="datatable-container",
                             style={"display": "none"},
                             children=[
@@ -265,7 +224,7 @@ def layout(tests_df, ccgs_list, measures):
                                     page_size=50,
                                 )
                             ],
-                        ),
+                        )
                     ]
                 )
             ),

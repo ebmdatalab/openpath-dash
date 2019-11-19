@@ -18,7 +18,6 @@ from werkzeug.routing import NotFound
 from werkzeug.routing import BuildError
 from urls import url_map
 from urls import urls
-from data import get_measures
 
 
 logger = logging.getLogger(__name__)
@@ -331,26 +330,6 @@ def show_error_from_page_state(page_state):
                 page_state["error"]["message"],
                 id="error",
                 className="alert alert-danger",
-            )
-        ]
-    else:
-        return []
-
-
-@app.callback(
-    Output("description-container", "children"), [Input("url-from-user", "search")]
-)
-def show_measure_description_from_url(search):
-    """
-    """
-    if search and "id" in search:
-        measure_id = urllib.parse.parse_qs(search[1:])["id"][0]
-        measures = get_measures()
-        measure = measures[measures["id"] == measure_id].to_dict("records")[0]
-        return [
-            dcc.Markdown(
-                f"## {measure['title']}\n\n{measure['description']}",
-                className="alert alert-info",
             )
         ]
     else:
