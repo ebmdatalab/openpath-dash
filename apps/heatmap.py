@@ -64,6 +64,7 @@ def get_colorscale(values, cmap):
     [State("deciles-graph", "figure")],
 )
 def update_heatmap(page_state, current_qs, current_fig):
+    EMPTY_RESPONSE = settings.EMPTY_CHART_LAYOUT
     page_state = get_state(page_state)
     if page_state.get("page_id") != settings.CHART_ID:
         return {}
@@ -88,6 +89,8 @@ def update_heatmap(page_state, current_qs, current_fig):
         by=col_name,
         hide_entities_with_sparse_data=page_state.get("sparse_data_toggle"),
     )
+    if trace_df.empty:
+        return EMPTY_RESPONSE
     vals_by_entity = sort_by_index(
         trace_df.pivot(index=col_name, columns="month", values="calc_value")
     )
