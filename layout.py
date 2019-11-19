@@ -6,6 +6,9 @@ from urls import urls
 import settings
 
 
+OPTION_SEPARATOR = {"value": "__sep__", "label": "\u2015" * 16, "disabled": True}
+
+
 def pairs(seq):
     i = iter(seq)
     for item in i:
@@ -92,6 +95,7 @@ def layout(tests_df, ccgs_list, measures):
                 options=[
                     {"value": "per1000", "label": "Number of tests per 1000 patients"},
                     {"value": "raw", "label": "Number of tests"},
+                    OPTION_SEPARATOR,
                     {
                         "value": "within_range",
                         "label": "Proportion of results within reference range",
@@ -112,6 +116,7 @@ def layout(tests_df, ccgs_list, measures):
                         "value": settings.ERR_UNPARSEABLE_RESULT,
                         "label": "Proportion of non-numeric results",
                     },
+                    OPTION_SEPARATOR,
                     {"value": "other", "label": "Compared with other test numbers"},
                 ],
             ),
