@@ -5,6 +5,7 @@ from dash.dependencies import Input, Output
 from app import app
 from stateful_routing import get_state
 import settings
+from data import get_test_code_to_name_map
 
 
 # for each chart, generate a function to show only that chart
@@ -47,16 +48,21 @@ def get_chart_title(numerators, denominators, result_filter, entity_names):
 
     # Make a title
 
+    # Function giving a test's name from its code
+    get_test_name = get_test_code_to_name_map().__getitem__
+
     if not numerators or "all" in numerators:
         numerators_text = "all tests"
     else:
-        numerators_text = " + ".join(numerators)
+        numerators_text = " + ".join(map(get_test_name, numerators))
     if not denominators:
         denominators_text = "(raw numbers)"
     elif denominators == ["per1000"]:
         denominators_text = "per 1000 patients"
     else:
-        denominators_text = "as a proportion of " + " + ".join(denominators)
+        denominators_text = "as a proportion of " + " + ".join(
+            map(get_test_name, denominators)
+        )
     filter_text = ""  # XXX <- this needs to include under range , over range, etc
     if entity_names:
         entity_names = " + ".join(map(str, entity_names))
@@ -77,7 +83,7 @@ def humanise_entity_name(column_name, value):
     if column_name == "practice_id":
         return f"Practice {value}"
     if column_name == "test_code":
-        return f"Test {value}"
+        return get_test_code_to_name_map()[value]
     if column_name == "result_category":
         return settings.ERROR_CODES_SHORT[value]
     return f"{column_name} {value}"
