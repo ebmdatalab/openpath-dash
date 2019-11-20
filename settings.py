@@ -52,9 +52,9 @@ ERROR_CODES = {
     1: "Over range",
     2: "No ref range",
     3: "Non-numeric result",
-    4: "Invalid sex",
-    5: "Impossible direction",  # What does this mean?
-    6: "Child (no ref range)",
+    4: "Unknown sex",
+    5: "Insufficient data",
+    6: "Underage for ref range",
     7: "Invalid ref range",
 }
 
