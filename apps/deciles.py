@@ -96,9 +96,12 @@ def update_deciles(page_state, click_data, current_qs):
     # Remove any highlight entities that are not a valie groupby key
     # (for example, practice ids when we're grouping by ccg id)
     available_entities = trace_df[groupby].unique()
-    highlight_entities = list(
-        np.intersect1d(query_string.get("highlight_entities", []), available_entities)
-    )
+    entities_in_query = query_string.get("highlight_entities", [])
+    # Hack: result_category values are ints not strings, but everything gets
+    # converted to strings when passed through the URL query params
+    if col_name == "result_category":
+        entities_in_query = list(map(int, entities_in_query))
+    highlight_entities = list(np.intersect1d(entities_in_query, available_entities))
 
     if click_data:
         entity_label = click_data["points"][0]["y"]
