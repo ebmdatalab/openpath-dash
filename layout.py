@@ -140,10 +140,26 @@ def layout(tests_df, ccgs_list):
             dbc.Tab(label="Practice-level data table", tab_id="datatable"),
         ],
     )
+    result_category_hint = html.P(
+        [
+            "* for more detail on reference ranges and result codes see the ",
+            html.A("FAQ", href="/faq#result-categories"),
+        ],
+        id="result-category-hint",
+        className="text-muted",
+        style={"display": "none"},
+    )
     form = dbc.Container(
         dbc.Row(
             [
-                dbc.Col([numerators_form, denominators_form, groupby_form]),
+                dbc.Col(
+                    [
+                        numerators_form,
+                        denominators_form,
+                        groupby_form,
+                        result_category_hint,
+                    ]
+                ),
                 dbc.Col([ccg_filter_form, tweak_form]),
             ]
         )
