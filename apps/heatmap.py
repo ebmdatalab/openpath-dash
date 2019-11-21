@@ -146,8 +146,28 @@ def update_heatmap(page_state, current_qs, current_fig):
             "fillcolor": "rgba(255, 255, 255, 0.3)",
         }
 
+    # Hack: result_category values are ints not strings, but everything gets
+    # converted to strings when passed through the URL query params
+    if col_name == "result_category":
+        highlight_entities = set(map(int, highlight_entities))
+
+    # Really bad hack: there's some weird off-by-one error in the highlighting
+    # which only manifests when grouping by test code over all tests codes. If
+    # you group by anything else, it works fine. If you group by test code and
+    # select only some subset of available test codes it also works fine.
+    # However if you clear the test selection so that all codes are implicitly
+    # selected and click on the heatmap then the row above the selected row
+    # gets highlighted.  Everything else seems to work correctly: the right
+    # thing appears in the deciles chart and clicking the same row again
+    # deselects it as expected.  It's literally just that the box is drawn in
+    # the wrong place. Having failed to track down what's going on here I have
+    # "fixed" it by applying this offset.
+    correction = 0
+    if col_name == "test_code" and (not numerators or "all" in numerators):
+        correction = 1
+
     highlight_rectangles = [
-        make_highlight_rect(vals_by_entity.index.get_loc(x))
+        make_highlight_rect(vals_by_entity.index.get_loc(x) - correction)
         for x in highlight_entities
         if x in vals_by_entity.index
     ]
@@ -168,3 +188,17 @@ def update_heatmap(page_state, current_qs, current_fig):
             },
         ),
     }
+
+
+@app.callback(
+    Output("result-category-hint", "style"), [Input("page-state", "children")]
+)
+def toggle_result_category_hint(page_state):
+    page_state = get_state(page_state)
+    visible = False
+    if page_state.get("groupby") == "result_category":
+        visible = True
+    result_filter = page_state.get("result_filter")
+    if result_filter and result_filter != "all":
+        visible = True
+    return {"display": "" if visible else "none"}
