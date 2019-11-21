@@ -12,43 +12,67 @@
 
   <h2 id="reference-ranges">What are reference ranges?</h2>
   <p>
+    For many sorts of test the results will be compared with a reference range,
+    which is the range of results considered "normal". Where possible we check
+    each test result against its reference range and record whether it was
+    within, over or under this range.  For more detail on the many problems and
+    complexities involved in reference ranges see our blog posts <a
+      href="https://openpathology.net/blog/issues-with-reference-ranges-part-1">here</a>,
+    <a
+      href="https://openpathology.net/blog/issues-with-reference-ranges-part-2">here</a>
+    and <a
+      href="https://openpathology.net/blog/issues-with-reference-ranges-part-3">here</a>.
   </p>
 
 
   <h2 id="result-categories">What do the result categories and error codes mean?</h2>
 
-  <p>
-  </p>
-
   <dl>
     <dt>Within range / Under range / Over range</dt>
     <dd>
-      We could determine the appropriate reference range for this result and have coded how the resut compared to this
-      reference range.
+      We determined the appropriate reference range for this result and have
+      coded how the result compared to this reference range.
     </dd>
 
     <dt>No ref range</dt>
     <dd>
+      There was no reference range available for this result. This might be
+      because a reference range simply doesn't make sense for this kind of
+      test. Or it could be that we haven't been able to obtain a reference
+      range for this test from the particular lab involved. (Note that
+      different labs can have different reference ranges for a given test.)
     </dd>
 
     <dt>Invalid ref range</dt>
     <dd>
+      We have been supplied with a reference range, but we were unable to
+      interpret it correctly.
     </dd>
 
     <dt>Non-numeric result</dt>
     <dd>
+      The result was some sort of error code, rather than a number.
     </dd>
 
     <dt>Unknown sex</dt>
     <dd>
+      Reference ranges generally differ between male and female so if we can't
+      determine the sex of the patient (e.g. it's coded as "U") then we can't
+      determine which reference range to apply.
     </dd>
 
     <dt>Insufficient data</dt>
     <dd>
+      Given the data we have we can't tell whether or not this result falls
+      within the reference range. For example, if the reference range is 10-20
+      and the result we have is "greater than 18" then we don't know whether
+      that result was within or over range.
     </dd>
 
     <dt>Underage for ref range</dt>
     <dd>
+      The only reference ranges we have are defined for adults. If the patient
+      is under 18 then we can't compare their result to a reference range.
     </dd>
   </dl>
 
