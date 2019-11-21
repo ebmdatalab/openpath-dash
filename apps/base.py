@@ -44,37 +44,79 @@ def get_sorted_group_keys(df, group_by):
     return entity_ids
 
 
-def get_chart_title(numerators, denominators, result_filter, entity_names):
-
-    # Make a title
-
-    # Function giving a test's name from its code
-    get_test_name = get_test_code_to_name_map().__getitem__
-
-    if not numerators or "all" in numerators:
-        numerators_text = "all tests"
+def get_title_fragment(numerators, denominators, result_filter):
+    numerators_text = humanise_test_code_list(numerators)
+    if result_filter is None or result_filter == "all":
+        result_filter_text = None
     else:
-        numerators_text = " + ".join(map(get_test_name, numerators))
-    if not denominators:
-        denominators_text = "(raw numbers)"
+        result_filter_text = humanise_result_filter(result_filter)
+    if result_filter_text:
+        numerators_text += f" test results {result_filter_text}"
+    else:
+        numerators_text += " tests"
+    if result_filter_text and set(numerators) == set(denominators):
+        fragment = f"proportion of {numerators_text}"
+    elif not denominators or denominators == ["raw"]:
+        fragment = numerators_text
     elif denominators == ["per1000"]:
-        denominators_text = "per 1000 patients"
+        fragment = f"{numerators_text} per 1000 patients"
     else:
-        denominators_text = "as a proportion of " + " + ".join(
-            map(get_test_name, denominators)
-        )
-    filter_text = ""  # XXX <- this needs to include under range , over range, etc
-    if entity_names:
-        entity_names = " + ".join(map(str, entity_names))
-        title = "Number of {} {} at {}{}".format(
-            numerators_text, denominators_text, entity_names, filter_text
-        )
-    else:
-        title = "Global deciles of {} {}{} ".format(
-            numerators_text, denominators_text, filter_text
-        )
+        denominators_text = humanise_test_code_list(denominators)
+        fragment = f"ratio of {numerators_text} to {denominators_text} tests"
+    return fragment
 
-    return title
+
+def initial_capital(s):
+    # Note this is distinct from `capitalize` which will lowercase the other
+    # characters in the string
+    return s[0:1].upper() + s[1:]
+
+
+def humanise_result_filter(result_filter):
+    assert result_filter is not None and result_filter != "all"
+    result_filter = str(result_filter)
+    if result_filter == "0" or result_filter == "within_range":
+        return "within range"
+    elif result_filter == "-1" or result_filter == "under_range":
+        return "under range"
+    elif result_filter == "1" or result_filter == "over_range":
+        return "over range"
+    elif result_filter == "error":
+        return "with errors"
+    elif result_filter == "2":
+        return "with no reference range"
+    elif result_filter == "3":
+        return "without a numeric value"
+    elif result_filter == "4":
+        return "with an unknown sex"
+    elif result_filter == "5":
+        return "with insufficient data"
+    elif result_filter == "6":
+        return "where patient is underage for reference range"
+    elif result_filter == "7":
+        return "with an invalid reference range"
+    else:
+        raise ValueError(result_filter)
+
+
+def humanise_test_code_list(test_codes):
+    if not test_codes or "all" in test_codes or test_codes == ["None"]:
+        return "all"
+    test_name_map = get_test_code_to_name_map()
+    test_names = [test_name_map[code] for code in test_codes]
+    return humanise_list(test_names)
+
+
+def humanise_list(lst):
+    """
+    ["a", "b", "c"] -> "a, b and c"
+    """
+    assert len(lst) > 0
+    if len(lst) == 1:
+        return lst[0]
+    head = ", ".join(lst[:-1])
+    tail = lst[-1]
+    return f"{head} and {tail}"
 
 
 def humanise_entity_name(column_name, value):
