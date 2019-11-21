@@ -188,3 +188,17 @@ def update_heatmap(page_state, current_qs, current_fig):
             },
         ),
     }
+
+
+@app.callback(
+    Output("result-category-hint", "style"), [Input("page-state", "children")]
+)
+def toggle_result_category_hint(page_state):
+    page_state = get_state(page_state)
+    visible = False
+    if page_state.get("groupby") == "result_category":
+        visible = True
+    result_filter = page_state.get("result_filter")
+    if result_filter and result_filter != "all":
+        visible = True
+    return {"display": "" if visible else "none"}

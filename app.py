@@ -56,5 +56,10 @@ def measures():
     return render_template("measures.html")
 
 
+@server.route("/faq")
+def faq():
+    return render_template("faq.html")
+
+
 cache = Cache()
 cache.init_app(app.server, config=settings.CACHE_CONFIG)

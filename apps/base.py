@@ -85,5 +85,5 @@ def humanise_entity_name(column_name, value):
     if column_name == "test_code":
         return get_test_code_to_name_map()[value]
     if column_name == "result_category":
-        return settings.ERROR_CODES_SHORT[value]
+        return settings.ERROR_CODES[value]
     return f"{column_name} {value}"
