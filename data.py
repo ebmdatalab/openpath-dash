@@ -147,19 +147,18 @@ def get_count_data(
         num_df_agg.loc[:, "calc_value_error"] = (
             num_df_agg["error"] / num_df_agg["total_list_size"] * 1000
         )
-    elif not denominators or denominators == ["raw"]:
+    elif denominators == ["raw"]:
         num_df_agg.loc[:, "denominator"] = num_df_agg["count"]
         num_df_agg.loc[:, "denominator_error"] = num_df_agg["error"]
         num_df_agg.loc[:, "calc_value"] = num_df_agg["count"]
         num_df_agg.loc[:, "calc_value_error"] = num_df_agg["error"]
-
     else:
         # denominator is list of tests
         if by == "test_code":
             # The denominator needs to be summed across all tests
             groupby = ["month"]
         denominator_and_query = base_and_query[:]
-        if "all" not in denominators:
+        if denominators and "all" not in denominators:
             denominator_and_query += [f"test_code.isin({denominators})"]
         if denominator_and_query:
             filtered_df = df.query(" & ".join(denominator_and_query))
