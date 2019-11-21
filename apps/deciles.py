@@ -2,7 +2,6 @@ import logging
 import urllib
 from itertools import cycle
 
-import dash_html_components as html
 import pandas as pd
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
@@ -10,7 +9,12 @@ from dash.dependencies import Input, Output, State
 import numpy as np
 from app import app
 from apps.base import get_sorted_group_keys
-from apps.base import get_chart_title
+from apps.base import (
+    get_title_fragment,
+    humanise_list,
+    humanise_result_filter,
+    initial_capital,
+)
 from apps.base import humanise_entity_name
 from data import get_count_data
 from stateful_routing import get_state
@@ -52,7 +56,7 @@ def get_practice_decile_traces(df):
                 x=months,
                 y=decile,
                 legendgroup="deciles",
-                name="deciles",
+                name="Deciles",
                 line=dict(color=settings.DECILE_COLOUR, width=1, dash=style),
                 hoverinfo="skip",
                 showlegend=showlegend,
@@ -126,10 +130,7 @@ def update_deciles(page_state, click_data, current_qs):
     )
     traces = deciles_traces[:]
     months = deciles_traces[0].x
-    entity_names = []
     for colour, entity_id in zip(cycle(settings.LINE_COLOUR_CYCLE), entity_ids):
-        entity_name = humanise_entity_name(col_name, entity_id)
-        entity_names.append(entity_name)
         entity_df = trace_df[trace_df[col_name] == entity_id]
         # First, plot the practice line
         traces.append(
@@ -139,7 +140,7 @@ def update_deciles(page_state, click_data, current_qs):
                 y=entity_df["calc_value"],
                 text=entity_df["label"],
                 hoverinfo="text",
-                name=entity_name,
+                name=humanise_entity_name(col_name, entity_id),
                 line_width=2,
                 line=dict(color=colour, width=1, dash="solid"),
             )
@@ -169,9 +170,43 @@ def update_deciles(page_state, click_data, current_qs):
                     showlegend=False,
                 )
             )
-    title = get_chart_title(numerators, denominators, result_filter, entity_names)
-    if not highlight_entities:
+
+    if col_name == "practice_id":
+        group_name = "practices"
+    elif col_name == "ccg_id":
+        group_name = "CCGs"
+    elif col_name == "test_code":
+        group_name = "tests"
+    elif col_name == "result_category":
+        group_name = "result types"
+    else:
+        raise ValueError(col_name)
+
+    fragment = get_title_fragment(numerators, denominators, result_filter)
+
+    if highlight_entities:
+        fragment = initial_capital(fragment)
+        s = "s" if len(highlight_entities) > 1 else ""
+        if col_name == "test_code":
+            title = get_title_fragment(highlight_entities, denominators, result_filter)
+        elif col_name == "practice_id":
+            practice_list = humanise_list(highlight_entities)
+            title = f"{fragment} at practice{s} {practice_list}"
+        elif col_name == "ccg_id":
+            ccg_list = humanise_list(highlight_entities)
+            title = f"{fragment} at CCG{s} {ccg_list}"
+        elif col_name == "result_category":
+            category_list = humanise_list(
+                [humanise_result_filter(x) for x in highlight_entities]
+            )
+            title = f"{fragment} {category_list}"
+        else:
+            raise ValueError(col_name)
+        title += f"<br>(with deciles over all {group_name})"
+    else:
+        title = f"Deciles for {fragment} over all {group_name}"
         title += "<br><sub>Select a row from the heatmap below to add lines to this chart</sub>"
+
     return (
         {
             "data": traces,

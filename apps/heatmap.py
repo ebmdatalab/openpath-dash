@@ -5,7 +5,7 @@ import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
 
 from app import app
-from apps.base import get_chart_title, humanise_entity_name
+from apps.base import humanise_entity_name, get_title_fragment, initial_capital
 
 import numpy as np
 
@@ -120,18 +120,21 @@ def update_heatmap(page_state, current_qs, current_fig):
     logger.debug(
         "Target rowheight of {} for {} {}s".format(height, len(entities), groupby)
     )
-    if col_name == "practice_id":
-        entity_names = ["all practices"]
-    elif col_name == "ccg_id":
-        entity_names = ["all CCGs"]
-    elif col_name == "test_code":
-        entity_names = ["all tests"]
-    elif col_name == "test_code":
-        entity_names = ["all tests"]
-    elif col_name == "result_category":
-        entity_names = ["all result types"]
 
-    title = get_chart_title(numerators, denominators, result_filter, entity_names)
+    if col_name == "practice_id":
+        group_name = "practice"
+    elif col_name == "ccg_id":
+        group_name = "CCG"
+    elif col_name == "test_code":
+        group_name = "test"
+    elif col_name == "result_category":
+        group_name = "result type"
+    else:
+        raise ValueError(col_name)
+
+    fragment = get_title_fragment(numerators, denominators, result_filter)
+    fragment = initial_capital(fragment)
+    title = f"{fragment} grouped by {group_name}"
 
     def make_highlight_rect(y_index):
         return {
