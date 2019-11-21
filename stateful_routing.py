@@ -121,7 +121,7 @@ def update_state_from_inputs(
     orig_page_state = page_state.copy()
     # add defaults
     if "numerators" not in page_state:
-        update_state(page_state, numerators=["K"])
+        update_state(page_state, numerators=["CREA"])
     if "denominators" not in page_state:
         update_state(page_state, denominators=["per1000"])
     if "groupby" not in page_state:
