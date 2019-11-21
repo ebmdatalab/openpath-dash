@@ -41,7 +41,7 @@ def layout(tests_df, ccgs_list):
             dcc.Dropdown(
                 id="numerators-dropdown",
                 multi=True,
-                value=["K"],
+                value=["CREA"],
                 # XXX use clientside javascript to make "all tests"
                 # disappear if you select just one:
                 # https://community.plot.ly/t/dash-0-41-0-released/22131
@@ -102,7 +102,7 @@ def layout(tests_df, ccgs_list):
                     {"value": "practice_id", "label": "Practice"},
                     {"value": "test_code", "label": "Test code"},
                     {"value": "ccg_id", "label": "CCG"},
-                    {"value": "result_category", "label": "Result"},
+                    {"value": "result_category", "label": "Result type"},
                 ],
             ),
         ]
