@@ -233,7 +233,9 @@ def get_test_list():
 @cache.memoize()
 def get_test_code_to_name_map():
     df = get_test_list()
-    return dict(zip(df.value, df.label))
+    name_map = dict(zip(df.value, df.label))
+    name_map["all"] = "all tests"
+    return name_map
 
 
 @cache.memoize()
