@@ -102,7 +102,7 @@ def layout(tests_df, ccgs_list):
                     {"value": "practice_id", "label": "Practice"},
                     {"value": "test_code", "label": "Test code"},
                     {"value": "ccg_id", "label": "CCG"},
-                    {"value": "result_category", "label": "Result"},
+                    {"value": "result_category", "label": "Result type"},
                 ],
             ),
         ]
