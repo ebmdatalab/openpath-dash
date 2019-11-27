@@ -1,3 +1,6 @@
+import json
+from urllib.parse import urlencode
+
 from dash.dependencies import Input, Output
 
 from app import app
@@ -20,36 +23,69 @@ def update_datatable(page_state, page_current, page_size, sort_by):
     if page_state.get("page_id") != settings.DATATABLE_ID:
         return []
 
-    numerators = page_state.get("numerators", [])
-    denominators = page_state.get("denominators", [])
-    result_filter = page_state.get("result_filter", [])
-    practice_filter_entity = page_state.get("practice_filter_entity", None)
-    entity_ids_for_practice_filter = page_state.get(
-        "entity_ids_for_practice_filter", []
+    df = get_datatable(
+        numerators=page_state.get("numerators", []),
+        denominators=page_state.get("denominators", []),
+        result_filter=page_state.get("result_filter", []),
+        practice_filter_entity=page_state.get("practice_filter_entity", None),
+        entity_ids_for_practice_filter=page_state.get(
+            "entity_ids_for_practice_filter", []
+        ),
+        page_current=page_current,
+        page_size=page_size,
+        sort_by=sort_by,
     )
 
-    df = get_count_data(
-        numerators=numerators,
-        denominators=denominators,
-        by=None,
-        practice_filter_entity=practice_filter_entity,
-        entity_ids_for_practice_filter=entity_ids_for_practice_filter,
-        result_filter=result_filter,
-    )
+    return df.to_dict("records")
 
-    # Sort and paginate
+
+@app.callback(
+    Output("datatable-download-link", "href"),
+    [Input("page-state", "children"), Input("datatable", "sort_by")],
+)
+def update_datatable_download_link(page_state, sort_by):
+    page_state = get_state(page_state)
+    if page_state.get("page_id") != settings.DATATABLE_ID:
+        return "#"
+
+    spec = {
+        "numerators": page_state.get("numerators", []),
+        "denominators": page_state.get("denominators", []),
+        "result_filter": page_state.get("result_filter", []),
+        "practice_filter_entity": page_state.get("practice_filter_entity", None),
+        "entity_ids_for_practice_filter": page_state.get(
+            "entity_ids_for_practice_filter", []
+        ),
+        "sort_by": sort_by,
+    }
+
+    query = urlencode({"spec": json.dumps(spec)})
+    return f"/download?{query}"
+
+
+def get_datatable(page_current=None, page_size=None, sort_by=None, **kwargs):
+    """
+    Wrap up `get_count_data` to handle sorting and pagination and various bits
+    of reformatting
+    """
+    # By default we want to group by nothing but we need to specify that
+    # explictly as by default `get_count_data` will group by `practice_id`
+    if "by" not in kwargs:
+        kwargs["by"] = None
+
+    df = get_count_data(**kwargs)
+
     if sort_by:
         df.sort_values(
             [col["column_id"] for col in sort_by],
             ascending=[col["direction"] == "asc" for col in sort_by],
             inplace=True,
         )
-    df = df.iloc[page_current * page_size : (page_current + 1) * page_size]
-    # XXX make downloadable:
-    # https://github.com/plotly/dash-core-components/issues/216 -
-    # perhaps
-    # https://community.plot.ly/t/allowing-users-to-download-csv-on-click/5550/9
-    # XXX possibly remove this
+
+    if page_size:
+        df = df.iloc[page_current * page_size : (page_current + 1) * page_size]
+
     df["month"] = df["month"].dt.strftime("%Y-%m-%d")
     df["result_category"] = df["result_category"].replace(settings.ERROR_CODES)
-    return df.to_dict("records")
+
+    return df
