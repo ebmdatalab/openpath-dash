@@ -147,11 +147,16 @@ def get_count_data(
         num_df_agg.loc[:, "calc_value_error"] = (
             num_df_agg["error"] / num_df_agg["total_list_size"] * 1000
         )
+        label_format = (
+            "{0[calc_value]:.5f} "
+            "({0[numerator]:.0f} tests per {0[denominator]:.0f} patients)"
+        )
     elif denominators == ["raw"]:
         num_df_agg.loc[:, "denominator"] = num_df_agg["count"]
         num_df_agg.loc[:, "denominator_error"] = num_df_agg["error"]
         num_df_agg.loc[:, "calc_value"] = num_df_agg["count"]
         num_df_agg.loc[:, "calc_value_error"] = num_df_agg["error"]
+        label_format = "{0[numerator]:.0f} tests"
     else:
         # denominator is list of tests
         if by == "test_code":
@@ -181,17 +186,15 @@ def get_count_data(
         num_df_agg = num_df_agg.rename(
             columns={"count_denom": "denominator", "error_denom": "denominator_error"}
         )
+        label_format = (
+            "{0[calc_value]:.5f} ({0[numerator]:.0f} / {0[denominator]:.0f} tests)"
+        )
     num_df_agg = num_df_agg.rename(
         columns={"count": "numerator", "error": "numerator_error"}
     )
-    num_df_agg["label"] = (
-        num_df_agg["numerator"].astype(str)
-        + " "
-        + " + ".join(numerators)
-        + " per "
-        + num_df_agg["denominator"].astype(str)
-        + " patients"
-    )
+    # Always include date in label
+    label_format += " in {0[month]:%b %Y}"
+    num_df_agg["label"] = num_df_agg.apply(label_format.format, axis=1)
     # If `by` is `None` then we're getting the raw, unaggregated data to display in a table
     # and the filtering mechanism below won't work (and also, probably, is less necessary as
     # the table will be too big to parse visually in any case)
