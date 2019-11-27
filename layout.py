@@ -232,10 +232,9 @@ def layout(tests_df, ccgs_list):
                                         {"name": "numerator", "id": "numerator"},
                                         {"name": "denominator", "id": "denominator"},
                                     ],
-                                    filter_action="native",
-                                    sort_action="native",
+                                    sort_action="custom",
                                     sort_mode="multi",
-                                    page_action="native",
+                                    page_action="custom",
                                     page_current=0,
                                     page_size=50,
                                 )

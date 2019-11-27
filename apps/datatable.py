@@ -6,8 +6,16 @@ from data import get_count_data
 import settings
 
 
-@app.callback(Output("datatable", "data"), [Input("page-state", "children")])
-def update_datatable(page_state):
+@app.callback(
+    Output("datatable", "data"),
+    [
+        Input("page-state", "children"),
+        Input("datatable", "page_current"),
+        Input("datatable", "page_size"),
+        Input("datatable", "sort_by"),
+    ],
+)
+def update_datatable(page_state, page_current, page_size, sort_by):
     page_state = get_state(page_state)
     if page_state.get("page_id") != settings.DATATABLE_ID:
         return []
@@ -20,8 +28,6 @@ def update_datatable(page_state):
         "entity_ids_for_practice_filter", []
     )
 
-    # XXX should page with python here
-    # See https://dash.plot.ly/datatable/callbacks
     df = get_count_data(
         numerators=numerators,
         denominators=denominators,
@@ -30,6 +36,15 @@ def update_datatable(page_state):
         entity_ids_for_practice_filter=entity_ids_for_practice_filter,
         result_filter=result_filter,
     )
+
+    # Sort and paginate
+    if sort_by:
+        df.sort_values(
+            [col["column_id"] for col in sort_by],
+            ascending=[col["direction"] == "asc" for col in sort_by],
+            inplace=True,
+        )
+    df = df.iloc[page_current * page_size : (page_current + 1) * page_size]
     # XXX make downloadable:
     # https://github.com/plotly/dash-core-components/issues/216 -
     # perhaps
