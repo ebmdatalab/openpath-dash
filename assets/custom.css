@@ -65,3 +65,15 @@ body {
     display:block;
   }
 }
+
+#datatable-container {
+  margin-bottom: 2rem;
+}
+
+#datatable-container .dash-spreadsheet-container {
+  margin-bottom: 1rem;
+}
+
+#datatable-container .download-link-container {
+  text-align: right;
+}

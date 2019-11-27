@@ -237,7 +237,18 @@ def layout(tests_df, ccgs_list):
                                     page_action="custom",
                                     page_current=0,
                                     page_size=50,
-                                )
+                                ),
+                                html.Div(
+                                    className="download-link-container",
+                                    children=[
+                                        html.A(
+                                            "Download as CSV",
+                                            id="datatable-download-link",
+                                            href="#",
+                                            className="btn btn-outline-primary",
+                                        )
+                                    ],
+                                ),
                             ],
                         )
                     ]

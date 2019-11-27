@@ -1,8 +1,8 @@
+import json
 import logging
 
+from flask import Flask, render_template, request, abort
 from flask_caching import Cache
-from flask import Flask
-from flask import render_template
 
 import dash
 import dash_bootstrap_components as dbc
@@ -59,6 +59,35 @@ def measures():
 @server.route("/faq")
 def faq():
     return render_template("faq.html")
+
+
+VALID_KEYS = {
+    "numerators",
+    "denominators",
+    "practice_filter_entity",
+    "entity_ids_for_practice_filter",
+    "result_filter",
+    "sort_by",
+}
+
+
+@server.route("/download")
+def download():
+    # Work around circular import
+    from apps.datatable import get_datatable
+
+    try:
+        spec = json.loads(request.args.get("spec"))
+    except ValueError:
+        abort(400)
+    if not spec.keys() <= VALID_KEYS:
+        abort(400)
+    df = get_datatable(**spec)
+    headers = {
+        "content-type": "text/csv",
+        "content-disposition": 'attachment; filename="data.csv"',
+    }
+    return df.to_csv(index=False), headers
 
 
 cache = Cache()
