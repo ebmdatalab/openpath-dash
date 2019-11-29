@@ -18,6 +18,7 @@ from werkzeug.routing import NotFound
 from werkzeug.routing import BuildError
 from urls import url_map
 from urls import urls
+import settings
 
 
 logger = logging.getLogger(__name__)
@@ -334,3 +335,28 @@ def show_error_from_page_state(page_state):
         ]
     else:
         return []
+
+
+# for each chart, generate a function to show only that chart
+def _create_show_chart_func(chart):
+    """Generate a callback function which toggles visibility of the page_id
+    specified in the current page state
+    """
+
+    def show_chart(page_state):
+        page_state = get_state(page_state)
+        if page_state.get("page_id") == chart:
+            return {"display": "block"}
+        else:
+            return {"display": "none"}
+
+    return show_chart
+
+
+# Register callbacks such that when the page state changes, only the
+# page id currently indicated in the page state is shown
+for page_id in settings.PAGES:
+    app.callback(
+        Output("{}-container".format(page_id), "style"),
+        [Input("page-state", "children")],
+    )(_create_show_chart_func(page_id))

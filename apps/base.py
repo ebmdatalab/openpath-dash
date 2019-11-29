@@ -1,36 +1,7 @@
 """Callbacks that apply to all pages
 """
-from dash.dependencies import Input, Output
-
-from app import app
-from stateful_routing import get_state
-import settings
 from data import get_test_code_to_name_map
 
-
-# for each chart, generate a function to show only that chart
-def _create_show_chart_func(chart):
-    """Generate a callback function which toggles visibility of the page_id
-    specified in the current page state
-    """
-
-    def show_chart(page_state):
-        page_state = get_state(page_state)
-        if page_state.get("page_id") == chart:
-            return {"display": "block"}
-        else:
-            return {"display": "none"}
-
-    return show_chart
-
-
-# Register callbacks such that when the page state changes, only the
-# page id currently indicated in the page state is shown
-for page_id in settings.PAGES:
-    app.callback(
-        Output("{}-container".format(page_id), "style"),
-        [Input("page-state", "children")],
-    )(_create_show_chart_func(page_id))
 
 
 def get_sorted_group_keys(df, group_by):
