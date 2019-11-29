@@ -15,7 +15,8 @@ from apps.base import (
     humanise_result_filter,
     initial_capital,
 )
-from apps.base import humanise_entity_name
+from apps.base import toggle_entity_id_list_from_click_data
+from data import humanise_entity_name
 from data import get_count_data
 from stateful_routing import get_state
 import settings
@@ -97,33 +98,12 @@ def update_deciles(page_state, click_data, current_qs):
         return EMPTY_RESPONSE
     deciles_traces = get_practice_decile_traces(trace_df)
 
-    # Remove any highlight entities that are not a valie groupby key
-    # (for example, practice ids when we're grouping by ccg id)
-    available_entities = trace_df[groupby].unique()
-    entities_in_query = query_string.get("highlight_entities", [])
-    # Hack: result_category values are ints not strings, but everything gets
-    # converted to strings when passed through the URL query params
-    if col_name == "result_category":
-        entities_in_query = list(map(int, entities_in_query))
-    highlight_entities = list(np.intersect1d(entities_in_query, available_entities))
-
-    if click_data:
-        entity_label = click_data["points"][0]["y"]
-        # Hack: get the entity_id from the Y-axis label by working out the
-        # labels for all entities and finding the one which matches. It ought
-        # to be possible to pass the entity_id through using the `customdata`
-        # property but this seems to have been broken for the last couple of
-        # years. See:
-        # https://community.plot.ly/t/plotly-dash-heatmap-customdata/5871
-        for entity_id in available_entities:
-            if entity_label == humanise_entity_name(col_name, entity_id):
-                break
-        else:
-            entity_id = None
-        if entity_id not in highlight_entities:
-            highlight_entities.append(entity_id)
-        else:
-            highlight_entities.remove(entity_id)
+    highlight_entities = query_string.get("highlight_entities", [])
+    if "heatmap-graph" in triggered_inputs:
+        # User has clicked on a cell in the heatmap
+        highlight_entities = toggle_entity_id_list_from_click_data(
+            click_data, highlight_entities
+        )
 
     entity_ids = get_sorted_group_keys(
         trace_df[trace_df[groupby].isin(highlight_entities)], col_name
@@ -184,20 +164,20 @@ def update_deciles(page_state, click_data, current_qs):
 
     fragment = get_title_fragment(numerators, denominators, result_filter)
 
-    if highlight_entities:
+    if entity_ids:
         fragment = initial_capital(fragment)
-        s = "s" if len(highlight_entities) > 1 else ""
+        s = "s" if len(entity_ids) > 1 else ""
         if col_name == "test_code":
-            title = get_title_fragment(highlight_entities, denominators, result_filter)
+            title = get_title_fragment(entity_ids, denominators, result_filter)
         elif col_name == "practice_id":
-            practice_list = humanise_list(highlight_entities)
+            practice_list = humanise_list(entity_ids)
             title = f"{fragment} at practice{s} {practice_list}"
         elif col_name == "ccg_id":
-            ccg_list = humanise_list(highlight_entities)
+            ccg_list = humanise_list(entity_ids)
             title = f"{fragment} at CCG{s} {ccg_list}"
         elif col_name == "result_category":
             category_list = humanise_list(
-                [humanise_result_filter(x) for x in highlight_entities]
+                [humanise_result_filter(x) for x in entity_ids]
             )
             title = f"{fragment} {category_list}"
         else:

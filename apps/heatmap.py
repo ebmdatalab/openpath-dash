@@ -5,13 +5,14 @@ import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
 
 from app import app
-from apps.base import humanise_entity_name, get_title_fragment, initial_capital
+from apps.base import get_title_fragment, initial_capital
 
 import numpy as np
 
 import matplotlib
 
 from data import get_count_data
+from data import humanise_entity_name
 from stateful_routing import get_state
 import settings
 

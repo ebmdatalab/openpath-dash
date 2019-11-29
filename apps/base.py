@@ -1,7 +1,7 @@
 """Callbacks that apply to all pages
 """
 from data import get_test_code_to_name_map
-
+from data import get_entity_label_to_id_map
 
 
 def get_sorted_group_keys(df, group_by):
@@ -12,7 +12,7 @@ def get_sorted_group_keys(df, group_by):
         df2.fillna(0).iloc[:, -6:].mean(axis=1).sort_values(ascending=False).index,
         axis=0,
     ).index
-    return entity_ids
+    return list(entity_ids)
 
 
 def get_title_fragment(numerators, denominators, result_filter):
@@ -90,13 +90,19 @@ def humanise_list(lst):
     return f"{head} and {tail}"
 
 
-def humanise_entity_name(column_name, value):
-    if column_name == "ccg_id":
-        return f"CCG {value}"
-    if column_name == "practice_id":
-        return f"Practice {value}"
-    if column_name == "test_code":
-        return get_test_code_to_name_map()[value]
-    if column_name == "result_category":
-        return settings.ERROR_CODES[value]
-    return f"{column_name} {value}"
+def toggle_entity_id_list_from_click_data(click_data, entity_ids):
+    entity_label = click_data["points"][0]["y"]
+    # Hack: get the entity_id from the Y-axis label by working out the
+    # labels for all entities and finding the one which matches. It ought
+    # to be possible to pass the entity_id through using the `customdata`
+    # property but this seems to have been broken for the last couple of
+    # years. See:
+    # https://community.plot.ly/t/plotly-dash-heatmap-customdata/5871
+    entity_label_to_id = get_entity_label_to_id_map()
+    entity_id = str(entity_label_to_id.get(entity_label, None))
+    if entity_id is not None:
+        if entity_id not in entity_ids:
+            entity_ids.append(entity_id)
+        else:
+            entity_ids.remove(entity_id)
+    return entity_ids
