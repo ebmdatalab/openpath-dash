@@ -1,6 +1,7 @@
 import logging
 import urllib
 from itertools import cycle
+import dash
 
 import pandas as pd
 import plotly.graph_objs as go
@@ -67,11 +68,13 @@ def get_practice_decile_traces(df):
 
 
 @app.callback(
-    [Output("deciles-graph", "figure"), Output("url-for-update", "search")],
+    Output("deciles-graph", "figure"),
     [Input("page-state", "children"), Input("heatmap-graph", "clickData")],
     [State("url-for-update", "search")],
 )
 def update_deciles(page_state, click_data, current_qs):
+    ctx = dash.callback_context
+    triggered_inputs = [x["prop_id"].split(".")[0] for x in ctx.triggered]
     query_string = urllib.parse.parse_qs(current_qs[1:])
     page_state = get_state(page_state)
 
@@ -187,16 +190,13 @@ def update_deciles(page_state, click_data, current_qs):
         title = f"Deciles for {fragment} over all {group_name}"
         title += "<br><sub>Select a row from the heatmap below to add lines to this chart</sub>"
 
-    return (
-        {
-            "data": traces,
-            "layout": go.Layout(
-                title=title,
-                height=350,
-                xaxis={"range": [months[0], months[-1]]},
-                showlegend=True,
-                legend={"orientation": "v"},
-            ),
-        },
-        "?" + "&".join([f"highlight_entities={x}" for x in highlight_entities]),
-    )  # XXX do this properly
+    return {
+        "data": traces,
+        "layout": go.Layout(
+            title=title,
+            height=350,
+            xaxis={"range": [months[0], months[-1]]},
+            showlegend=True,
+            legend={"orientation": "v"},
+        ),
+    }
