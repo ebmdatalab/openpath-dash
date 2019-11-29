@@ -263,7 +263,7 @@ def get_entity_label_to_id_map():
 
 @cache.memoize()
 def get_ccg_list():
-    """Get suitably massaged data
+    """Get data suitably massaged for use in a dropdown
     """
     return [{"value": x, "label": x} for x in get_data().ccg_id.unique()]
 
