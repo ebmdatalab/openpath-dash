@@ -9,7 +9,7 @@ def get_data(sample_size=None):
     """Get suitably massaged data
     """
     df = pd.read_csv(
-        settings.CSV_DIR / "all_processed.csv",
+        settings.CSV_DIR / "all_processed.csv.zip",
         dtype={"ccg_id": str, "practice_id": str},
     )
 
