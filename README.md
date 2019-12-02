@@ -42,6 +42,10 @@ smooth-scroll handler for this, per [these notes](https://community.plot.ly/t/sc
 
 Run with `flask get_test_codes` and `flask get_practice_codes`
 
+Then process new data files with `flask process_file <lab_code> <filename>` - this normalises practice codes, test codes, adds error ranges, etc.
+
+Finally run `flask postprocess_files <filenames>` to anonymise (replace practice ids) and report outlier data
+
 ## Next steps
 
 Scratchpad:
