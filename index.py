@@ -7,8 +7,9 @@ def setup_app_and_layout():
     from layout import layout
     from data import get_test_list
     from data import get_ccg_list
+    from data import get_lab_list
 
-    app.layout = layout(get_test_list(), get_ccg_list())
+    app.layout = layout(get_test_list(), get_ccg_list(), get_lab_list())
     return app
 
 

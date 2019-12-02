@@ -75,18 +75,16 @@ def update_heatmap(page_state, current_qs, current_fig):
     denominators = page_state.get("denominators", [])
     result_filter = page_state.get("result_filter", [])
     groupby = page_state.get("groupby", None)
-    practice_filter_entity = page_state.get("practice_filter_entity", None)
     equalise_colorscale = page_state.get("equalise_colorscale", None)
-    entity_ids_for_practice_filter = page_state.get(
-        "entity_ids_for_practice_filter", []
-    )
+    ccg_ids_for_practice_filter = page_state.get("ccg_ids_for_practice_filter", [])
+    lab_ids_for_practice_filter = page_state.get("lab_ids_for_practice_filter", [])
     col_name = groupby
     trace_df = get_count_data(
         numerators=numerators,
         denominators=denominators,
         result_filter=result_filter,
-        practice_filter_entity=practice_filter_entity,
-        entity_ids_for_practice_filter=entity_ids_for_practice_filter,
+        lab_ids_for_practice_filter=lab_ids_for_practice_filter,
+        ccg_ids_for_practice_filter=ccg_ids_for_practice_filter,
         by=col_name,
         hide_entities_with_sparse_data=page_state.get("sparse_data_toggle"),
     )
@@ -126,6 +124,8 @@ def update_heatmap(page_state, current_qs, current_fig):
         group_name = "practice"
     elif col_name == "ccg_id":
         group_name = "CCG"
+    elif col_name == "lab_id":
+        group_name = "lab"
     elif col_name == "test_code":
         group_name = "test"
     elif col_name == "result_category":

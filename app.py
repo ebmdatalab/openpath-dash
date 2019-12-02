@@ -64,8 +64,8 @@ def faq():
 VALID_KEYS = {
     "numerators",
     "denominators",
-    "practice_filter_entity",
-    "entity_ids_for_practice_filter",
+    "lab_ids_for_practice_filter",
+    "ccg_ids_for_practice_filter",
     "result_filter",
     "sort_by",
 }

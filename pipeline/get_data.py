@@ -60,7 +60,7 @@ def add_lab_code(df, lab_code):
     """Add a lab code for the input dataset
     """
     assert lab_code in ["nd", "cornwall", "lanc", "plymouth"]
-    df["lab"] = lab_code
+    df["lab_id"] = lab_code
     return df
 
 
@@ -160,20 +160,20 @@ def anonymise(df):
 def report_oddness(df):
     report = (
         df.query("result_category > 1")
-        .groupby(["test_code", "lab", "result_category"])
+        .groupby(["test_code", "lab_id", "result_category"])
         .count()
-        .reset_index()[["result_category", "lab", "test_code", "month"]]
+        .reset_index()[["result_category", "lab_id", "test_code", "month"]]
     )
     denominators = (
-        df.groupby(["test_code", "lab"])
+        df.groupby(["test_code", "lab_id"])
         .count()
-        .reset_index()[["lab", "test_code", "month"]]
+        .reset_index()[["lab_id", "test_code", "month"]]
     )
     report = report.merge(
         denominators,
         how="inner",
-        left_on=["test_code", "lab"],
-        right_on=["test_code", "lab"],
+        left_on=["test_code", "lab_id"],
+        right_on=["test_code", "lab_id"],
     )
     report["percentage"] = report["month_x"] / report["month_y"]
     report["result_category"] = report["result_category"].replace(settings.ERROR_CODES)
@@ -182,7 +182,7 @@ def report_oddness(df):
         print("The following error codes are more than 10% of all the results:")
         print()
         with pd.option_context("display.max_rows", None, "display.max_columns", None):
-            print(odd[["result_category", "test_code", "lab", "percentage"]])
+            print(odd[["result_category", "test_code", "lab_id", "percentage"]])
 
 
 @app.cli.command("process_file")
@@ -201,7 +201,7 @@ def process_file(lab_code, filename):
             "ccg_id",
             "count",
             "error",
-            "lab",
+            "lab_id",
             "month",
             "practice_id",
             "practice_name",

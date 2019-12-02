@@ -158,6 +158,8 @@ def update_deciles(page_state, click_data, current_qs):
         group_name = "practices"
     elif col_name == "ccg_id":
         group_name = "CCGs"
+    elif col_name == "lab_id":
+        group_name = "labs"
     elif col_name == "test_code":
         group_name = "tests"
     elif col_name == "result_category":
@@ -178,6 +180,9 @@ def update_deciles(page_state, click_data, current_qs):
         elif col_name == "ccg_id":
             ccg_list = humanise_list(entity_ids)
             title = f"{fragment} at CCG{s} {ccg_list}"
+        elif col_name == "lab_id":
+            ccg_list = humanise_list(entity_ids)
+            title = f"{fragment} at lab{s} {ccg_list}"
         elif col_name == "result_category":
             category_list = humanise_list(
                 [humanise_result_filter(x) for x in entity_ids]

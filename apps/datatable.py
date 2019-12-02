@@ -27,10 +27,8 @@ def update_datatable(page_state, page_current, page_size, sort_by):
         numerators=page_state.get("numerators", []),
         denominators=page_state.get("denominators", []),
         result_filter=page_state.get("result_filter", []),
-        practice_filter_entity=page_state.get("practice_filter_entity", None),
-        entity_ids_for_practice_filter=page_state.get(
-            "entity_ids_for_practice_filter", []
-        ),
+        ccg_ids_for_practice_filter=page_state.get("ccg_ids_for_practice_filter", []),
+        lab_ids_for_practice_filter=page_state.get("lab_ids_for_practice_filter", []),
         page_current=page_current,
         page_size=page_size,
         sort_by=sort_by,
@@ -52,9 +50,11 @@ def update_datatable_download_link(page_state, sort_by):
         "numerators": page_state.get("numerators", []),
         "denominators": page_state.get("denominators", []),
         "result_filter": page_state.get("result_filter", []),
-        "practice_filter_entity": page_state.get("practice_filter_entity", None),
-        "entity_ids_for_practice_filter": page_state.get(
-            "entity_ids_for_practice_filter", []
+        "ccg_ids_for_practice_filter": page_state.get(
+            "ccg_ids_for_practice_filter", []
+        ),
+        "lab_ids_for_practice_filter": page_state.get(
+            "lab_ids_for_practice_filter", []
         ),
         "sort_by": sort_by,
     }
