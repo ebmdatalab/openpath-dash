@@ -11,6 +11,13 @@ from io import StringIO
 app = Flask(__name__)
 
 
+CODE_MAPPINGS = {
+    "nd": ["nd_testcode"],
+    "cornwall": ["cornwall_testcode"],
+    "plymouth": ["plym_testcode", "other_plym_codes"],
+}
+
+
 @app.cli.command("get_test_codes")
 def get_codes():
     """Make a CSV of all the normalised test codes and lab test codes that
@@ -20,15 +27,7 @@ def get_codes():
     url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSeLPEW4rTy_hCktuAXEsXtivcdREDuU7jKfXlvJ7CTEBycrxWyunBWdLgGe7Pm1A/pub?gid=241568377&single=true&output=csv"
     target_path = settings.CSV_DIR / "test_codes.csv"
     df = pd.read_csv(url)
-    df[df["show_in_app?"] == True][
-        [
-            "datalab_testcode",
-            "testname",
-            "nd_testcode",
-            "cornwall_testcode",
-            "lanc_testcode",
-        ]
-    ].to_csv(target_path, index=False)
+    df[df["show_in_app?"] == True].to_csv(target_path, index=False)
 
 
 @app.cli.command("get_practice_codes")
@@ -60,7 +59,7 @@ def get_practices():
 def add_lab_code(df, lab_code):
     """Add a lab code for the input dataset
     """
-    assert lab_code in ["nd", "cornwall", "lanc"]
+    assert lab_code in ["nd", "cornwall", "lanc", "plymouth"]
     df["lab"] = lab_code
     return df
 
@@ -68,25 +67,26 @@ def add_lab_code(df, lab_code):
 def normalise_test_codes(df, lab_code):
     """Convert local test codes into DL version
     """
-    # 1. strip the field 2. for each lab, look it up in the
-    # "read_code_mapping.csv" spreadsheet. XXX what We don't bother
-    # mapping tests that are rare, i.e. this is taken into account
-    # when making the spreadsheet.
+    # We don't bother mapping tests that are rare, i.e. this is taken
+    # into account when making the spreadsheet.
     orig_cols = df.columns
     test_code_mapping = pd.read_csv(settings.CSV_DIR / "test_codes.csv")
     df["test_code"] = df["test_code"].str.strip()
-    result = df.merge(
-        test_code_mapping,
-        how="inner",
-        left_on="test_code",
-        right_on=f"{lab_code}_testcode",
-    )
-    result = result.rename(
-        columns={"test_code": "source_test_code", "datalab_testcode": "test_code"}
-    )
-
-    # rename columns
-    return result[orig_cols]
+    output = pd.DataFrame(columns=orig_cols)
+    # For each test code identified for the lab in our
+    # manually-curated mapping spreadsheet, rename any codes to our
+    # normalised `datalab_testcode`. In addition, be sure also to
+    # match on any codes in the lab data which are exactly the same as
+    # the `datalab_testcode`.
+    for colname in CODE_MAPPINGS[lab_code] + ["datalab_testcode"]:
+        result = df.merge(
+            test_code_mapping, how="inner", left_on="test_code", right_on=colname
+        )
+        result = result.rename(
+            columns={"test_code": "source_test_code", "datalab_testcode": "test_code"}
+        )
+        output = output.append(result[orig_cols])
+    return output[orig_cols]
 
 
 def trim_practices_and_add_population(df):
