@@ -241,7 +241,40 @@ def get_test_code_to_name_map():
 
 
 @cache.memoize()
+def get_entity_label_to_id_map():
+    """Return a dict of labels to ids. Required for interaction between
+    deciles and heatmap charts
+
+    """
+    # Hack: get the entity_id from the Y-axis label by working out the
+    # labels for all entities and finding the one which matches. It ought
+    # to be possible to pass the entity_id through using the `customdata`
+    # property but this seems to have been broken for the last couple of
+    # years. See:
+    # https://community.plot.ly/t/plotly-dash-heatmap-customdata/5871
+
+    column_names = ["ccg_id", "practice_id", "test_code", "result_category"]
+    data = {}
+    for column_name in column_names:
+        keys = get_data()[column_name].unique()
+        data.update({humanise_entity_name(column_name, k): k for k in keys})
+    return data
+
+
+@cache.memoize()
 def get_ccg_list():
-    """Get suitably massaged data
+    """Get data suitably massaged for use in a dropdown
     """
     return [{"value": x, "label": x} for x in get_data().ccg_id.unique()]
+
+
+def humanise_entity_name(column_name, value):
+    if column_name == "ccg_id":
+        return f"CCG {value}"
+    if column_name == "practice_id":
+        return f"Practice {value}"
+    if column_name == "test_code":
+        return get_test_code_to_name_map()[value]
+    if column_name == "result_category":
+        return settings.ERROR_CODES[value]
+    return f"{column_name} {value}"

@@ -5,19 +5,22 @@ The state is stored as stringified JSON stored in a hidden div.
 
 """
 import json
-import urllib
 import logging
 import dash
+import urllib
+from urllib.parse import urlencode, quote_plus
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import dash_html_components as html
-import dash_core_components as dcc
 
 from app import app
-from werkzeug.routing import NotFound
-from werkzeug.routing import BuildError
+from apps.base import toggle_entity_id_list_from_click_data
 from urls import url_map
 from urls import urls
+import settings
+
+from werkzeug.routing import NotFound
+from werkzeug.routing import BuildError
 
 
 logger = logging.getLogger(__name__)
@@ -29,7 +32,7 @@ def get_state(possible_state_text):
     try:
         state = json.loads(possible_state_text)
     except (json.decoder.JSONDecodeError, TypeError):
-        state = {}
+        state = {"update_counter": 0}
     return state
 
 
@@ -183,6 +186,8 @@ def update_state_from_inputs(
         raise PreventUpdate
 
     del page_state["_dirty"]
+    update_state(page_state, update_counter=page_state["update_counter"] + 1)
+
     logger.info(
         "-- updating state from %s, was %s, now %s",
         triggered_inputs,
@@ -334,3 +339,64 @@ def show_error_from_page_state(page_state):
         ]
     else:
         return []
+
+
+@app.callback(
+    Output("url-for-update", "search"),
+    [Input("heatmap-graph", "clickData"), Input("groupby-dropdown", "value")],
+    [
+        State("page-state", "children"),
+        State("url-for-update", "search"),
+        State("url-from-user", "search"),
+    ],
+)
+def update_highlight_entities_querystring(
+    heatmap_click_data, groupby_dropdown, page_state, current_qs, supplied_qs
+):
+    query_string = current_qs and urllib.parse.parse_qs(current_qs[1:]) or {}
+    page_state = get_state(page_state)
+    ctx = dash.callback_context
+    triggered_inputs = [x["prop_id"].split(".")[0] for x in ctx.triggered]
+    if page_state["update_counter"] > 0 and "groupby-dropdown" in triggered_inputs:
+        # Remove any entity highlights if the groupby has changed (because
+        # they will no longer be pertinent).  However, only do this on
+        # updates subsequent to the first page load, because on the first
+        # page load we set the groupby from the URL.
+        qs = ""
+    elif "heatmap-graph" in triggered_inputs:
+        # Update the URL to match the selected cell from the heatmap
+        highlight_entities = query_string.get("highlight_entities", [])
+        highlight_entities = toggle_entity_id_list_from_click_data(
+            heatmap_click_data, highlight_entities
+        )
+        qs = "?" + urlencode(
+            {"highlight_entities": highlight_entities}, doseq=True, quote_via=quote_plus
+        )
+    else:
+        qs = current_qs
+    return qs
+
+
+# for each chart, generate a function to show only that chart
+def _create_show_chart_func(chart):
+    """Generate a callback function which toggles visibility of the page_id
+    specified in the current page state
+    """
+
+    def show_chart(page_state):
+        page_state = get_state(page_state)
+        if page_state.get("page_id") == chart:
+            return {"display": "block"}
+        else:
+            return {"display": "none"}
+
+    return show_chart
+
+
+# Register callbacks such that when the page state changes, only the
+# page id currently indicated in the page state is shown
+for page_id in settings.PAGES:
+    app.callback(
+        Output("{}-container".format(page_id), "style"),
+        [Input("page-state", "children")],
+    )(_create_show_chart_func(page_id))
