@@ -99,6 +99,7 @@ def update_url_from_page_state(page_state):
         Input("denominator-tests-dropdown", "value"),
         Input("groupby-dropdown", "value"),
         Input("ccg-dropdown", "value"),
+        Input("lab-dropdown", "value"),
         Input("chart-selector-tabs", "active_tab"),
         Input("tweak-form", "value"),
     ],
@@ -110,6 +111,7 @@ def update_state_from_inputs(
     denominator_tests,
     groupby,
     selected_ccg,
+    selected_lab,
     selected_chart,
     tweak_form,
     page_state,
@@ -129,10 +131,10 @@ def update_state_from_inputs(
         update_state(page_state, denominators=["per1000"])
     if "groupby" not in page_state:
         update_state(page_state, groupby="practice_id")
-    if "practice_filter_entity" not in page_state:
-        update_state(page_state, practice_filter_entity="ccg_id")
-    if "entity_ids_for_practice_filter" not in page_state:
-        update_state(page_state, entity_ids_for_practice_filter=["all"])
+    if "ccg_ids_for_practice_filter" not in page_state:
+        update_state(page_state, ccg_ids_for_practice_filter=["all"])
+    if "lab_ids_for_practice_filter" not in page_state:
+        update_state(page_state, lab_ids_for_practice_filter=["all"])
     if "result_filter" not in page_state:
         update_state(page_state, result_filter="all")
 
@@ -174,7 +176,8 @@ def update_state_from_inputs(
         denominators=stored_denominators,
         result_filter=selected_filter,
         groupby=groupby,
-        entity_ids_for_practice_filter=selected_ccg,
+        ccg_ids_for_practice_filter=selected_ccg,
+        lab_ids_for_practice_filter=selected_lab,
         page_id=selected_chart,
         sparse_data_toggle=sparse_data_toggle,
         equalise_colorscale=equalise_colorscale,
@@ -262,7 +265,8 @@ for selector_id, page_state_key, is_multi in [
     ("numerators-dropdown", "numerators", True),
     ("denominator-tests-dropdown", "denominators", True),
     ("groupby-dropdown", "groupby", False),
-    ("ccg-dropdown", "entity_ids_for_practice_filter", True),
+    ("ccg-dropdown", "ccg_ids_for_practice_filter", True),
+    ("lab-dropdown", "lab_ids_for_practice_filter", True),
 ]:
     app.callback(Output(selector_id, "value"), [Input("url-from-user", "pathname")])(
         _create_dropdown_update_func(selector_id, page_state_key, is_multi)

@@ -19,7 +19,7 @@ def pairs(seq):
         yield item, item_2
 
 
-def layout(tests_df, ccgs_list):
+def layout(tests_df, ccgs_list, labs_list):
     state_components = html.Div(
         [
             # Hidden div inside the app that stores the page state
@@ -102,6 +102,7 @@ def layout(tests_df, ccgs_list):
                     {"value": "practice_id", "label": "Practice"},
                     {"value": "test_code", "label": "Test code"},
                     {"value": "ccg_id", "label": "CCG"},
+                    {"value": "lab_id", "label": "Lab"},
                     {"value": "result_category", "label": "Result type"},
                 ],
             ),
@@ -114,6 +115,16 @@ def layout(tests_df, ccgs_list):
                 id="ccg-dropdown",
                 multi=True,
                 options=[{"value": "all", "label": "All CCGs"}] + ccgs_list,
+            ),
+        ]
+    )
+    lab_filter_form = dbc.FormGroup(
+        [
+            dbc.Label("Showing which labs?"),
+            dcc.Dropdown(
+                id="lab-dropdown",
+                multi=True,
+                options=[{"value": "all", "label": "All labs"}] + labs_list,
             ),
         ]
     )
@@ -160,7 +171,7 @@ def layout(tests_df, ccgs_list):
                         result_category_hint,
                     ]
                 ),
-                dbc.Col([ccg_filter_form, tweak_form]),
+                dbc.Col([ccg_filter_form, lab_filter_form, tweak_form]),
             ]
         )
     )
@@ -228,6 +239,7 @@ def layout(tests_df, ccgs_list):
                                         {"name": "test", "id": "test_code"},
                                         {"name": "result", "id": "result_category"},
                                         {"name": "ccg", "id": "ccg_id"},
+                                        {"name": "lab", "id": "lab_id"},
                                         {"name": "practice", "id": "practice_id"},
                                         {"name": "numerator", "id": "numerator"},
                                         {"name": "denominator", "id": "denominator"},

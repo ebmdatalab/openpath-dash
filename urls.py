@@ -22,8 +22,12 @@ class AppConverter(AnyConverter):
         super().__init__(map, *settings.PAGES)
 
 
-class EntityConverter(BaseConverter):
-    regex = r"(?:ccg_id|practice_id|lab|test_code|result_category)"
+class GroupByEntityConverter(BaseConverter):
+    regex = r"(?:ccg_id|lab_id|practice_id|lab|test_code|result_category)"
+
+
+class FilterEntityConverter(BaseConverter):
+    regex = r"(?:ccg_id|lab_id)"
 
 
 url_map = Map(
@@ -33,7 +37,7 @@ url_map = Map(
             [
                 Rule("/<app:page_id>", endpoint="index"),
                 Rule(
-                    "/<app:page_id>/by/<entity_type:groupby>/showing/<entity_type:practice_filter_entity>/<list:entity_ids_for_practice_filter>/numerators/<list:numerators>/denominators/<list:denominators>/filter/<string:result_filter>",
+                    "/<app:page_id>/by/<groupby_entity_type:groupby>/showing/ccg_id/<list:ccg_ids_for_practice_filter>/lab_id/<list:lab_ids_for_practice_filter>/numerators/<list:numerators>/denominators/<list:denominators>/filter/<string:result_filter>",
                     endpoint="analysis",
                 ),
             ],
@@ -42,7 +46,8 @@ url_map = Map(
     converters={
         "list": ListConverter,
         "app": AppConverter,
-        "entity_type": EntityConverter,
+        "groupby_entity_type": GroupByEntityConverter,
+        "filter_entity_type": FilterEntityConverter,
     },
 )
 

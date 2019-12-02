@@ -28,8 +28,8 @@ def get_count_data(
     numerators=[],
     denominators=[],
     result_filter=None,
-    practice_filter_entity=None,
-    entity_ids_for_practice_filter=[],
+    lab_ids_for_practice_filter=[],
+    ccg_ids_for_practice_filter=[],
     by="practice_id",
     sample_size=None,
     hide_entities_with_sparse_data=False,
@@ -90,6 +90,19 @@ def get_count_data(
             "calc_value",
             "calc_value_error",
         ]
+    elif by == "lab_id":
+        cols = ["month", "total_list_size", "lab_id", "count", "error"]
+        groupby = ["month", "lab_id"]
+        required_cols = [
+            "month",
+            "total_list_size",
+            "label",
+            "numerator",
+            "denominator",
+            "lab_id",
+            "calc_value",
+            "calc_value_error",
+        ]
     elif not by:
         cols = [
             "month",
@@ -111,10 +124,10 @@ def get_count_data(
 
         groupby = None
     base_and_query = []
-    if practice_filter_entity and "all" not in entity_ids_for_practice_filter:
-        base_and_query.append(
-            f"({practice_filter_entity}.isin({entity_ids_for_practice_filter}))"
-        )
+    if lab_ids_for_practice_filter and "all" not in lab_ids_for_practice_filter:
+        base_and_query.append(f"(lab_id.isin({lab_ids_for_practice_filter}))")
+    if ccg_ids_for_practice_filter and "all" not in ccg_ids_for_practice_filter:
+        base_and_query.append(f"(ccg_id.isin({ccg_ids_for_practice_filter}))")
     numerator_and_query = base_and_query[:]
     if result_filter:
         if result_filter == "within_range":
@@ -253,7 +266,7 @@ def get_entity_label_to_id_map():
     # years. See:
     # https://community.plot.ly/t/plotly-dash-heatmap-customdata/5871
 
-    column_names = ["ccg_id", "practice_id", "test_code", "result_category"]
+    column_names = ["lab_id", "ccg_id", "practice_id", "test_code", "result_category"]
     data = {}
     for column_name in column_names:
         keys = get_data()[column_name].unique()
@@ -265,12 +278,27 @@ def get_entity_label_to_id_map():
 def get_ccg_list():
     """Get data suitably massaged for use in a dropdown
     """
-    return [{"value": x, "label": x} for x in get_data().ccg_id.unique()]
+    return [
+        {"value": x, "label": x}
+        for x in get_data().groupby("ccg_id")["test_code"].groups.keys()
+    ]
+
+
+@cache.memoize()
+def get_lab_list():
+    """Get data suitably massaged for use in a dropdown
+    """
+    return [
+        {"value": x, "label": x}
+        for x in get_data().groupby("lab_id")["test_code"].groups.keys()
+    ]
 
 
 def humanise_entity_name(column_name, value):
     if column_name == "ccg_id":
         return f"CCG {value}"
+    if column_name == "lab_id":
+        return f"{value} lab"
     if column_name == "practice_id":
         return f"Practice {value}"
     if column_name == "test_code":
