@@ -101,7 +101,7 @@ def trim_practices_and_add_population(df):
     return df.merge(
         practices,
         how="inner",
-        left_on=["month", "source"],
+        left_on=["month", "practice_id"],
         right_on=["month", "practice_id"],
     )
 
@@ -121,13 +121,13 @@ def normalise_practice_codes(df, lab_code):
         prac = pd.read_csv(settings.CSV_DIR / "north_devon_practice_mapping.csv")
 
         df3 = df.copy()
-        df3 = df3.merge(prac, left_on="source", right_on="LIMS code", how="inner").drop(
-            "LIMS code", axis=1
-        )
+        df3 = df3.merge(
+            prac, left_on="practice_id", right_on="LIMS code", how="inner"
+        ).drop("LIMS code", axis=1)
         df3 = df3.loc[pd.notnull(df3["ODS code"])]
-        df3 = df3.rename(columns={"source": "old_source", "ODS code": "source"}).drop(
-            "old_source", axis=1
-        )
+        df3 = df3.rename(
+            columns={"practice_id": "old_practice_id", "ODS code": "practice_id"}
+        ).drop("old_practice_id", axis=1)
         return df3
     else:
         return df
