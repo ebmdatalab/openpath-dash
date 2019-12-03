@@ -76,6 +76,11 @@ def data_format():
     return render_template("data_format.html")
 
 
+@server.route("/info_governance")
+def info_governance():
+    return render_template("info_governance.html")
+
+
 VALID_KEYS = {
     "numerators",
     "denominators",
