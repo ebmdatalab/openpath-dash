@@ -71,6 +71,11 @@ def get_involved():
     return render_template("get_involved.html")
 
 
+@server.route("/data_format")
+def data_format():
+    return render_template("data_format.html")
+
+
 VALID_KEYS = {
     "numerators",
     "denominators",
