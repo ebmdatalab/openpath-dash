@@ -145,6 +145,9 @@ def layout(tests_df, ccgs_list, labs_list):
             )
         ]
     )
+    sort_order_form = dbc.FormGroup(
+        [dcc.Dropdown(id="sort-order-dropdown", clearable=False)]
+    )
     chart_selector_tabs = dbc.Tabs(
         id="chart-selector-tabs",
         active_tab="chart",
@@ -224,6 +227,15 @@ def layout(tests_df, ccgs_list, labs_list):
                                             id="heatmap-click-hint",
                                             className="alert alert-info text-center",
                                             style={"display": "none"},
+                                        ),
+                                        dbc.Row(
+                                            id="sort-order-dropdown-container",
+                                            children=[
+                                                dbc.Col(
+                                                    sort_order_form,
+                                                    width={"size": 6, "offset": 6},
+                                                )
+                                            ],
                                         ),
                                         html.Div(
                                             id="heatmap-container",

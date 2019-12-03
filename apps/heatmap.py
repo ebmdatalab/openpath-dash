@@ -19,7 +19,7 @@ import settings
 logger = logging.getLogger(__name__)
 
 
-def sort_by_index(df):
+def sort_by_index(df, ascending=True):
     """Compute a sort order for the practice charts, based on the mean
     calc_value of the last 6 months.
 
@@ -28,7 +28,8 @@ def sort_by_index(df):
 
     """
     return df.reindex(
-        df.fillna(0).iloc[:, -6:].mean(axis=1).sort_values(ascending=True).index, axis=0
+        df.fillna(0).iloc[:, -6:].mean(axis=1).sort_values(ascending=ascending).index,
+        axis=0,
     )
 
 
@@ -61,10 +62,14 @@ def get_colorscale(values, cmap):
 
 @app.callback(
     Output("heatmap-graph", "figure"),
-    [Input("page-state", "children"), Input("url-for-update", "search")],
+    [
+        Input("page-state", "children"),
+        Input("url-for-update", "search"),
+        Input("sort-order-dropdown", "value"),
+    ],
     [State("deciles-graph", "figure")],
 )
-def update_heatmap(page_state, current_qs, current_fig):
+def update_heatmap(page_state, current_qs, sort_order, current_fig):
     EMPTY_RESPONSE = settings.EMPTY_CHART_LAYOUT
     page_state = get_state(page_state)
     if page_state.get("page_id") != settings.CHART_ID:
@@ -90,9 +95,9 @@ def update_heatmap(page_state, current_qs, current_fig):
     )
     if trace_df.empty:
         return EMPTY_RESPONSE
-    vals_by_entity = sort_by_index(
-        trace_df.pivot(index=col_name, columns="month", values="calc_value")
-    )
+
+    vals_by_entity = sort_results(trace_df, col_name, sort_order=sort_order)
+
     if equalise_colorscale:
         colorscale = get_colorscale(
             vals_by_entity.values.flatten(), settings.COLORSCALE
@@ -164,6 +169,60 @@ def update_heatmap(page_state, current_qs, current_fig):
             },
         ),
     }
+
+
+def sort_results(trace_df, col_name, sort_order=None):
+    if not sort_order:
+        sort_order = "mean_six_month_asc"
+    if sort_order in ("mean_six_month_asc", "mean_six_month_desc"):
+        ascending = sort_order == "mean_six_month_asc"
+        return sort_by_index(
+            trace_df.pivot(index=col_name, columns="month", values="calc_value"),
+            ascending=ascending,
+        )
+    elif sort_order == "ccg":
+        df = trace_df.pivot_table(
+            index=["ccg_id", col_name],
+            columns="month",
+            values="calc_value",
+            observed=True,
+        )
+        df = df.sort_values("ccg_id")
+        df = df.droplevel(0)
+        return df
+    raise ValueError(sort_order)
+
+
+@app.callback(
+    [Output("sort-order-dropdown", "options"), Output("sort-order-dropdown", "value")],
+    [Input("page-state", "children")],
+    [State("sort-order-dropdown", "value")],
+)
+def update_sort_order_options(page_state, current_value):
+    page_state = get_state(page_state)
+    # Note that asc/desc are deliberately reversed below because we naturally
+    # read the heatmap top-to-bottom but it's defined bottom-to-top
+    options = [
+        {
+            "value": "mean_six_month_asc",
+            "label": "Sort by mean value over last 6 months (descending)",
+        },
+        {
+            "value": "mean_six_month_desc",
+            "label": "Sort by mean value over last 6 months (ascending)",
+        },
+    ]
+
+    if page_state.get("groupby", None) == "practice_id":
+        options.append({"value": "ccg", "label": "Sort by CCG"})
+
+    # If the current value isn't one of the available options replace it with
+    # the first available option
+    value = current_value
+    if not any(option["value"] == value for option in options):
+        value = options[0]["value"]
+
+    return options, value
 
 
 @app.callback(
