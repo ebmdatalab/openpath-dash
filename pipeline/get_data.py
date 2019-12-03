@@ -72,6 +72,7 @@ def normalise_test_codes(df, lab_code):
     orig_cols = df.columns
     test_code_mapping = pd.read_csv(settings.CSV_DIR / "test_codes.csv")
     df["test_code"] = df["test_code"].str.strip()
+    assert len(df[pd.isnull(df.test_code)]) == 0
     output = pd.DataFrame(columns=orig_cols)
     # For each test code identified for the lab in our
     # manually-curated mapping spreadsheet, rename any codes to our
@@ -189,7 +190,7 @@ def report_oddness(df):
 @click.argument("lab_code")
 @click.argument("filename")
 def process_file(lab_code, filename):
-    df = pd.read_csv(filename)
+    df = pd.read_csv(filename, na_filter=False)
     df = add_lab_code(df, lab_code)
     df = normalise_test_codes(df, lab_code)
     df = normalise_practice_codes(df, lab_code)
