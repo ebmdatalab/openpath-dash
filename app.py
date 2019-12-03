@@ -66,6 +66,11 @@ def about():
     return render_template("about.html")
 
 
+@server.route("/get_involved")
+def get_involved():
+    return render_template("get_involved.html")
+
+
 VALID_KEYS = {
     "numerators",
     "denominators",
