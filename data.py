@@ -54,7 +54,7 @@ def get_count_data(
     # XXX how do we do this.
     # We group by X, then do calc-value; but what about the percentiles?
     elif by == "test_code":
-        cols = ["month", "test_code", "count", "error", "total_list_size"]
+        cols = ["month", "test_code", "count", "error"]
         groupby = ["month", "test_code"]
         required_cols = [
             "month",
@@ -66,7 +66,7 @@ def get_count_data(
             "denominator",
         ]
     elif by == "result_category":
-        cols = ["month", "result_category", "count", "error", "total_list_size"]
+        cols = ["month", "result_category", "count", "error"]
         groupby = ["month", "result_category"]
         required_cols = [
             "month",
