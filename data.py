@@ -157,9 +157,12 @@ def get_count_data(
             # extract the values we need and make sure we include each
             # practice-month only once by dropping duplicates. We can then
             # group and sum _this_ dataframe and write it back into
-            # `num_df_agg`.
+            # `num_df_agg`. We use the original dataframe (`df`) rather than
+            # the filtered one because we want to make sure that CCG and Lab
+            # list sizes include their consituent practices, rather than just
+            # those while survive the filter.
             list_size_df = (
-                filtered_df[
+                df[
                     ["month", "practice_id", "ccg_id", "lab_id", "total_list_size"]
                 ]
                 .drop_duplicates(["month", "practice_id"])
