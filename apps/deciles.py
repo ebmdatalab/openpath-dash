@@ -78,10 +78,8 @@ def update_deciles(page_state, click_data, current_qs):
     query_string = urllib.parse.parse_qs(current_qs[1:])
     page_state = get_state(page_state)
 
-    EMPTY_RESPONSE = (settings.EMPTY_CHART_LAYOUT, "")
-
     if page_state.get("page_id") != settings.CHART_ID:
-        return EMPTY_RESPONSE
+        return settings.EMPTY_CHART_LAYOUT
 
     numerators = page_state.get("numerators", [])
     denominators = page_state.get("denominators", [])
@@ -98,7 +96,7 @@ def update_deciles(page_state, click_data, current_qs):
         hide_entities_with_sparse_data=page_state.get("sparse_data_toggle"),
     )
     if trace_df.empty:
-        return EMPTY_RESPONSE
+        return settings.EMPTY_CHART_LAYOUT
     deciles_traces = get_practice_decile_traces(trace_df)
 
     highlight_entities = query_string.get("highlight_entities", [])
