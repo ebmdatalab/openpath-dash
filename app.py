@@ -61,6 +61,11 @@ def faq():
     return render_template("faq.html")
 
 
+@server.route("/about")
+def about():
+    return render_template("about.html")
+
+
 VALID_KEYS = {
     "numerators",
     "denominators",
