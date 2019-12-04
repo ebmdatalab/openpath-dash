@@ -224,7 +224,7 @@ def postprocess_file(filenames):
     df = pd.DataFrame()
     for filename in filenames:
         if not filename.endswith("/all_processed.csv"):
-    df = anonymise(df)
             df = pd.concat([df, pd.read_csv(filename, na_filter=False)], sort=False)
+    # df = anonymise(df)
     report_oddness(df)
     df.to_csv(settings.CSV_DIR / f"all_processed.csv", index=False)
