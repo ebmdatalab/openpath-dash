@@ -74,3 +74,6 @@ EMPTY_CHART_LAYOUT = {
         ],
     }
 }
+
+
+LAB_NAMES = {"cornwall": "Cornwall", "plymouth": "Plymouth", "nd": "N. Devon"}
