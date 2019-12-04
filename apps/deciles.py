@@ -213,7 +213,7 @@ def update_deciles(page_state, click_data, current_qs):
                 y=0,
                 yshift=-26,
                 showarrow=False,
-            ),
+            )
         )
 
     return {
