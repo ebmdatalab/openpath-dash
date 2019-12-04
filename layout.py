@@ -156,7 +156,7 @@ def layout(tests_df, ccgs_list, labs_list):
             "This chart uses reference ranges. Reference ranges need to be treated ",
             "with caution: for example, they may change over time. See our ",
             html.A("FAQ", href="/faq#result-categories"),
-            " for more details"
+            " for more details",
         ],
         id="result-category-hint",
         className="alert alert-info",
@@ -166,13 +166,7 @@ def layout(tests_df, ccgs_list, labs_list):
         [
             dbc.Row(
                 [
-                    dbc.Col(
-                        [
-                            numerators_form,
-                            denominators_form,
-                            groupby_form,
-                        ]
-                    ),
+                    dbc.Col([numerators_form, denominators_form, groupby_form]),
                     dbc.Col([ccg_filter_form, lab_filter_form, tweak_form]),
                 ]
             ),

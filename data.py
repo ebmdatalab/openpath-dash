@@ -162,9 +162,7 @@ def get_count_data(
             # list sizes include their consituent practices, rather than just
             # those which survive the filter.
             list_size_df = (
-                df[
-                    ["month", "practice_id", "ccg_id", "lab_id", "total_list_size"]
-                ]
+                df[["month", "practice_id", "ccg_id", "lab_id", "total_list_size"]]
                 .drop_duplicates(["month", "practice_id"])
                 .groupby(groupby)
                 .sum()
