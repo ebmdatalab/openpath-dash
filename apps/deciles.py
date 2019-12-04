@@ -110,7 +110,6 @@ def update_deciles(page_state, click_data, current_qs):
         trace_df[trace_df[groupby].isin(highlight_entities)], col_name
     )
     traces = deciles_traces[:]
-    months = deciles_traces[0].x
     has_error_bars = False
     for colour, entity_id in zip(cycle(settings.LINE_COLOUR_CYCLE), entity_ids):
         entity_df = trace_df[trace_df[col_name] == entity_id]
@@ -216,12 +215,14 @@ def update_deciles(page_state, click_data, current_qs):
             )
         )
 
+    all_x_vals = set().union(*[trace.x for trace in traces])
+
     return {
         "data": traces,
         "layout": go.Layout(
             title=title,
             height=350,
-            xaxis={"range": [months[0], months[-1]]},
+            xaxis={"range": [min(all_x_vals), max(all_x_vals)]},
             showlegend=True,
             legend={"orientation": "v"},
             annotations=annotations,
