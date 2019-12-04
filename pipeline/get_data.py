@@ -26,7 +26,7 @@ def get_codes():
     """
     url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSeLPEW4rTy_hCktuAXEsXtivcdREDuU7jKfXlvJ7CTEBycrxWyunBWdLgGe7Pm1A/pub?gid=241568377&single=true&output=csv"
     target_path = settings.CSV_DIR / "test_codes.csv"
-    df = pd.read_csv(url)
+    df = pd.read_csv(url, na_filter=False)
     df[df["show_in_app?"] == True].to_csv(target_path, index=False)
 
 
@@ -39,10 +39,10 @@ def get_practices():
     )
     target_path = settings.CSV_DIR / "practice_codes.csv"
     # For some reason delegating the URL-grabbing to pandas results in a 403
-    df = pd.read_csv(StringIO(requests.get(practices_url).text))
+    df = pd.read_csv(StringIO(requests.get(practices_url).text), na_filter=False)
     df = df[df["setting"] == 4]
     stats_url = "https://openprescribing.net/api/1.0/org_details/?org_type=practice&keys=total_list_size&format=csv"
-    df_stats = pd.read_csv(StringIO(requests.get(stats_url).text))
+    df_stats = pd.read_csv(StringIO(requests.get(stats_url).text), na_filter=False)
     # Left join because we want to keep practices without populations
     # for calculating proportions
     df = df.merge(
@@ -70,7 +70,9 @@ def normalise_test_codes(df, lab_code):
     # We don't bother mapping tests that are rare, i.e. this is taken
     # into account when making the spreadsheet.
     orig_cols = df.columns
-    test_code_mapping = pd.read_csv(settings.CSV_DIR / "test_codes.csv")
+    test_code_mapping = pd.read_csv(
+        settings.CSV_DIR / "test_codes.csv", na_filter=False
+    )
     df["test_code"] = df["test_code"].str.strip()
     assert len(df[pd.isnull(df.test_code)]) == 0
     output = pd.DataFrame(columns=orig_cols)
@@ -96,7 +98,7 @@ def trim_practices_and_add_population(df):
     # 1. Join on practices table
     # 2. Remove practices with fewer than 1000 total tests
     # 3. Remove practices that are missing population data
-    practices = pd.read_csv(settings.CSV_DIR / "practice_codes.csv")
+    practices = pd.read_csv(settings.CSV_DIR / "practice_codes.csv", na_filter=False)
     practices["month"] = pd.to_datetime(practices["month"])
     df["month"] = pd.to_datetime(df["month"])
     return df.merge(
@@ -119,7 +121,9 @@ def trim_trailing_months(df):
 def normalise_practice_codes(df, lab_code):
     # XXX move to ND data processor
     if lab_code == "nd":
-        prac = pd.read_csv(settings.CSV_DIR / "north_devon_practice_mapping.csv")
+        prac = pd.read_csv(
+            settings.CSV_DIR / "north_devon_practice_mapping.csv", na_filter=False
+        )
 
         df3 = df.copy()
         df3 = df3.merge(
@@ -220,7 +224,7 @@ def postprocess_file(filenames):
     df = pd.DataFrame()
     for filename in filenames:
         if not filename.endswith("/all_processed.csv"):
-            df = pd.concat([df, pd.read_csv(filename)], sort=False)
     df = anonymise(df)
+            df = pd.concat([df, pd.read_csv(filename, na_filter=False)], sort=False)
     report_oddness(df)
     df.to_csv(settings.CSV_DIR / f"all_processed.csv", index=False)
