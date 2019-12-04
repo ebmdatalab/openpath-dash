@@ -160,7 +160,7 @@ def get_count_data(
             # `num_df_agg`. We use the original dataframe (`df`) rather than
             # the filtered one because we want to make sure that CCG and Lab
             # list sizes include their consituent practices, rather than just
-            # those while survive the filter.
+            # those which survive the filter.
             list_size_df = (
                 df[
                     ["month", "practice_id", "ccg_id", "lab_id", "total_list_size"]
@@ -170,7 +170,7 @@ def get_count_data(
                 .sum()
             )
             num_df_agg.loc[:, "total_list_size"] = list_size_df["total_list_size"]
-        num_df_agg.reset_index(inplace=True)
+        num_df_agg = num_df_agg.reset_index()
     else:
         num_df_agg = filtered_df
     if denominators == ["per1000"]:
