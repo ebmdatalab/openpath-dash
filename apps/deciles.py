@@ -92,18 +92,31 @@ def update_deciles(page_state, click_data, current_qs):
     if trace_df.empty:
         return settings.EMPTY_CHART_LAYOUT
 
-    traces = get_decile_traces(trace_df)
+    # Don't show deciles in cases where they don't make sense
+    if len(trace_df[col_name].unique()) < 10 or groupby == "result_category":
+        show_deciles = False
+    else:
+        show_deciles = True
 
-    highlight_entities = query_string.get("highlight_entities", [])
-    if "heatmap-graph" in triggered_inputs:
-        # User has clicked on a cell in the heatmap
-        highlight_entities = toggle_entity_id_list_from_click_data(
-            click_data, highlight_entities
+    traces = get_decile_traces(trace_df) if show_deciles else []
+
+    # If we're showing deciles then get the IDs of the highlighted entities so
+    # we can display them
+    if show_deciles:
+        highlight_entities = query_string.get("highlight_entities", [])
+        if "heatmap-graph" in triggered_inputs:
+            # User has clicked on a cell in the heatmap
+            highlight_entities = toggle_entity_id_list_from_click_data(
+                click_data, highlight_entities
+            )
+        entity_ids = get_sorted_group_keys(
+            trace_df[trace_df[col_name].isin(highlight_entities)], col_name
         )
+    # If we're not showing deciles then we want to display all entities
+    # automatically
+    else:
+        entity_ids = get_sorted_group_keys(trace_df, col_name)
 
-    entity_ids = get_sorted_group_keys(
-        trace_df[trace_df[col_name].isin(highlight_entities)], col_name
-    )
     has_error_bars = False
     for colour, entity_id in zip(cycle(settings.LINE_COLOUR_CYCLE), entity_ids):
         entity_df = trace_df[trace_df[col_name] == entity_id]
@@ -162,7 +175,7 @@ def update_deciles(page_state, click_data, current_qs):
 
     fragment = get_title_fragment(numerators, denominators, result_filter)
 
-    if entity_ids:
+    if show_deciles and entity_ids:
         fragment = initial_capital(fragment)
         s = "s" if len(entity_ids) > 1 else ""
         if col_name == "test_code":
@@ -184,9 +197,12 @@ def update_deciles(page_state, click_data, current_qs):
         else:
             raise ValueError(col_name)
         title += f"<br>(with deciles over all {group_name})"
-    else:
+    elif show_deciles and not entity_ids:
         title = f"Deciles for {fragment} over all {group_name}"
         title += "<br><sub>Select a row from the heatmap below to add lines to this chart</sub>"
+    else:
+        fragment = initial_capital(fragment)
+        title = f"{fragment} grouped by {group_name}"
 
     annotations = []
     if has_error_bars:
