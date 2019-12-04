@@ -14,6 +14,7 @@ from apps.base import (
     get_title_fragment,
     humanise_list,
     humanise_result_filter,
+    humanise_column_name,
     initial_capital,
 )
 from apps.base import toggle_entity_id_list_from_click_data
@@ -160,49 +161,27 @@ def update_deciles(page_state, click_data, current_qs):
                 )
             )
 
-    if col_name == "practice_id":
-        group_name = "practices"
-    elif col_name == "ccg_id":
-        group_name = "CCGs"
-    elif col_name == "lab_id":
-        group_name = "labs"
-    elif col_name == "test_code":
-        group_name = "tests"
-    elif col_name == "result_category":
-        group_name = "result types"
-    else:
-        raise ValueError(col_name)
-
     fragment = get_title_fragment(numerators, denominators, result_filter)
 
     if show_deciles and entity_ids:
         fragment = initial_capital(fragment)
-        s = "s" if len(entity_ids) > 1 else ""
         if col_name == "test_code":
             title = get_title_fragment(entity_ids, denominators, result_filter)
-        elif col_name == "practice_id":
-            practice_list = humanise_list(entity_ids)
-            title = f"{fragment} at practice{s} {practice_list}"
-        elif col_name == "ccg_id":
-            ccg_list = humanise_list(entity_ids)
-            title = f"{fragment} at CCG{s} {ccg_list}"
-        elif col_name == "lab_id":
-            ccg_list = humanise_list(entity_ids)
-            title = f"{fragment} at lab{s} {ccg_list}"
         elif col_name == "result_category":
             category_list = humanise_list(
                 [humanise_result_filter(x) for x in entity_ids]
             )
             title = f"{fragment} {category_list}"
         else:
-            raise ValueError(col_name)
-        title += f"<br>(with deciles over all {group_name})"
+            entity_desc = humanise_column_name(col_name, plural=len(entity_ids) != 1)
+            title = f"{fragment} at {entity_desc} {humanise_list(entity_ids)}"
+        title += f"<br>(with deciles over all {humanise_column_name(col_name)})"
     elif show_deciles and not entity_ids:
-        title = f"Deciles for {fragment} over all {group_name}"
+        title = f"Deciles for {fragment} over all {humanise_column_name(col_name)}"
         title += "<br><sub>Select a row from the heatmap below to add lines to this chart</sub>"
     else:
         fragment = initial_capital(fragment)
-        title = f"{fragment} grouped by {group_name}"
+        title = f"{fragment} grouped by {humanise_column_name(col_name, plural=False)}"
 
     annotations = []
     if has_error_bars:

@@ -90,6 +90,22 @@ def humanise_list(lst):
     return f"{head} and {tail}"
 
 
+def humanise_column_name(col_name, plural=True):
+    s = "s" if plural else ""
+    if col_name == "practice_id":
+        return f"practice{s}"
+    elif col_name == "ccg_id":
+        return f"CCG{s}"
+    elif col_name == "lab_id":
+        return f"lab{s}"
+    elif col_name == "test_code":
+        return f"test{s}"
+    elif col_name == "result_category":
+        return f"result type{s}"
+    else:
+        raise ValueError(col_name)
+
+
 def toggle_entity_id_list_from_click_data(click_data, entity_ids):
     entity_label = click_data["points"][0]["y"]
     # Hack: get the entity_id from the Y-axis label by working out the
