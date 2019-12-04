@@ -54,7 +54,7 @@ def get_count_data(
     # XXX how do we do this.
     # We group by X, then do calc-value; but what about the percentiles?
     elif by == "test_code":
-        cols = ["month", "test_code", "count", "error", "total_list_size"]
+        cols = ["month", "test_code", "count", "error"]
         groupby = ["month", "test_code"]
         required_cols = [
             "month",
@@ -66,7 +66,7 @@ def get_count_data(
             "denominator",
         ]
     elif by == "result_category":
-        cols = ["month", "result_category", "count", "error", "total_list_size"]
+        cols = ["month", "result_category", "count", "error"]
         groupby = ["month", "result_category"]
         required_cols = [
             "month",
@@ -148,7 +148,29 @@ def get_count_data(
     else:
         filtered_df = df
     if groupby:
-        num_df_agg = filtered_df[cols].groupby(groupby).sum().reset_index()
+        num_df_agg = filtered_df[cols].groupby(groupby).sum()
+        if "total_list_size" in cols:
+            # Because each practice-month might occur in multiple rows of
+            # `num_df_agg` (once for each test code and result category) we
+            # can't simply sum the `total_list_size` column as this will end up
+            # counting the same list size value multiple times.  Instead we
+            # extract the values we need and make sure we include each
+            # practice-month only once by dropping duplicates. We can then
+            # group and sum _this_ dataframe and write it back into
+            # `num_df_agg`. We use the original dataframe (`df`) rather than
+            # the filtered one because we want to make sure that CCG and Lab
+            # list sizes include their consituent practices, rather than just
+            # those which survive the filter.
+            list_size_df = (
+                df[
+                    ["month", "practice_id", "ccg_id", "lab_id", "total_list_size"]
+                ]
+                .drop_duplicates(["month", "practice_id"])
+                .groupby(groupby)
+                .sum()
+            )
+            num_df_agg.loc[:, "total_list_size"] = list_size_df["total_list_size"]
+        num_df_agg = num_df_agg.reset_index()
     else:
         num_df_agg = filtered_df
     if denominators == ["per1000"]:
