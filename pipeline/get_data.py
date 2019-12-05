@@ -2,13 +2,11 @@
 """
 import pandas as pd
 import requests
+
 import settings
-from flask import Flask
 import click
 
 from io import StringIO
-
-app = Flask(__name__)
 
 
 CODE_MAPPINGS = {
@@ -18,7 +16,6 @@ CODE_MAPPINGS = {
 }
 
 
-@app.cli.command("get_test_codes")
 def get_codes():
     """Make a CSV of all the normalised test codes and lab test codes that
     have been marked in the Google Sheet for export.
@@ -30,7 +27,6 @@ def get_codes():
     df[df["show_in_app?"] == True].to_csv(target_path, index=False)
 
 
-@app.cli.command("get_practice_codes")
 def get_practices():
     """Make a CSV of "standard" GP practices and list size data.
     """
@@ -186,7 +182,6 @@ def report_oddness(df):
             print(odd[["result_category", "test_code", "lab_id", "percentage"]])
 
 
-@app.cli.command("process_file")
 @click.argument("lab_code")
 @click.argument("filename")
 def process_file(lab_code, filename):
@@ -214,9 +209,8 @@ def process_file(lab_code, filename):
     df.to_csv(settings.CSV_DIR / f"{lab_code}_processed.csv", index=False)
 
 
-@app.cli.command("postprocess_files")
 @click.argument("filenames", nargs=-1)
-def postprocess_file(filenames):
+def postprocess_files(filenames):
     df = pd.DataFrame()
     for filename in filenames:
         if not filename.endswith("/all_processed.csv"):
