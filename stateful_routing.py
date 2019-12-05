@@ -64,31 +64,18 @@ def update_state(state, **kw):
         state["_dirty"] = True
 
 
-def _url_from_state(page_state):
-    url = None
-    # Find the last rule (`iter_rules` iterates over the map in
-    # reverse order) that can match our state
-    for endpoint in [x.endpoint for x in url_map.iter_rules()]:
-        try:
-            logger.debug("  trying endpoint %s for state %s", endpoint, page_state)
-            url = urls.build(endpoint, page_state, append_unknown=False)
-            logger.debug("Found url %s", url)
-            break
-        except BuildError:
-            pass
-    if not url:
-        logger.debug("No url found for state %s; PreventUpdate", page_state)
-        raise PreventUpdate
-    return url
-
-
 @app.callback(Output("url-for-update", "pathname"), [Input("page-state", "children")])
 def update_url_from_page_state(page_state):
     """Cause the page location to match the current page state
     """
     page_state = get_state(page_state)
-    logger.debug("Getting URL from page state %s", page_state)
-    return _url_from_state(page_state)
+    try:
+        url = urls.build("analysis", page_state, append_unknown=False)
+        logger.debug("URL %s found from page state %s", url, page_state)
+    except BuildError:
+        logger.debug("No url found for state %s; PreventUpdate", page_state)
+        raise PreventUpdate
+    return url
 
 
 @app.callback(
@@ -246,19 +233,6 @@ def _create_dropdown_update_func(selector_id, page_state_key, is_multi):
 
     return update_dropdown_from_url
 
-
-def _create_link_update_func(selector_id):
-    """Create a callback function that updates a dropdown from a URL
-    """
-
-    def update_link_from_state(page_state):
-        """Substitute page_id in a given link with that found in the page_state
-        """
-        page_state = get_state(page_state)
-        page_state["page_id"] = selector_id
-        return _url_from_state(page_state)
-
-    return update_link_from_state
 
 
 for selector_id, page_state_key, is_multi in [
