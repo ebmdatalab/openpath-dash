@@ -1,3 +1,15 @@
+# Deployment
+
+Via `dokku`. Add a remote called `dokku` that points to `dokku@dokku.ebmdatalab.net:openpath-flask`.
+
+Then you can do `git push dokku master` to deploy, assuming your ssh public key is installed for the `dokku` user on that server.
+
+Deployment requires a username and password to be set in the environment. You can do this on the server thus:
+
+
+    dokku config:set openpath-flask BASIC_AUTH_CREDENTIALS="username: password"
+
+
 # Navigating the code
 
 * This is a Dash app. Pretty much all the Dash documentation is in the [short tutorial](https://dash.plot.ly/getting-started). This is worth reading in full before getting started.  The docstrings in the code (linke from that documentation) are very thorough.
