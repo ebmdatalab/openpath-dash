@@ -25,6 +25,7 @@ console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
 server = Flask(__name__, static_folder="assets")
+server.url_map.strict_slashes = False
 
 external_stylesheets = [dbc.themes.BOOTSTRAP]
 
@@ -79,6 +80,16 @@ def data_format():
 @server.route("/info_governance")
 def info_governance():
     return render_template("info_governance.html")
+
+
+@server.route("/blog")
+def blog_index():
+    return render_template("blog.html")
+
+
+@server.route("/blog/<templatename>")
+def blog_page(templatename):
+    return render_template("blog/{}.html".format(templatename))
 
 
 VALID_KEYS = {
