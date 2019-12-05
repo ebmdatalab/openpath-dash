@@ -1,3 +1,17 @@
+# Persistent storage
+
+The raw data is currently not checked into the repo, pending a decision on doing so.
+
+Until that decision, data can be made available to the app via dokku's Persistent Storage
+
+    dokku storage:mount openpath-flask /var/lib/dokku/data/storage/openpath-dash/data_csvs:/var/data_csvs
+    dokku config:set openpath-flask DATA_CSVS_PATH=/var/lib/dokku/data/storage/openpath-dash/data_csvs
+
+
+To update the data, you'll want to update it in `/var/lib/dokku/data/storage/openpath-dash/data_csvs`.  This should contain a copy of everything in `data_csvs/` from the repo, plus any newer `all_processed.csv.zip` file.
+
+You must redeploy (restart) an app to mount or unmount to an existing app's container.
+
 # Navigating the code
 
 * This is a Dash app. Pretty much all the Dash documentation is in the [short tutorial](https://dash.plot.ly/getting-started). This is worth reading in full before getting started.  The docstrings in the code (linke from that documentation) are very thorough.
