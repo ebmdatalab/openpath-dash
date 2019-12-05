@@ -247,7 +247,9 @@ def get_count_data(
 
 
 def _filter_rows_with_sparse_data(df, index_col, months_to_check, months_required):
-    recent_months_cutoff = sorted(df.month.unique())[-months_to_check]
+    recent_months = sorted(df.month.unique())
+    months_to_check = min(len(recent_months), months_to_check)
+    recent_months_cutoff = recent_months[-months_to_check]
     recent_data = df[df.month >= recent_months_cutoff]
     recent_data_by_month = recent_data.pivot(
         index=index_col, columns="month", values="calc_value"
