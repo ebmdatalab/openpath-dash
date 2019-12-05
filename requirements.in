@@ -7,3 +7,5 @@ numpy
 dash-bootstrap-components
 gunicorn
 matplotlib
+pyyaml
+lxml
