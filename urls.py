@@ -35,7 +35,7 @@ url_map = Map(
         Submount(
             "/data",
             [
-                Rule("/<app:page_id>", endpoint="index"),
+                Rule("/", endpoint="index"),
                 Rule(
                     "/<app:page_id>/by/<groupby_entity_type:groupby>/showing/ccg_id/<list:ccg_ids_for_practice_filter>/lab_id/<list:lab_ids_for_practice_filter>/numerators/<list:numerators>/denominators/<list:denominators>/filter/<string:result_filter>",
                     endpoint="analysis",
