@@ -7,3 +7,4 @@ numpy
 dash-bootstrap-components
 gunicorn
 matplotlib
+dash-auth

@@ -1,3 +1,14 @@
+# Deployment
+
+Via `dokku`. Add a remote called `dokku` that points to `dokku@dokku.ebmdatalab.net:openpath-flask`.
+
+Then you can do `git push dokku master` to deploy, assuming your ssh public key is installed for the `dokku` user on that server.
+
+Deployment requires a username and password to be set in the environment. You can do this on the server thus:
+
+
+    dokku config:set openpath-flask BASIC_AUTH_CREDENTIALS="username: password"
+
 # Persistent storage
 
 The raw data is currently not checked into the repo, pending a decision on doing so.
