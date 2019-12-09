@@ -18,7 +18,7 @@ def get_data(sample_size=None):
         "error": int,
         "lab_id": categorical,
         "practice_name": categorical,
-        "result_category": categorical,
+        "result_category": int,
         "test_code": categorical,
         "total_list_size": int,
     }
