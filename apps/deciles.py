@@ -182,6 +182,7 @@ def update_deciles(page_state, click_data, current_qs):
     else:
         fragment = initial_capital(fragment)
         title = f"{fragment} grouped by {humanise_column_name(col_name, plural=False)}"
+        title += "<br><sub>Click legend labels to hide/show lines — double-click to show just that line</sub>"
 
     annotations = []
     if has_error_bars:
