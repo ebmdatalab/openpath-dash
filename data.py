@@ -138,7 +138,7 @@ def get_count_data(
     if ccg_ids_for_practice_filter and "all" not in ccg_ids_for_practice_filter:
         base_and_query.append(f"(ccg_id.isin({ccg_ids_for_practice_filter}))")
     numerator_and_query = base_and_query[:]
-    if result_filter:
+    if result_filter and result_filter != "all":
         if result_filter == "within_range":
             numerator_and_query.append(f"(result_category == {settings.WITHIN_RANGE})")
         elif result_filter == "under_range":
@@ -149,6 +149,8 @@ def get_count_data(
             numerator_and_query.append("(result_category > 1)")
         elif str(result_filter).isnumeric():
             numerator_and_query.append(f"(result_category == {result_filter})")
+        else:
+            raise ValueError(result_filter)
 
     if numerators and numerators != ["all"]:
         numerator_and_query += [f"(test_code.isin({numerators}))"]
