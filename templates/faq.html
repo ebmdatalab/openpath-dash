@@ -76,6 +76,22 @@
     </dd>
   </dl>
 
+  <h2 id="low-numbers">What do the error bars mean?</h2>
+
+  <p>
+    To help mitigate potential privacy issues, we apply low number suppression
+    to our data. In practice this means that where we have a result count
+    between one and five we don't record the exact number and instead just
+    record the fact that the count lies in this range.
+  </p>
+
+  <p>
+    This means that many of our results come with an error range: we know that
+    the true value lies between X and Y but we can't say exactly where. In
+    charts we display this uncertainty using a coloured band around the line
+    where this indicates the minimum and maximum possible values.
+  </p>
+
 </div>
 
 {% endblock %}

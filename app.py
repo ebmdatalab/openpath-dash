@@ -1,10 +1,12 @@
 import json
 import logging
+import os
 
 from flask import Flask, render_template, request, abort
 from flask_caching import Cache
 
 import dash
+import dash_auth
 import dash_bootstrap_components as dbc
 import settings
 from jinja2 import Environment, FileSystemLoader
@@ -45,6 +47,15 @@ app = DashWithBaseTemplate(
     external_stylesheets=external_stylesheets,
 )
 app.static_folder = "assets"
+
+credentials = os.environ.get("BASIC_AUTH_CREDENTIALS")
+if "DEBUG" not in os.environ:
+    assert (
+        credentials
+    ), 'You need to `export BASIC_AUTH_CREDENTIALS="username: password"`'
+if credentials:
+    username, password = [x.strip() for x in credentials.split(":")]
+    auth = dash_auth.BasicAuth(app, {username: password})
 
 
 @server.route("/")

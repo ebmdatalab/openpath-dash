@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 # Error/success codes for `result_category` field
@@ -25,7 +26,11 @@ NUM_MONTHS_TO_CHECK = 12
 # Matplotlib colorscale for heatmaps
 COLORSCALE = "viridis"
 
-CSV_DIR = Path(__file__).parents[0] / "data_csvs"
+if "DATA_CSVS_PATH" in os.environ:
+    CSV_DIR = Path(os.environ["DATA_CSVS_PATH"])
+else:
+    CSV_DIR = Path(__file__).parents[0] / "data_csvs"
+
 
 CACHE_CONFIG = {
     # Use Redis in production?
@@ -74,3 +79,6 @@ EMPTY_CHART_LAYOUT = {
         ],
     }
 }
+
+
+LAB_NAMES = {"cornwall": "Cornwall", "plymouth": "Plymouth", "nd": "N. Devon"}

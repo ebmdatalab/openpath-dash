@@ -148,7 +148,43 @@ def get_count_data(
     else:
         filtered_df = df
     if groupby:
-        num_df_agg = filtered_df[cols].groupby(groupby).sum().reset_index()
+        # Because each practice-month pair might occur multiple times in our
+        # dataframe (once for each test code and result category) we can't
+        # simply sum the `total_list_size` column as this will end up counting
+        # the same list size value multiple times. So we handle this
+        # separately.
+        cols_without_list_size = [c for c in cols if c != "total_list_size"]
+        num_df_agg = filtered_df[cols_without_list_size].groupby(groupby).sum()
+
+        # First we construct a dataframe which contains practice details with
+        # exactly one entry for each practice-month pair.
+        practice_df = df[
+            ["month", "practice_id", "ccg_id", "lab_id", "total_list_size"]
+        ]
+        practice_df = practice_df.drop_duplicates(["month", "practice_id"])
+
+        # The easy case is when we're grouping by practice-related columns. In
+        # this case we just apply the same group/sum to the practice dataframe
+        # and copy the list size column across.
+        if all(col in practice_df.columns for col in groupby):
+            list_size_df = practice_df.groupby(groupby).sum()
+            num_df_agg.loc[:, "total_list_size"] = list_size_df["total_list_size"]
+            num_df_agg = num_df_agg.reset_index()
+
+        # The more complex case is where we're grouping by something not
+        # practice-related e.g. test_code.  In this case we calculate a total
+        # list size for each month and copy that value across using a merge.
+        else:
+            # If we're filtering by CCG or Lab then we need to apply that
+            # filter here otherwise we'll get the national total list size
+            # rather than the total for just the selected CCG/Lab.
+            if base_and_query:
+                practice_df = practice_df.query(" & ".join(base_and_query))
+            list_size_df = practice_df.groupby("month").sum()
+            num_df_agg = num_df_agg.reset_index()
+            num_df_agg = num_df_agg.merge(
+                list_size_df, left_on="month", right_index=True
+            )
     else:
         num_df_agg = filtered_df
     if denominators == ["per1000"]:
@@ -227,7 +263,9 @@ def get_count_data(
 
 
 def _filter_rows_with_sparse_data(df, index_col, months_to_check, months_required):
-    recent_months_cutoff = sorted(df.month.unique())[-months_to_check]
+    recent_months = sorted(df.month.unique())
+    months_to_check = min(len(recent_months), months_to_check)
+    recent_months_cutoff = recent_months[-months_to_check]
     recent_data = df[df.month >= recent_months_cutoff]
     recent_data_by_month = recent_data.pivot(
         index=index_col, columns="month", values="calc_value"
@@ -298,7 +336,7 @@ def humanise_entity_name(column_name, value):
     if column_name == "ccg_id":
         return f"CCG {value}"
     if column_name == "lab_id":
-        return f"{value} lab"
+        return f"{settings.LAB_NAMES[value]} lab"
     if column_name == "practice_id":
         return f"Practice {value}"
     if column_name == "test_code":

@@ -78,10 +78,8 @@ def update_deciles(page_state, click_data, current_qs):
     query_string = urllib.parse.parse_qs(current_qs[1:])
     page_state = get_state(page_state)
 
-    EMPTY_RESPONSE = (settings.EMPTY_CHART_LAYOUT, "")
-
     if page_state.get("page_id") != settings.CHART_ID:
-        return EMPTY_RESPONSE
+        return settings.EMPTY_CHART_LAYOUT
 
     numerators = page_state.get("numerators", [])
     denominators = page_state.get("denominators", [])
@@ -98,7 +96,7 @@ def update_deciles(page_state, click_data, current_qs):
         hide_entities_with_sparse_data=page_state.get("sparse_data_toggle"),
     )
     if trace_df.empty:
-        return EMPTY_RESPONSE
+        return settings.EMPTY_CHART_LAYOUT
     deciles_traces = get_practice_decile_traces(trace_df)
 
     highlight_entities = query_string.get("highlight_entities", [])
@@ -113,6 +111,7 @@ def update_deciles(page_state, click_data, current_qs):
     )
     traces = deciles_traces[:]
     months = deciles_traces[0].x
+    has_error_bars = False
     for colour, entity_id in zip(cycle(settings.LINE_COLOUR_CYCLE), entity_ids):
         entity_df = trace_df[trace_df[col_name] == entity_id]
         # First, plot the practice line
@@ -129,6 +128,7 @@ def update_deciles(page_state, click_data, current_qs):
             )
         )
         if entity_df["calc_value_error"].sum() > 0:
+            has_error_bars = True
             # If there's any error, bounds and fill
             traces.append(
                 go.Scatter(
@@ -195,6 +195,27 @@ def update_deciles(page_state, click_data, current_qs):
         title = f"Deciles for {fragment} over all {group_name}"
         title += "<br><sub>Select a row from the heatmap below to add lines to this chart</sub>"
 
+    annotations = []
+    if has_error_bars:
+        annotations.append(
+            go.layout.Annotation(
+                text=(
+                    "* coloured bands indicate uncertainty due to suppression of "
+                    'low numbers (<a href="/faq#low-numbers">see FAQ</a>)'
+                ),
+                font={"color": "#6c757d"},
+                xref="paper",
+                xanchor="right",
+                x=1,
+                xshift=120,
+                yref="paper",
+                yanchor="top",
+                y=0,
+                yshift=-26,
+                showarrow=False,
+            )
+        )
+
     return {
         "data": traces,
         "layout": go.Layout(
@@ -203,5 +224,6 @@ def update_deciles(page_state, click_data, current_qs):
             xaxis={"range": [months[0], months[-1]]},
             showlegend=True,
             legend={"orientation": "v"},
+            annotations=annotations,
         ),
     }

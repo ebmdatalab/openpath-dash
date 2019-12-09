@@ -64,31 +64,18 @@ def update_state(state, **kw):
         state["_dirty"] = True
 
 
-def _url_from_state(page_state):
-    url = None
-    # Find the last rule (`iter_rules` iterates over the map in
-    # reverse order) that can match our state
-    for endpoint in [x.endpoint for x in url_map.iter_rules()]:
-        try:
-            logger.debug("  trying endpoint %s for state %s", endpoint, page_state)
-            url = urls.build(endpoint, page_state, append_unknown=False)
-            logger.debug("Found url %s", url)
-            break
-        except BuildError:
-            pass
-    if not url:
-        logger.debug("No url found for state %s; PreventUpdate", page_state)
-        raise PreventUpdate
-    return url
-
-
 @app.callback(Output("url-for-update", "pathname"), [Input("page-state", "children")])
 def update_url_from_page_state(page_state):
     """Cause the page location to match the current page state
     """
     page_state = get_state(page_state)
-    logger.debug("Getting URL from page state %s", page_state)
-    return _url_from_state(page_state)
+    try:
+        url = urls.build("analysis", page_state, append_unknown=False)
+        logger.debug("URL %s found from page state %s", url, page_state)
+    except BuildError:
+        logger.debug("No url found for state %s; PreventUpdate", page_state)
+        raise PreventUpdate
+    return url
 
 
 @app.callback(
@@ -124,19 +111,16 @@ def update_state_from_inputs(
     triggered_inputs = [x["prop_id"].split(".")[0] for x in ctx.triggered]
     page_state = get_state(page_state)
     orig_page_state = page_state.copy()
-    # add defaults
-    if "numerators" not in page_state:
-        update_state(page_state, numerators=["CREA"])
-    if "denominators" not in page_state:
-        update_state(page_state, denominators=["per1000"])
-    if "groupby" not in page_state:
-        update_state(page_state, groupby="practice_id")
-    if "ccg_ids_for_practice_filter" not in page_state:
-        update_state(page_state, ccg_ids_for_practice_filter=["all"])
-    if "lab_ids_for_practice_filter" not in page_state:
-        update_state(page_state, lab_ids_for_practice_filter=["all"])
-    if "result_filter" not in page_state:
-        update_state(page_state, result_filter="all")
+    selected_chart = selected_chart or "chart"
+    # only do something if all the fields have values
+    if not current_path or not (
+        selected_numerator
+        and selected_denominator
+        and groupby
+        and selected_ccg
+        and selected_lab
+    ):
+        raise PreventUpdate
 
     # Infer `selected_filter` value from the denominators dropdown
     if selected_denominator not in ["per1000", "raw", "other"]:
@@ -221,7 +205,7 @@ def _get_dropdown_current_value_by_id(component_id):
         return ""
 
 
-def _create_dropdown_update_func(selector_id, page_state_key, is_multi):
+def _create_dropdown_update_func(selector_id, page_state_key, default, is_multi):
     """Create a callback function that updates a dropdown based on the current URL
     """
 
@@ -241,35 +225,21 @@ def _create_dropdown_update_func(selector_id, page_state_key, is_multi):
                     logger.info("****-> %s", current_value)
                     return is_multi and [current_value] or current_value
             except NotFound:
-                return is_multi and [current_value] or current_value
+                return default
         raise PreventUpdate
 
     return update_dropdown_from_url
 
 
-def _create_link_update_func(selector_id):
-    """Create a callback function that updates a dropdown from a URL
-    """
-
-    def update_link_from_state(page_state):
-        """Substitute page_id in a given link with that found in the page_state
-        """
-        page_state = get_state(page_state)
-        page_state["page_id"] = selector_id
-        return _url_from_state(page_state)
-
-    return update_link_from_state
-
-
-for selector_id, page_state_key, is_multi in [
-    ("numerators-dropdown", "numerators", True),
-    ("denominator-tests-dropdown", "denominators", True),
-    ("groupby-dropdown", "groupby", False),
-    ("ccg-dropdown", "ccg_ids_for_practice_filter", True),
-    ("lab-dropdown", "lab_ids_for_practice_filter", True),
+for selector_id, page_state_key, default, is_multi in [
+    ("numerators-dropdown", "numerators", None, True),
+    ("denominator-tests-dropdown", "denominators", "", True),
+    ("groupby-dropdown", "groupby", "lab_id", False),
+    ("ccg-dropdown", "ccg_ids_for_practice_filter", "all", True),
+    ("lab-dropdown", "lab_ids_for_practice_filter", "all", True),
 ]:
     app.callback(Output(selector_id, "value"), [Input("url-from-user", "pathname")])(
-        _create_dropdown_update_func(selector_id, page_state_key, is_multi)
+        _create_dropdown_update_func(selector_id, page_state_key, default, is_multi)
     )
 
 
@@ -282,9 +252,9 @@ def update_chart_selector_tabs_from_url(pathname):
         # https://github.com/plotly/dash/issues/133#issuecomment-330714608
         try:
             _, url_state = urls.match(pathname)
-            return url_state["page_id"]
+            return url_state.get("page_id", "chart")
         except NotFound:
-            return ""
+            return "chart"
     raise PreventUpdate
 
 
@@ -313,7 +283,7 @@ def update_denominator_dropdown_from_url(pathname):
                 # default for when someone visits /apps/decile (for example)
                 return "per1000"
         except NotFound:
-            return ""
+            return "per1000"
     raise PreventUpdate
 
 

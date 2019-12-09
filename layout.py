@@ -151,29 +151,27 @@ def layout(tests_df, ccgs_list, labs_list):
             dbc.Tab(label="Practice-level data table", tab_id="datatable"),
         ],
     )
-    result_category_hint = html.P(
+    result_category_hint = html.Div(
         [
-            "* for more detail on reference ranges and result codes see the ",
+            "This chart uses reference ranges. Reference ranges need to be treated ",
+            "with caution: for example, they may change over time. See our ",
             html.A("FAQ", href="/faq#result-categories"),
+            " for more details",
         ],
         id="result-category-hint",
-        className="text-muted",
+        className="alert alert-info",
         style={"display": "none"},
     )
     form = dbc.Container(
-        dbc.Row(
-            [
-                dbc.Col(
-                    [
-                        numerators_form,
-                        denominators_form,
-                        groupby_form,
-                        result_category_hint,
-                    ]
-                ),
-                dbc.Col([ccg_filter_form, lab_filter_form, tweak_form]),
-            ]
-        )
+        [
+            dbc.Row(
+                [
+                    dbc.Col([numerators_form, denominators_form, groupby_form]),
+                    dbc.Col([ccg_filter_form, lab_filter_form, tweak_form]),
+                ]
+            ),
+            result_category_hint,
+        ]
     )
     body = dbc.Container(
         [

@@ -182,7 +182,7 @@ def update_heatmap(page_state, current_qs, current_fig):
             shapes=highlight_rectangles,
             title=title,
             height=height,
-            xaxis={"fixedrange": True},
+            xaxis={"fixedrange": True, "side": "top"},
             yaxis={
                 "fixedrange": True,
                 "automargin": True,
