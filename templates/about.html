@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="header">
+  <h1>About us</h1>
+</div>
+<div class="row">
+  <div class="col-sm">
+    <p>
+      OpenPathology is a new project being built by
+      the <a href="https://ebmdatalab.net/#team">EBM DataLab</a> at
+      the University of Oxford.  Alongside our existing DataLab team,
+      we are pleased to be working with physician and
+      researcher <a href="https://profiles.stanford.edu/208516">Jack
+      O’Sullivan</a>, and consultant medical microbiologist Tom Lewis,
+      joint clinical lead for the NHS Improvement ‘Getting It Right
+      First Time’
+      (GIRFT) <a href="https://gettingitrightfirsttime.co.uk/clinical-work-stream/pathology/">Pathology
+      programme</a>.
+    </p>
+    <p>   In spring 2019 we
+    were <a href="https://ebmdatalab.net/funding-obtained-for-openpathology-pilot-project/">awarded
+    funding</a> to carry out reserach and build a prototype tool, to be delivered by the end of the year.
+  </p>
+
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm">
+    <img src="{{ url_for('static', filename='team.jpg') }}" class="img-fluid img-big" alt="Attendees at our first planning meeting">
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm">
+    <p>
+          We are the team
+          behind <a href="https://openprescribing.net/">OpenPrescribing.net</a>,
+          an openly accessible tool for all NHS primary care
+          prescribing data. On OpenPrescribing you can explore
+          variation over time and place in prescribing for any
+          individual drug, or class of drugs, right down to the level
+          of individual practices. You can explore outliers, and see
+          which practices are fast or slow to respond to changes in
+          price, or changes in the evidence on safety and
+          effectiveness. You can see standard dashboards for every
+          practice and CCG, and subscribe to “prescribing alerts”
+          driven by cutting edge data science techniques.
+        </p>
+
+  </div>
+</div>
+
+{% endblock %}
