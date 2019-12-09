@@ -38,11 +38,14 @@ def get_deciles(df):
     return zip(deciles, deciles_data)
 
 
-def get_decile_traces(df):
+def get_decile_traces(df, col_name):
     """Return a set of `Scatter` traces  suitable for adding to a Dash figure
     """
     deciles_traces = []
     months = pd.to_datetime(df["month"].unique())
+    legend_text = (
+        f"Deciles over all<br>available {humanise_column_name(col_name)}<br>nationally"
+    )
     showlegend = True
     for n, decile in get_deciles(df):
         style = "dash" if n == 50 else "dot"
@@ -51,7 +54,7 @@ def get_decile_traces(df):
                 x=months,
                 y=decile,
                 legendgroup="deciles",
-                name="Deciles",
+                name=legend_text,
                 line=dict(color=settings.DECILE_COLOUR, width=1, dash=style),
                 hoverinfo="skip",
                 showlegend=showlegend,
@@ -99,7 +102,7 @@ def update_deciles(page_state, click_data, current_qs):
     else:
         show_deciles = True
 
-    traces = get_decile_traces(trace_df) if show_deciles else []
+    traces = get_decile_traces(trace_df, col_name) if show_deciles else []
 
     # If we're showing deciles then get the IDs of the highlighted entities so
     # we can display them
