@@ -1,4 +1,6 @@
 import pandas as pd
+from pandas.api.types import CategoricalDtype
+
 from app import cache
 
 import settings
@@ -8,14 +10,21 @@ import settings
 def get_data(sample_size=None):
     """Get suitably massaged data
     """
+    categorical = CategoricalDtype(ordered=False)
+    dtypes = {
+        "ccg_id": categorical,
+        "practice_id": categorical,
+        "count": int,
+        "error": int,
+        "lab_id": categorical,
+        "practice_name": categorical,
+        "result_category": categorical,
+        "test_code": categorical,
+        "total_list_size": int,
+    }
     df = pd.read_csv(
-        settings.CSV_DIR / "all_processed.csv.zip",
-        dtype={"ccg_id": str, "practice_id": str},
+        settings.CSV_DIR / "all_processed.csv.zip", dtype=dtypes, parse_dates=["month"]
     )
-
-    # Convert month to datetime
-    df.loc[:, "month"] = pd.to_datetime(df["month"])
-
     if sample_size:
         some_practices = df.practice_id.sample(sample_size)
         return df[df.loc[:, "practice_id"].isin(some_practices)]
@@ -154,7 +163,9 @@ def get_count_data(
         # the same list size value multiple times. So we handle this
         # separately.
         cols_without_list_size = [c for c in cols if c != "total_list_size"]
-        num_df_agg = filtered_df[cols_without_list_size].groupby(groupby).sum()
+        num_df_agg = (
+            filtered_df[cols_without_list_size].groupby(groupby, observed=True).sum()
+        )
 
         # First we construct a dataframe which contains practice details with
         # exactly one entry for each practice-month pair.
@@ -167,7 +178,7 @@ def get_count_data(
         # this case we just apply the same group/sum to the practice dataframe
         # and copy the list size column across.
         if all(col in practice_df.columns for col in groupby):
-            list_size_df = practice_df.groupby(groupby).sum()
+            list_size_df = practice_df.groupby(groupby, observed=True).sum()
             num_df_agg.loc[:, "total_list_size"] = list_size_df["total_list_size"]
             num_df_agg = num_df_agg.reset_index()
 
@@ -180,7 +191,7 @@ def get_count_data(
             # rather than the total for just the selected CCG/Lab.
             if base_and_query:
                 practice_df = practice_df.query(" & ".join(base_and_query))
-            list_size_df = practice_df.groupby("month").sum()
+            list_size_df = practice_df.groupby("month", observed=True).sum()
             num_df_agg = num_df_agg.reset_index()
             num_df_agg = num_df_agg.merge(
                 list_size_df, left_on="month", right_index=True
@@ -218,7 +229,9 @@ def get_count_data(
             filtered_df = df.query(" & ".join(denominator_and_query))
         else:
             filtered_df = df
-        denom_df_agg = filtered_df[cols].groupby(groupby).sum().reset_index()
+        denom_df_agg = (
+            filtered_df[cols].groupby(groupby, observed=True).sum().reset_index()
+        )
         num_df_agg = num_df_agg.merge(
             denom_df_agg,
             how="right",
@@ -256,8 +269,10 @@ def get_count_data(
                 months_to_check=settings.NUM_MONTHS_TO_CHECK,
                 months_required=settings.NUM_MONTHS_REQUIRED,
             )
-        # The fillname is to work around this bug: https://github.com/plotly/plotly.js/issues/3296
-        return num_df_agg[required_cols].sort_values("month").fillna(0)
+        # The fillna is to work around this bug: https://github.com/plotly/plotly.js/issues/3296
+        num_df_agg["calc_value"] = num_df_agg["calc_value"].fillna(0)
+        num_df_agg["calc_value_error"] = num_df_agg["calc_value_error"].fillna(0)
+        return num_df_agg[required_cols].sort_values("month")
     else:
         return pd.DataFrame()
 
