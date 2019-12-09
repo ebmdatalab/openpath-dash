@@ -138,7 +138,7 @@ def get_count_data(
     if ccg_ids_for_practice_filter and "all" not in ccg_ids_for_practice_filter:
         base_and_query.append(f"(ccg_id.isin({ccg_ids_for_practice_filter}))")
     numerator_and_query = base_and_query[:]
-    if result_filter:
+    if result_filter and result_filter != "all":
         if result_filter == "within_range":
             numerator_and_query.append(f"(result_category == {settings.WITHIN_RANGE})")
         elif result_filter == "under_range":
@@ -149,6 +149,8 @@ def get_count_data(
             numerator_and_query.append("(result_category > 1)")
         elif str(result_filter).isnumeric():
             numerator_and_query.append(f"(result_category == {result_filter})")
+        else:
+            raise ValueError(result_filter)
 
     if numerators and numerators != ["all"]:
         numerator_and_query += [f"(test_code.isin({numerators}))"]
@@ -217,11 +219,36 @@ def get_count_data(
         num_df_agg.loc[:, "calc_value"] = num_df_agg["count"]
         num_df_agg.loc[:, "calc_value_error"] = num_df_agg["error"]
         label_format = "{0[numerator]:.0f} tests"
+    # Otherwise denominator is list of tests
     else:
-        # denominator is list of tests
+        # We have two different use cases for grouping by test code when using
+        # test counts as a denominator. Examples of each are:
+        #
+        #  1. For each of tests A, B, C show the proportion within reference
+        #     range.
+        #  2. For each of tests A, B, C show the count as a proportion of the
+        #     total count for all A, B, C tests.
+        #
+        # For case 1 we want to group both the numerator and denominator
+        # dataframes by month and test_code. For case 2 we want to sum the
+        # denominator over all tests, which means grouping by just month rather
+        # than month and test_code.
+        #
+        # Our API isn't rich enough to specify which we actually mean but if
+        # the user supplies a result category filter and the list of numerator
+        # codes is the same as the denominator codes then we can reasonably
+        # infer that this is case 1. Otherwise we assume case 2.
         if by == "test_code":
-            # The denominator needs to be summed across all tests
-            groupby = ["month"]
+            if (
+                set(numerators) == set(denominators)
+                and result_filter
+                and result_filter != "all"
+            ):
+                # The default grouping behaviour works for this case
+                pass
+            else:
+                # The denominator needs to be summed across all tests
+                groupby = ["month"]
         denominator_and_query = base_and_query[:]
         if denominators and "all" not in denominators:
             denominator_and_query += [f"test_code.isin({denominators})"]
@@ -239,6 +266,10 @@ def get_count_data(
             right_on=groupby,
             suffixes=("", "_denom"),
         )
+        # Because of the right join above we may have missing numerator counts
+        # on certain rows. Replace this with zeros so they still show up in the
+        # final dataframe.
+        num_df_agg["count"] = num_df_agg["count"].fillna(0)
         num_df_agg.loc[:, "calc_value"] = (
             num_df_agg["count"] / num_df_agg["count_denom"]
         )
