@@ -14,6 +14,7 @@ from apps.base import (
     get_title_fragment,
     humanise_list,
     humanise_result_filter,
+    humanise_column_name,
     initial_capital,
 )
 from apps.base import toggle_entity_id_list_from_click_data
@@ -26,33 +27,25 @@ import settings
 logger = logging.getLogger(__name__)
 
 
-def get_practice_deciles(df):
-    """Compute deciles across `calc_value` over `practice_id` for each month.
+def get_deciles(df):
+    """Compute deciles across `calc_value` for each month.
 
     Returns a list of (decile, value) tuples (e.g. (10, 4.223))
     """
     deciles = np.array(range(10, 100, 10))
-    vals_by_practice = df.pivot(columns="month", values="calc_value")
-    deciles_data = np.nanpercentile(vals_by_practice, axis=0, q=deciles)
+    vals_by_month = df.pivot(columns="month", values="calc_value")
+    deciles_data = np.nanpercentile(vals_by_month, axis=0, q=deciles)
     return zip(deciles, deciles_data)
 
 
-def get_practice_decile_traces(df):
+def get_decile_traces(df):
     """Return a set of `Scatter` traces  suitable for adding to a Dash figure
     """
     deciles_traces = []
     months = pd.to_datetime(df["month"].unique())
-    added_legend = False
-    for n, decile in get_practice_deciles(df):
-        if n == 50:
-            style = "dash"
-        else:
-            style = "dot"
-        if not added_legend:
-            showlegend = True
-            added_legend = True
-        else:
-            showlegend = False
+    showlegend = True
+    for n, decile in get_deciles(df):
+        style = "dash" if n == 50 else "dot"
         deciles_traces.append(
             go.Scatter(
                 x=months,
@@ -64,6 +57,8 @@ def get_practice_decile_traces(df):
                 showlegend=showlegend,
             )
         )
+        # Only show legend for first decile trace
+        showlegend = False
     return deciles_traces
 
 
@@ -97,20 +92,32 @@ def update_deciles(page_state, click_data, current_qs):
     )
     if trace_df.empty:
         return settings.EMPTY_CHART_LAYOUT
-    deciles_traces = get_practice_decile_traces(trace_df)
 
-    highlight_entities = query_string.get("highlight_entities", [])
-    if "heatmap-graph" in triggered_inputs:
-        # User has clicked on a cell in the heatmap
-        highlight_entities = toggle_entity_id_list_from_click_data(
-            click_data, highlight_entities
+    # Don't show deciles in cases where they don't make sense
+    if len(trace_df[col_name].unique()) < 10 or groupby == "result_category":
+        show_deciles = False
+    else:
+        show_deciles = True
+
+    traces = get_decile_traces(trace_df) if show_deciles else []
+
+    # If we're showing deciles then get the IDs of the highlighted entities so
+    # we can display them
+    if show_deciles:
+        highlight_entities = query_string.get("highlight_entities", [])
+        if "heatmap-graph" in triggered_inputs:
+            # User has clicked on a cell in the heatmap
+            highlight_entities = toggle_entity_id_list_from_click_data(
+                click_data, highlight_entities
+            )
+        entity_ids = get_sorted_group_keys(
+            trace_df[trace_df[col_name].isin(highlight_entities)], col_name
         )
+    # If we're not showing deciles then we want to display all entities
+    # automatically
+    else:
+        entity_ids = get_sorted_group_keys(trace_df, col_name)
 
-    entity_ids = get_sorted_group_keys(
-        trace_df[trace_df[groupby].isin(highlight_entities)], col_name
-    )
-    traces = deciles_traces[:]
-    months = deciles_traces[0].x
     has_error_bars = False
     for colour, entity_id in zip(cycle(settings.LINE_COLOUR_CYCLE), entity_ids):
         entity_df = trace_df[trace_df[col_name] == entity_id]
@@ -154,46 +161,28 @@ def update_deciles(page_state, click_data, current_qs):
                 )
             )
 
-    if col_name == "practice_id":
-        group_name = "practices"
-    elif col_name == "ccg_id":
-        group_name = "CCGs"
-    elif col_name == "lab_id":
-        group_name = "labs"
-    elif col_name == "test_code":
-        group_name = "tests"
-    elif col_name == "result_category":
-        group_name = "result types"
-    else:
-        raise ValueError(col_name)
-
     fragment = get_title_fragment(numerators, denominators, result_filter)
 
-    if entity_ids:
+    if show_deciles and entity_ids:
         fragment = initial_capital(fragment)
-        s = "s" if len(entity_ids) > 1 else ""
         if col_name == "test_code":
             title = get_title_fragment(entity_ids, denominators, result_filter)
-        elif col_name == "practice_id":
-            practice_list = humanise_list(entity_ids)
-            title = f"{fragment} at practice{s} {practice_list}"
-        elif col_name == "ccg_id":
-            ccg_list = humanise_list(entity_ids)
-            title = f"{fragment} at CCG{s} {ccg_list}"
-        elif col_name == "lab_id":
-            ccg_list = humanise_list(entity_ids)
-            title = f"{fragment} at lab{s} {ccg_list}"
         elif col_name == "result_category":
             category_list = humanise_list(
                 [humanise_result_filter(x) for x in entity_ids]
             )
             title = f"{fragment} {category_list}"
         else:
-            raise ValueError(col_name)
-        title += f"<br>(with deciles over all {group_name})"
-    else:
-        title = f"Deciles for {fragment} over all {group_name}"
+            entity_desc = humanise_column_name(col_name, plural=len(entity_ids) != 1)
+            title = f"{fragment} at {entity_desc} {humanise_list(entity_ids)}"
+        title += f"<br>(with deciles over all {humanise_column_name(col_name)})"
+    elif show_deciles and not entity_ids:
+        title = f"Deciles for {fragment} over all {humanise_column_name(col_name)}"
         title += "<br><sub>Select a row from the heatmap below to add lines to this chart</sub>"
+    else:
+        fragment = initial_capital(fragment)
+        title = f"{fragment} grouped by {humanise_column_name(col_name, plural=False)}"
+        title += "<br><sub>Click legend labels to hide/show lines — double-click to show just that line</sub>"
 
     annotations = []
     if has_error_bars:
@@ -216,12 +205,14 @@ def update_deciles(page_state, click_data, current_qs):
             )
         )
 
+    all_x_vals = set().union(*[trace.x for trace in traces])
+
     return {
         "data": traces,
         "layout": go.Layout(
             title=title,
             height=350,
-            xaxis={"range": [months[0], months[-1]]},
+            xaxis={"range": [min(all_x_vals), max(all_x_vals)]},
             showlegend=True,
             legend={"orientation": "v"},
             annotations=annotations,
