@@ -1,5 +1,7 @@
 """Callbacks that apply to all pages
 """
+import textwrap
+
 from data import get_test_code_to_name_map
 from data import get_entity_label_to_id_map
 
@@ -122,3 +124,10 @@ def toggle_entity_id_list_from_click_data(click_data, entity_ids):
         else:
             entity_ids.remove(entity_id)
     return entity_ids
+
+
+def wrap_title(text):
+    text = '\n'.join(textwrap.wrap(text, width=40))
+    # We do this in two steps so that newlines present before wrapping also get
+    # converted to BRs
+    return text.replace('\n', '<br>\n')

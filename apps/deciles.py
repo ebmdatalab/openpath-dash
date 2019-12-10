@@ -16,6 +16,7 @@ from apps.base import (
     humanise_result_filter,
     humanise_column_name,
     initial_capital,
+    wrap_title,
 )
 from apps.base import toggle_entity_id_list_from_click_data
 from data import humanise_entity_name
@@ -189,7 +190,7 @@ def update_deciles(page_state, click_data, current_qs):
         else:
             entity_desc = humanise_column_name(col_name, plural=len(entity_ids) != 1)
             title = f"{fragment} at {entity_desc} {humanise_list(entity_ids)}"
-        title += f"<br>(with deciles over all {humanise_column_name(col_name)})"
+        title += f"\n(with deciles over all {humanise_column_name(col_name)})"
     elif show_deciles and not entity_ids:
         title = f"Deciles for {fragment} over all {humanise_column_name(col_name)}"
         hint_text = (
@@ -232,7 +233,7 @@ def update_deciles(page_state, click_data, current_qs):
     chart = {
         "data": traces,
         "layout": go.Layout(
-            title=title,
+            title=wrap_title(title),
             height=350,
             xaxis={"range": [min(all_x_vals), max(all_x_vals)]},
             showlegend=True,

@@ -5,7 +5,7 @@ import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
 
 from app import app
-from apps.base import get_title_fragment, initial_capital, humanise_column_name
+from apps.base import get_title_fragment, initial_capital, humanise_column_name, wrap_title
 
 import numpy as np
 
@@ -163,12 +163,16 @@ def update_heatmap(page_state, current_qs, current_fig):
         if x in vals_by_entity.index
     ]
 
+    title = wrap_title(title)
+    title_height = (title.count("\n") + 1) * 22
+
     return {
         "data": [trace],
         "layout": go.Layout(
             shapes=highlight_rectangles,
             title=title,
-            height=height,
+            height=height + title_height,
+            margin={"t": title_height + 150},
             xaxis={"fixedrange": True, "side": "top"},
             yaxis={
                 "fixedrange": True,
