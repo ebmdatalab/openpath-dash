@@ -215,6 +215,16 @@ def layout(tests_df, ccgs_list, labs_list):
                                 dcc.Loading(
                                     id="loading-heatmap",
                                     children=[
+                                        # We use Markdown component so we can insert
+                                        # line breaks as new paragraphs. We add a
+                                        # custom CSS rule to remove bottom margin from
+                                        # child P elements.
+                                        dcc.Markdown(
+                                            "",
+                                            id="heatmap-click-hint",
+                                            className="alert alert-info text-center",
+                                            style={"display": "none"},
+                                        ),
                                         html.Div(
                                             id="heatmap-container",
                                             children=[

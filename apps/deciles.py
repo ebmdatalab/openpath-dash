@@ -27,6 +27,12 @@ import settings
 logger = logging.getLogger(__name__)
 
 
+DISPLAY_NONE = {"display": "none"}
+DISPLAY_SHOW = {"display": ""}
+
+EMPTY_RESPONSE = (settings.EMPTY_CHART_LAYOUT, DISPLAY_NONE, "")
+
+
 def get_deciles(df):
     """Compute deciles across `calc_value` for each month.
 
@@ -66,7 +72,11 @@ def get_decile_traces(df, col_name):
 
 
 @app.callback(
-    Output("deciles-graph", "figure"),
+    [
+        Output("deciles-graph", "figure"),
+        Output("heatmap-click-hint", "style"),
+        Output("heatmap-click-hint", "children"),
+    ],
     [Input("page-state", "children"), Input("heatmap-graph", "clickData")],
     [State("url-for-update", "search")],
 )
@@ -77,7 +87,7 @@ def update_deciles(page_state, click_data, current_qs):
     page_state = get_state(page_state)
 
     if page_state.get("page_id") != settings.CHART_ID:
-        return settings.EMPTY_CHART_LAYOUT
+        return EMPTY_RESPONSE
 
     numerators = page_state.get("numerators", [])
     denominators = page_state.get("denominators", [])
@@ -94,7 +104,7 @@ def update_deciles(page_state, click_data, current_qs):
         hide_entities_with_sparse_data=page_state.get("sparse_data_toggle"),
     )
     if trace_df.empty:
-        return settings.EMPTY_CHART_LAYOUT
+        return settings.EMPTY_RESPONSE
 
     # Don't show deciles in cases where they don't make sense
     if len(trace_df[col_name].unique()) < 10 or groupby == "result_category":
@@ -165,6 +175,7 @@ def update_deciles(page_state, click_data, current_qs):
             )
 
     fragment = get_title_fragment(numerators, denominators, result_filter)
+    hint_text = ""
 
     if show_deciles and entity_ids:
         fragment = initial_capital(fragment)
@@ -181,11 +192,19 @@ def update_deciles(page_state, click_data, current_qs):
         title += f"<br>(with deciles over all {humanise_column_name(col_name)})"
     elif show_deciles and not entity_ids:
         title = f"Deciles for {fragment} over all {humanise_column_name(col_name)}"
-        title += "<br><sub>Select a row from the heatmap below to add lines to this chart</sub>"
+        hint_text = (
+            f"Click rows in the heatmap below to show lines for individual "
+            f"{humanise_column_name(col_name)}"
+        )
     else:
         fragment = initial_capital(fragment)
         title = f"{fragment} grouped by {humanise_column_name(col_name, plural=False)}"
-        title += "<br><sub>Click legend labels to hide/show lines — double-click to show just that line</sub>"
+        hint_text = (
+            f"Click legend labels above to hide/show individual "
+            f"{humanise_column_name(col_name)}.\n\n"
+            f"Double-click labels to show just that "
+            f"{humanise_column_name(col_name, plural=False)}."
+        )
 
     annotations = []
     if has_error_bars:
@@ -210,7 +229,7 @@ def update_deciles(page_state, click_data, current_qs):
 
     all_x_vals = set().union(*[trace.x for trace in traces])
 
-    return {
+    chart = {
         "data": traces,
         "layout": go.Layout(
             title=title,
@@ -221,3 +240,5 @@ def update_deciles(page_state, click_data, current_qs):
             annotations=annotations,
         ),
     }
+
+    return chart, DISPLAY_SHOW if hint_text else DISPLAY_NONE, hint_text
