@@ -334,6 +334,11 @@ def get_test_code_to_name_map():
     df = get_test_list()
     name_map = dict(zip(df.value, df.label))
     name_map["all"] = "all tests"
+    # Enforce uniqueness of test names
+    inverse_map = {v: k for k, v in name_map.items()}
+    if len(name_map) != len(inverse_map):
+        duplicates = [v for k, v in name_map.items() if inverse_map[v] != k]
+        raise ValueError(f"Non-unique test names: {', '.join(duplicates)}")
     return name_map
 
 
