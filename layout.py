@@ -2,11 +2,13 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_table
-from urls import urls
 import settings
 
 
 OPTION_SEPARATOR = {"value": "__sep__", "label": "\u2015" * 16, "disabled": True}
+
+# This ensures that downloaded graph images match the size shown on screen
+COMMON_GRAPH_CONFIG = {"toImageButtonOptions": {"width": None, "height": None}}
 
 
 def pairs(seq):
@@ -199,7 +201,12 @@ def layout(tests_df, ccgs_list, labs_list):
                                     children=[
                                         html.Div(
                                             id="deciles-container",
-                                            children=[dcc.Graph(id="deciles-graph")],
+                                            children=[
+                                                dcc.Graph(
+                                                    id="deciles-graph",
+                                                    config=COMMON_GRAPH_CONFIG,
+                                                )
+                                            ],
                                         )
                                     ],
                                 )
@@ -220,8 +227,13 @@ def layout(tests_df, ccgs_list, labs_list):
                                         ),
                                         html.Div(
                                             id="heatmap-container",
-                                            children=[dcc.Graph(id="heatmap-graph")],
-                                        ),
+                                            children=[
+                                                dcc.Graph(
+                                                    id="heatmap-graph",
+                                                    config=COMMON_GRAPH_CONFIG,
+                                                )
+                                            ],
+                                        )
                                     ],
                                 )
                             ),

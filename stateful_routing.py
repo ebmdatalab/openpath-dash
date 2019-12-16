@@ -15,7 +15,6 @@ import dash_html_components as html
 
 from app import app
 from apps.base import toggle_entity_id_list_from_click_data
-from urls import url_map
 from urls import urls
 import settings
 

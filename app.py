@@ -56,6 +56,10 @@ if "DEBUG" not in os.environ:
 if credentials:
     username, password = [x.strip() for x in credentials.split(":")]
     auth = dash_auth.BasicAuth(app, {username: password})
+    # Reset the static files view to undo the authentication that's been added
+    # to it.  Already reported but no sign of it being fixed anytime soon:
+    # https://github.com/plotly/dash-auth/issues/57
+    app.server.view_functions["static"] = app.server.send_static_file
 
 
 @server.route("/")
