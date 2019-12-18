@@ -4,16 +4,93 @@
 
 
 <div class="row">
- <h1>Information Governance in OpenPathology</h1>
+ <h1>Management of private data in OpenPathology</h1>
 </div>
+<p>
+  This page provides a summary for patients about their rights under GDPR. It also provides <a href="#labs">a summary for participating laboratories</a>.
+</p>
+<h2>1. GDPR information for patients</h2>
+
+
+<h3>Purposes of processing data</h3>
+
+<ul>
+  <li>
+    We will calculate the total number of each type of laboratory test
+    (e.g. different types of blood and urine tests) carried out by
+    each practice per month, how many of each test came back with a
+    positive result, and in some cases how many times tests are
+    repeated across a subset of patients.
+  </li>
+
+  <li>
+    This will be presented via an online tool, and we will document
+    various aspects of variation in care in research papers.
+  </li>
+
+  <li>
+    Online tools will allow the NHS to improve care, e.g. by
+    identifying tests being over- or under-used compared to other
+    practices, and spot unexpected shifts in the pattern of test
+    results.
+  </li>
+  <li>
+    By creating a tool which could be rolled out nationally we save
+    local NHS teams time, effort and money in building these tools
+    themselves.
+  </li>
+</ul>
+
+<h3>Who this information is shared with</h3>
+
+<p>Data will be transferred from hospital trusts and stored on a
+secure network drive at the University of Oxford, accessed via a
+secure virtual hosted server (see below), accessible to 3 named
+individuals in our team.</p>
+
+<h3>Lawful basis for processing data</h3>
+
+<p>
+  Our lawful basis is GDPR articles 6.1.e (public interest) and 9.2.j
+  (research).  In particular, opportunities for cost saving for the NHS,
+  and improving patient outcomes through more appropriate testing.
+</p>
+
+<h3>International transfers of data</h3>
+
+<p>
+  None.
+</p>
+
+<h3>Retention of data</h3>
+
+<p>Any data older than 5 years will be erased.</p>
+
+<h3>Your rights under GDPR</h3>
+
+<p>
+  We will not be able to link data to any individuals, because the
+  only unique identifiers in the data we receive will be those derived
+  by each trust. Therefore it is not possible to select, modify or
+  remove the data for any known individual. Data will be aggregated in
+  order to produce figures for each practice, and low numbers
+  suppressed such that when released from the secure storage drive and
+  used to produce the online tool, data is already fully anonymised.
+</p>
+
+
+<br>
+<hr><br>
+<a name="labs"></a>
+<h2>2. Data Protection Impact Assessment for labs</h2>
 
   <p>
-    This page provides of a summary of our Data Protection Impact
+    This section provides of a summary of our Data Protection Impact
     Assessment (DPIA), which has been signed off with our division's
     Information Compliance team.
   </p>
 
-<h2>How will we obtain data?</h2>
+<h3>How will we obtain data?</h3>
 
   <p>Data will be collected from NHS pathology laboratories based
   in NHS Hospital Trusts.</p>
@@ -36,9 +113,10 @@
   service</a>&nbsp;provided by the University’s Medical Sciences
   Division (MSD) IT service, and then transferred to the virtual
   server over SSH. These services are provided by MSD IT, and meet
-  the University’s baseline standard.</p>
-  <h2 id="h.lkahftgs3f7">How will we store and process the
-  data?</h2>
+    the University’s baseline standard.</p>
+
+  <h3 id="h.lkahftgs3f7">How will we store and process the
+  data?</h3>
   <p>The data will be stored and initially processed on a network
   drive accessed via a secure<a href=
   "https://www.google.com/url?q=https://www.medsci.ox.ac.uk/support-services/teams/information-technology/servers-and-data-services/msd-it-virtual-servers&amp;sa=D&amp;ust=1567690663804000">&nbsp;</a><a href="https://www.google.com/url?q=https://www.medsci.ox.ac.uk/support-services/teams/information-technology/servers-and-data-services/msd-it-virtual-servers&amp;sa=D&amp;ust=1567690663804000">virtual
@@ -74,7 +152,7 @@
   <p>Anonymised extracts of the aggregated, pseudonymised
   data&nbsp;will be published in data tables in individual research
   papers.</p>
-  <h2 id="h.ryu8wik71ivk">Purpose of data processing</h2>
+  <h3 id="h.ryu8wik71ivk">Purpose of data processing</h3>
   <ul>
     <li>To provide GPs simple, actionable feedback on their request
     rates and results data, allowing them to e.g. identify outliers
@@ -91,7 +169,7 @@
   <p>Our lawful basis is GDPR articles 6.1.e public interest and
   9.2.j research. &nbsp;See Stage 2 part 4, above (cost saving for
   NHS, improving patient outcomes)</p>
-  <h2 id="h.9k34xoi88n2g">Transparency</h2>
+  <h3 id="h.9k34xoi88n2g">Transparency</h3>
   <p>We will add a page on our website for individuals whose data
   may be included, providing the following transparency
   information:</p>
@@ -104,20 +182,20 @@
     <li>When their personal data will be erased?</li>
     <li>Their rights under GDPR?</li>
   </ol>
-  <h2 id="h.jx9nr14pxzie">Data retention</h2>
+  <h3 id="h.jx9nr14pxzie">Data retention</h3>
   <p>Data will be kept for 5 years, in order to provide time trends
   analyses.</p>
-  <h2 id="h.rdk1dvnqzgoc">Ethics</h2>
+  <h3 id="h.rdk1dvnqzgoc">Ethics</h3>
   <p>There is no need for ethics approval for the project at
   present, as this was classed by the Ethics Team as a “service
   development” project. We will seek appropriate ethical approvals
   for research projects as required.</p>
-  <h2 id="h.gmyulgysl964">Data flow diagram</h2>
+  <h3 id="h.gmyulgysl964">Data flow diagram</h3>
   <p>
     <img src="{{ url_for('static', filename='data_flow.png') }}" alt="Diagram showing data flow between labs and openpathology" class="img-fluid img-thumbnail">
   </p>
 
-  <h2 id="h.9q1s5ly810gt">Anonymisation schedule</h2>
+  <h3 id="h.9q1s5ly810gt">Anonymisation schedule</h3>
   <table class="table table-condensed table-bordered">
     <tbody>
       <tr>
