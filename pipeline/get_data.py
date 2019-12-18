@@ -24,7 +24,16 @@ def get_codes():
     url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSeLPEW4rTy_hCktuAXEsXtivcdREDuU7jKfXlvJ7CTEBycrxWyunBWdLgGe7Pm1A/pub?gid=241568377&single=true&output=csv"
     target_path = settings.CSV_DIR / "test_codes.csv"
     df = pd.read_csv(url, na_filter=False)
-    df[df["show_in_app?"] == True].to_csv(target_path, index=False)
+    df = df[df["show_in_app?"] == True]
+    dupe_codes = df.datalab_testcode[df.datalab_testcode.duplicated()]
+    dupe_names = df.testname[df.testname.duplicated()]
+    if not dupe_codes.empty or not dupe_names.empty:
+         raise ValueError(
+             f"Non-unique test codes or names\n"
+             f" codes: {', '.join(dupe_codes)}\n"
+             f" names: {', '.join(dupe_names)}"
+         )
+    df.to_csv(target_path, index=False)
 
 
 def get_practices():
