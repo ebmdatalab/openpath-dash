@@ -221,4 +221,6 @@ def postprocess_files(filenames):
             df = pd.concat([df, pd.read_csv(filename, na_filter=False)], sort=False)
     # df = anonymise(df)
     report_oddness(df)
-    df.to_csv(settings.CSV_DIR / f"all_processed.csv", index=False)
+    df.to_csv(
+        settings.CSV_DIR / f"all_processed.csv.zip", index=False, compression="infer"
+    )
