@@ -288,10 +288,11 @@ def get_count_data(
     # Always include date in label
     label_format += " in {0[month]:%b %Y}"
     num_df_agg["label"] = num_df_agg.apply(label_format.format, axis=1)
-    # If `by` is `None` then we're getting the raw, unaggregated data to display in a table
-    # and the filtering mechanism below won't work (and also, probably, is less necessary as
-    # the table will be too big to parse visually in any case)
     if not num_df_agg.empty:
+        # If `by` is `None` then we're getting the raw, unaggregated data to
+        # display in a table and the filtering mechanism below won't work (and
+        # also, probably, is less necessary as the table will be too big to
+        # parse visually in any case)
         if hide_entities_with_sparse_data and by is not None:
             # Remove all rows without data in at least 6 of the last 9 months
             num_df_agg = _filter_rows_with_sparse_data(
@@ -334,6 +335,11 @@ def get_test_code_to_name_map():
     df = get_test_list()
     name_map = dict(zip(df.value, df.label))
     name_map["all"] = "all tests"
+    # Enforce uniqueness of test names
+    inverse_map = {v: k for k, v in name_map.items()}
+    if len(name_map) != len(inverse_map):
+        duplicates = [v for k, v in name_map.items() if inverse_map[v] != k]
+        raise ValueError(f"Non-unique test names: {', '.join(duplicates)}")
     return name_map
 
 
