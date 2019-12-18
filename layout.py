@@ -150,7 +150,7 @@ def layout(tests_df, ccgs_list, labs_list):
         active_tab="chart",
         children=[
             dbc.Tab(label="Chart", tab_id="chart"),
-            dbc.Tab(label="Practice-level data table", tab_id="datatable"),
+            dbc.Tab(label="Data table", tab_id="datatable"),
         ],
     )
     result_category_hint = html.Div(
@@ -233,7 +233,7 @@ def layout(tests_df, ccgs_list, labs_list):
                                                     config=COMMON_GRAPH_CONFIG,
                                                 )
                                             ],
-                                        )
+                                        ),
                                     ],
                                 )
                             ),
@@ -243,47 +243,36 @@ def layout(tests_df, ccgs_list, labs_list):
             ),
             dbc.Row(
                 dbc.Col(
-                    [
-                        html.Div(
-                            id="datatable-container",
-                            style={"display": "none"},
-                            children=[
-                                dash_table.DataTable(
-                                    id="datatable",
-                                    columns=[
-                                        {
-                                            "name": "month",
-                                            "id": "month",
-                                            "type": "datetime",
-                                        },
-                                        {"name": "test", "id": "test_code"},
-                                        {"name": "result", "id": "result_category"},
-                                        {"name": "ccg", "id": "ccg_id"},
-                                        {"name": "lab", "id": "lab_id"},
-                                        {"name": "practice", "id": "practice_id"},
-                                        {"name": "numerator", "id": "numerator"},
-                                        {"name": "denominator", "id": "denominator"},
-                                    ],
-                                    sort_action="custom",
-                                    sort_mode="multi",
-                                    page_action="custom",
-                                    page_current=0,
-                                    page_size=50,
-                                ),
-                                html.Div(
-                                    className="download-link-container",
-                                    children=[
-                                        html.A(
-                                            "Download as CSV",
-                                            id="datatable-download-link",
-                                            href="#",
-                                            className="btn btn-outline-primary",
-                                        )
-                                    ],
-                                ),
-                            ],
-                        )
-                    ]
+                    dcc.Loading(
+                        id="loading-datatable",
+                        children=[
+                            html.Div(
+                                id="datatable-container",
+                                style={"display": "none"},
+                                children=[
+                                    dash_table.DataTable(
+                                        id="datatable",
+                                        sort_action="custom",
+                                        sort_mode="multi",
+                                        page_action="custom",
+                                        page_current=0,
+                                        page_size=50,
+                                    ),
+                                    html.Div(
+                                        className="download-link-container",
+                                        children=[
+                                            html.A(
+                                                "Download as CSV",
+                                                id="datatable-download-link",
+                                                href="#",
+                                                className="btn btn-outline-primary",
+                                            )
+                                        ],
+                                    ),
+                                ],
+                            )
+                        ],
+                    )
                 )
             ),
         ]

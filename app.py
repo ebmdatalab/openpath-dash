@@ -113,6 +113,7 @@ VALID_KEYS = {
     "lab_ids_for_practice_filter",
     "ccg_ids_for_practice_filter",
     "result_filter",
+    "by",
     "sort_by",
 }
 
@@ -120,7 +121,7 @@ VALID_KEYS = {
 @server.route("/download")
 def download():
     # Work around circular import
-    from apps.datatable import get_datatable
+    from apps.datatable import get_datatable_with_columns
 
     try:
         spec = json.loads(request.args.get("spec"))
@@ -128,12 +129,15 @@ def download():
         abort(400)
     if not spec.keys() <= VALID_KEYS:
         abort(400)
-    df = get_datatable(**spec)
+    df, columns = get_datatable_with_columns(**spec)
     headers = {
         "content-type": "text/csv",
         "content-disposition": 'attachment; filename="data.csv"',
     }
-    return df.to_csv(index=False), headers
+    column_headings = [c["name"] for c in columns]
+    column_ids = [c["id"] for c in columns]
+    csv = df.to_csv(index=False, columns=column_ids, header=column_headings)
+    return csv, headers
 
 
 cache = Cache()
