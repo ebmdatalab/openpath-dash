@@ -330,13 +330,7 @@ def update_highlight_entities_querystring(
     page_state = get_state(page_state)
     ctx = dash.callback_context
     triggered_inputs = [x["prop_id"].split(".")[0] for x in ctx.triggered]
-    if page_state["update_counter"] > 0 and "groupby-dropdown" in triggered_inputs:
-        # Remove any entity highlights if the groupby has changed (because
-        # they will no longer be pertinent).  However, only do this on
-        # updates subsequent to the first page load, because on the first
-        # page load we set the groupby from the URL.
-        qs = ""
-    elif "heatmap-graph" in triggered_inputs:
+    if "heatmap-graph" in triggered_inputs:
         # Update the URL to match the selected cell from the heatmap
         highlight_entities = query_string.get("highlight_entities", [])
         highlight_entities = toggle_entity_id_list_from_click_data(
