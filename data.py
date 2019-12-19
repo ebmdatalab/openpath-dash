@@ -46,6 +46,15 @@ def get_count_data(
     """Get anonymised count data (for all categories) by month and test_code and practice
     """
     df = get_data(sample_size)
+
+    # If we're filtering the numerator to below/within/over range then we
+    # filter the denominator to just numeric results, which is the ratio we're
+    # generally interested in. It would be nicer not to hardcode this behaviour
+    # here but it's easier to reworking the API at this stage.
+    denominator_result_filter = None
+    if result_filter in ("under_range", "within_range", "over_range"):
+        denominator_result_filter = "numeric"
+
     if by == "practice_id":
         cols = ["month", "total_list_size", "practice_id", "ccg_id", "count", "error"]
         groupby = ["month", "practice_id", "ccg_id"]
@@ -138,20 +147,9 @@ def get_count_data(
     if ccg_ids_for_practice_filter and "all" not in ccg_ids_for_practice_filter:
         base_and_query.append(f"(ccg_id.isin({ccg_ids_for_practice_filter}))")
     numerator_and_query = base_and_query[:]
-    if result_filter and result_filter != "all":
-        if result_filter == "within_range":
-            numerator_and_query.append(f"(result_category == {settings.WITHIN_RANGE})")
-        elif result_filter == "under_range":
-            numerator_and_query.append(f"(result_category == {settings.UNDER_RANGE})")
-        elif result_filter == "over_range":
-            numerator_and_query.append(f"(result_category == {settings.OVER_RANGE})")
-        elif result_filter == "error":
-            numerator_and_query.append("(result_category > 1)")
-        elif str(result_filter).isnumeric():
-            numerator_and_query.append(f"(result_category == {result_filter})")
-        else:
-            raise ValueError(result_filter)
-
+    result_filter_query = get_result_filter_query(result_filter)
+    if result_filter_query:
+        numerator_and_query.append(result_filter_query)
     if numerators and numerators != ["all"]:
         numerator_and_query += [f"(test_code.isin({numerators}))"]
     if numerator_and_query:
@@ -239,11 +237,7 @@ def get_count_data(
         # codes is the same as the denominator codes then we can reasonably
         # infer that this is case 1. Otherwise we assume case 2.
         if by == "test_code":
-            if (
-                set(numerators) == set(denominators)
-                and result_filter
-                and result_filter != "all"
-            ):
+            if result_filter_query and set(numerators) == set(denominators):
                 # The default grouping behaviour works for this case
                 pass
             else:
@@ -252,6 +246,9 @@ def get_count_data(
         denominator_and_query = base_and_query[:]
         if denominators and "all" not in denominators:
             denominator_and_query += [f"test_code.isin({denominators})"]
+        denominator_filter_query = get_result_filter_query(denominator_result_filter)
+        if denominator_filter_query:
+            denominator_and_query.append(denominator_filter_query)
         if denominator_and_query:
             filtered_df = df.query(" & ".join(denominator_and_query))
         else:
@@ -396,3 +393,22 @@ def humanise_entity_name(column_name, value):
     if column_name == "result_category":
         return settings.ERROR_CODES[value]
     return f"{column_name} {value}"
+
+
+def get_result_filter_query(result_filter):
+    if not result_filter or result_filter == "all":
+        return
+    if result_filter == "within_range":
+        return f"(result_category == {settings.WITHIN_RANGE})"
+    elif result_filter == "under_range":
+        return f"(result_category == {settings.UNDER_RANGE})"
+    elif result_filter == "over_range":
+        return f"(result_category == {settings.OVER_RANGE})"
+    elif result_filter == "error":
+        return "(result_category > 1)"
+    elif result_filter == "numeric":
+        return "(result_category < 2)"
+    elif str(result_filter).isnumeric():
+        return f"(result_category == {result_filter})"
+    else:
+        raise ValueError(result_filter)

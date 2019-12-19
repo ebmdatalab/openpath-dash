@@ -64,15 +64,15 @@ def layout(tests_df, ccgs_list, labs_list):
                     OPTION_SEPARATOR,
                     {
                         "value": "within_range",
-                        "label": "Proportion of results within reference range",
+                        "label": "Proportion of numeric results within reference range",
                     },
                     {
                         "value": "under_range",
-                        "label": "Proportion of results under reference range",
+                        "label": "Proportion of numeric results under reference range",
                     },
                     {
                         "value": "over_range",
-                        "label": "Proportion of results over reference range",
+                        "label": "Proportion of numeric results over reference range",
                     },
                     {
                         "value": settings.ERR_NO_REF_RANGE,
