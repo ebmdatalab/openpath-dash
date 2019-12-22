@@ -104,7 +104,7 @@ def update_deciles(page_state, click_data, current_qs):
         hide_entities_with_sparse_data=page_state.get("sparse_data_toggle"),
     )
     if trace_df.empty:
-        return settings.EMPTY_RESPONSE
+        return EMPTY_RESPONSE
 
     # Don't show deciles in cases where they don't make sense
     if len(trace_df[col_name].unique()) < 10 or groupby == "result_category":
