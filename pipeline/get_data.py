@@ -69,34 +69,6 @@ def add_lab_code(df, lab_code):
     return df
 
 
-def normalise_test_codes(df, lab_code):
-    """Convert local test codes into DL version
-    """
-    # We don't bother mapping tests that are rare, i.e. this is taken
-    # into account when making the spreadsheet.
-    orig_cols = df.columns
-    test_code_mapping = pd.read_csv(
-        settings.CSV_DIR / "test_codes.csv", na_filter=False
-    )
-    df["test_code"] = df["test_code"].str.strip()
-    assert len(df[pd.isnull(df.test_code)]) == 0
-    output = pd.DataFrame(columns=orig_cols)
-    # For each test code identified for the lab in our
-    # manually-curated mapping spreadsheet, rename any codes to our
-    # normalised `datalab_testcode`. In addition, be sure also to
-    # match on any codes in the lab data which are exactly the same as
-    # the `datalab_testcode`.
-    for colname in CODE_MAPPINGS[lab_code] + ["datalab_testcode"]:
-        result = df.merge(
-            test_code_mapping, how="inner", left_on="test_code", right_on=colname
-        )
-        result = result.rename(
-            columns={"test_code": "source_test_code", "datalab_testcode": "test_code"}
-        )
-        output = output.append(result[orig_cols])
-    return output[orig_cols]
-
-
 def trim_practices_and_add_population(df):
     """Remove practices unlikely to be normal GP ones
     """
@@ -200,7 +172,6 @@ def report_oddness(df):
 def process_file(lab_code, filename):
     df = pd.read_csv(filename, na_filter=False)
     df = add_lab_code(df, lab_code)
-    df = normalise_test_codes(df, lab_code)
     df = normalise_practice_codes(df, lab_code)
     df = estimate_errors(df)  # XXX can do this earlier in the pipeline
     df = trim_trailing_months(df)
