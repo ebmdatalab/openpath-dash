@@ -81,3 +81,8 @@ body {
 #heatmap-click-hint p {
   margin-bottom: 0;
 }
+
+#sort-order-dropdown-container .form-group {
+  margin-bottom: 0;
+  margin-top: 1rem;
+}
