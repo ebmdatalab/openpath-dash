@@ -92,6 +92,19 @@
     where this indicates the minimum and maximum possible values.
   </p>
 
+  <h2 id="lab-list-sizes">How do you calculate patient list sizes for labs?</h2>
+
+  <p>
+    Unlike practices or CCGs, labs don't have a patient list and so, strictly
+    speaking, there's no such thing as a list size for a lab.  Nevertheless it
+    can be useful to have a rough estimate of how many patients are "served" by
+    a given lab to use as a denominator. We do this by assigning each practice
+    to its "primary" lab, which we define as the lab which processes the
+    majority of that practice's potassium tests, with a minimum threshold of 50
+    tests in order to filter out noise. A lab's list size is then calculated as
+    the sum of the list sizes of all the practices assigned to it.
+  </p>
+
 </div>
 
 {% endblock %}

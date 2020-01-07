@@ -104,9 +104,12 @@ def get_labs_for_practices():
     of its potassium tests, ignoring practices which sent less than 50
     potassium tests to any one lab. This implies that some practices will not
     have any associated lab in some months.
+
+    NOTE: If we change this algorithm we should also update the text at
+    /faq#lab-list-sizes
     """
     df = get_data()
-    # Filter to just Potassium tests and just the columns we need
+    # Filter to just potassium tests and just the columns we need
     df = df[df.loc[:, "test_code"] == "K"]
     df = df[["month", "practice_id", "lab_id", "count"]]
     # Get total tests each practice sent to each lab in each month
