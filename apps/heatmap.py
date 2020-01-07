@@ -145,7 +145,7 @@ def update_heatmap(page_state, current_qs, sort_order, current_fig):
     # Hack: result_category values are ints not strings, but everything gets
     # converted to strings when passed through the URL query params
     if col_name == "result_category":
-        highlight_entities = set(map(int, highlight_entities))
+        highlight_entities = set([int(s) for s in highlight_entities if s.isdigit()])
 
     highlight_rectangles = [
         make_highlight_rect(vals_by_entity.index.get_loc(x))
