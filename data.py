@@ -33,6 +33,100 @@ def get_data(sample_size=None):
 
 
 @cache.memoize()
+def get_practice_data():
+    # NOTE: When we stop anonymising practice codes (or equally, if we use
+    # matching anonymised IDs in the practice_codes.csv file) we can replace
+    # the below with:
+    #
+    #   practice_df = read_practice_data()
+    #
+    # and remove the `synthesise_practice_data` function.
+    practice_df = synthesise_practice_data()
+    lab_df = get_labs_for_practices()
+    practice_df = practice_df.merge(lab_df, how="left", on=["month", "practice_id"])
+
+    return practice_df
+
+
+def synthesise_practice_data():
+    # Get a list size for each practice and month by extracting it from the
+    # main dataframe.  This means that if a practice requested no tests in a
+    # given month it won't show up in that month so its list size will be
+    # missing from the CCG total.
+    practice_df = get_data()[
+        ["month", "practice_id", "practice_name", "ccg_id", "total_list_size"]
+    ]
+    practice_df = practice_df.drop_duplicates(["month", "practice_id"])
+    # To work around the problem above we get the actual list size for each CCG
+    # from the practice_codes.csv file, calculate the difference, and insert
+    # dummy practice entries in each month to ensure that the CCG totals are
+    # correct.
+    true_ccg_df = read_practice_data().groupby(["month", "ccg_id"], observed=True).sum()
+    implied_ccg_df = practice_df.groupby(["month", "ccg_id"], observed=True).sum()
+    diff_df = true_ccg_df - implied_ccg_df
+    diff_df = diff_df[diff_df["total_list_size"] > 0]
+    diff_df = diff_df.reset_index()
+    practice_df = practice_df.append(diff_df, sort=True)
+    return practice_df
+
+
+def read_practice_data():
+    categorical = CategoricalDtype(ordered=False)
+    dtypes = {
+        "ccg_id": categorical,
+        "practice_id": categorical,
+        "practice_name": categorical,
+        # Even though list sizes are ints, because we have some NaN values in
+        # the data (i.e. practices without a known list size) we have to use
+        # floats
+        "total_list_size": float,
+    }
+    practice_df = pd.read_csv(
+        settings.CSV_DIR / "practice_codes.csv",
+        dtype=dtypes,
+        parse_dates=["month"],
+        # We need NaN handling (see above) but we don't want to interpret
+        # anything other than an empty string as NaN
+        keep_default_na=False,
+        na_values=[""],
+    )
+    practice_df = practice_df.dropna()
+    return practice_df
+
+
+def get_labs_for_practices():
+    """
+    Return a DataFrame mapping (month, practice_id) to a lab_id
+
+    This models the fiction that each practice "belongs" to a particular lab,
+    which we then use to provide a list size figure for labs to use as a
+    denominator. We assign each practice to the lab where it sent the majority
+    of its potassium tests, ignoring practices which sent less than 50
+    potassium tests to any one lab. This implies that some practices will not
+    have any associated lab in some months.
+
+    NOTE: If we change this algorithm we should also update the text at
+    /faq#lab-list-sizes
+    """
+    df = get_data()
+    # Filter to just potassium tests and just the columns we need
+    df = df[df.loc[:, "test_code"] == "K"]
+    df = df[["month", "practice_id", "lab_id", "count"]]
+    # Get total tests each practice sent to each lab in each month
+    df = df.groupby(["month", "practice_id", "lab_id"], observed=True).sum()
+    df = df.reset_index()
+    # For each month and practice, keep only the lab with the highest test count
+    df = df.sort_values("count", na_position="first")
+    df = df.drop_duplicates(["month", "practice_id"], keep="last")
+    # Filter out practices which didn't order enough tests
+    df = df[df.loc[:, "count"] >= 50]
+    # We no longer need this column and don't want it accidentally ending up in
+    # any merges
+    df = df.drop(columns=["count"])
+    return df
+
+
+@cache.memoize()
 def get_count_data(
     numerators=[],
     denominators=[],
@@ -167,12 +261,7 @@ def get_count_data(
             filtered_df[cols_without_list_size].groupby(groupby, observed=True).sum()
         )
 
-        # First we construct a dataframe which contains practice details with
-        # exactly one entry for each practice-month pair.
-        practice_df = df[
-            ["month", "practice_id", "ccg_id", "lab_id", "total_list_size"]
-        ]
-        practice_df = practice_df.drop_duplicates(["month", "practice_id"])
+        practice_df = get_practice_data()
 
         # The easy case is when we're grouping by practice-related columns. In
         # this case we just apply the same group/sum to the practice dataframe
