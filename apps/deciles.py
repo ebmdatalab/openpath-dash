@@ -93,6 +93,8 @@ def update_deciles(page_state, click_data, current_qs):
     denominators = page_state.get("denominators", [])
     result_filter = page_state.get("result_filter", [])
     groupby = page_state.get("groupby", None)
+    ccg_ids_for_practice_filter = page_state.get("ccg_ids_for_practice_filter", [])
+    lab_ids_for_practice_filter = page_state.get("lab_ids_for_practice_filter", [])
 
     col_name = groupby
 
@@ -100,6 +102,8 @@ def update_deciles(page_state, click_data, current_qs):
         numerators=numerators,
         denominators=denominators,
         result_filter=result_filter,
+        lab_ids_for_practice_filter=lab_ids_for_practice_filter,
+        ccg_ids_for_practice_filter=ccg_ids_for_practice_filter,
         by=col_name,
         hide_entities_with_sparse_data=page_state.get("sparse_data_toggle"),
     )

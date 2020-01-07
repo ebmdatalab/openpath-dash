@@ -465,7 +465,7 @@ def get_lab_list():
     """Get data suitably massaged for use in a dropdown
     """
     return [
-        {"value": x, "label": x}
+        {"value": x, "label": humanise_entity_name("lab_id", x)}
         for x in get_data().groupby("lab_id")["test_code"].groups.keys()
     ]
 
