@@ -119,6 +119,17 @@
     the sum of the list sizes of all the practices assigned to it.
   </p>
 
+  <h2 id="ccg-list-sizes">Why is the patient list size for my CCG smaller than expected?</h2>
+
+  <p>
+    In some cases we have only partial data for a CCG because some practices
+    within it use a lab which doesn't (yet) supply us with data. Including
+    those practices within the total CCG list size would give a misleading
+    picture. For this reason when calculating the total CCG list size we only
+    include practices for which we have data (i.e. the practice code occurs at
+    least once somewhere in our data).
+  </p>
+
 </div>
 
 {% endblock %}

@@ -35,6 +35,11 @@ def get_data(sample_size=None):
 @cache.memoize()
 def get_practice_data():
     practice_df = read_practice_data()
+    practices_with_data = get_data().practice_id.unique()
+    # If we have no data for a practice at all then we don't want to include it
+    # in our practice data, mainly so that its list size doesn't unfairly
+    # contribute to the CCG list size
+    practice_df = practice_df[practice_df.practice_id.isin(practices_with_data)]
     lab_df = get_labs_for_practices()
     practice_df = practice_df.merge(lab_df, how="left", on=["month", "practice_id"])
 
