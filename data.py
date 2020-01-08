@@ -34,39 +34,10 @@ def get_data(sample_size=None):
 
 @cache.memoize()
 def get_practice_data():
-    # NOTE: When we stop anonymising practice codes (or equally, if we use
-    # matching anonymised IDs in the practice_codes.csv file) we can replace
-    # the below with:
-    #
-    #   practice_df = read_practice_data()
-    #
-    # and remove the `synthesise_practice_data` function.
-    practice_df = synthesise_practice_data()
+    practice_df = read_practice_data()
     lab_df = get_labs_for_practices()
     practice_df = practice_df.merge(lab_df, how="left", on=["month", "practice_id"])
 
-    return practice_df
-
-
-def synthesise_practice_data():
-    # Get a list size for each practice and month by extracting it from the
-    # main dataframe.  This means that if a practice requested no tests in a
-    # given month it won't show up in that month so its list size will be
-    # missing from the CCG total.
-    practice_df = get_data()[
-        ["month", "practice_id", "practice_name", "ccg_id", "total_list_size"]
-    ]
-    practice_df = practice_df.drop_duplicates(["month", "practice_id"])
-    # To work around the problem above we get the actual list size for each CCG
-    # from the practice_codes.csv file, calculate the difference, and insert
-    # dummy practice entries in each month to ensure that the CCG totals are
-    # correct.
-    true_ccg_df = read_practice_data().groupby(["month", "ccg_id"], observed=True).sum()
-    implied_ccg_df = practice_df.groupby(["month", "ccg_id"], observed=True).sum()
-    diff_df = true_ccg_df - implied_ccg_df
-    diff_df = diff_df[diff_df["total_list_size"] > 0]
-    diff_df = diff_df.reset_index()
-    practice_df = practice_df.append(diff_df, sort=True)
     return practice_df
 
 
