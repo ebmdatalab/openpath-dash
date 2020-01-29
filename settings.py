@@ -33,9 +33,12 @@ else:
 
 
 CACHE_CONFIG = {
-    # Use Redis in production?
-    "CACHE_TYPE": "filesystem",
-    "CACHE_DIR": "/tmp/dash_cache",
+    # A simple in-memory cache. This app relies on caching as it assumes it's
+    # OK to repeatedly call otherwise expensive functions like `get_data`
+    "CACHE_TYPE": "simple",
+    # Set to zero to avoid any time-based expiration. Entries will still be
+    # evicted once the cache size exceeds the default threshold.
+    "CACHE_DEFAULT_TIMEOUT": 0,
 }
 
 # This are from the divergent, colourblind-safe "Wong" scheme taken from https://davidmathlogic.com/colorblind/
