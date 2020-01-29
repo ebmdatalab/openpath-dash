@@ -35,7 +35,7 @@ else:
 CACHE_CONFIG = {
     # Use Redis in production?
     "CACHE_TYPE": "filesystem",
-    "CACHE_DIR": "/tmp/",
+    "CACHE_DIR": "/tmp/dash_cache",
 }
 
 # This are from the divergent, colourblind-safe "Wong" scheme taken from https://davidmathlogic.com/colorblind/

@@ -142,3 +142,4 @@ def download():
 
 cache = Cache()
 cache.init_app(app.server, config=settings.CACHE_CONFIG)
+cache.clear()
