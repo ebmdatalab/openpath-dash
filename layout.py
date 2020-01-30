@@ -154,6 +154,7 @@ def layout(tests_df, ccgs_list, labs_list):
         children=[
             dbc.Tab(label="Chart", tab_id="chart"),
             dbc.Tab(label="Data table", tab_id="datatable"),
+            dbc.Tab(label="Measure", tab_id="measure"),
         ],
     )
     result_category_hint = html.Div(
@@ -249,6 +250,20 @@ def layout(tests_df, ccgs_list, labs_list):
                                     ],
                                 )
                             ),
+                        ],
+                    )
+                )
+            ),
+            dbc.Row(
+                dbc.Col(
+                    dcc.Loading(
+                        id="loading-measures",
+                        children=[
+                            html.Div(
+                                id="measure-container",
+                                style={"display": "none"},
+                                children=[],
+                            )
                         ],
                     )
                 )

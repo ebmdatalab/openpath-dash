@@ -15,9 +15,11 @@ def setup_app_and_layout():
 
 def setup_callbacks():
     import apps.base
+
     import apps.deciles
     import apps.heatmap
     import apps.datatable
+    import apps.measure
 
     import stateful_routing
 
