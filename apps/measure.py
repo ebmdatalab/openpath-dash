@@ -43,24 +43,33 @@ def get_deciles(df):
     return zip(deciles, deciles_data)
 
 
-def get_decile_traces(df, col_name):
+def get_decile_traces(df, col_name, highlight_median=False):
     """Return a set of `Scatter` traces  suitable for adding to a Dash figure
     """
     deciles_traces = []
     months = pd.to_datetime(df["month"].unique())
-    legend_text = (
-        f"Deciles over all<br>available {humanise_column_name(col_name)}<br>nationally"
-    )
     showlegend = True
     for n, decile in get_deciles(df):
-        style = "dash" if n == 50 else "dot"
+        legend_text = f"Deciles over all<br>available {humanise_column_name(col_name)}<br>nationally"
+        legendgroup = "deciles"
+        color = settings.DECILE_COLOUR
+        style = "dot"
+        if n == 50:
+            if highlight_median:
+                style = "solid"
+                color = "red"
+                legend_text = legendgroup = "Median"
+                showlegend = True
+            else:
+                style = "dash"
+
         deciles_traces.append(
             go.Scatter(
                 x=months,
                 y=decile,
-                legendgroup="deciles",
+                legendgroup=legendgroup,
                 name=legend_text,
-                line=dict(color=settings.DECILE_COLOUR, width=1, dash=style),
+                line=dict(color=color, width=1, dash=style),
                 hoverinfo="skip",
                 showlegend=showlegend,
             )
@@ -71,12 +80,9 @@ def get_decile_traces(df, col_name):
 
 
 @app.callback(
-    Output("measure-container", "children"),
-    [Input("page-state", "children")],
-    [State("url-for-update", "search")],
+    Output("measure-container", "children"), [Input("page-state", "children")]
 )
-def update_measures(page_state, current_qs):
-    query_string = urllib.parse.parse_qs(current_qs[1:])
+def update_measures(page_state):
     page_state = get_state(page_state)
     if page_state.get("page_id") != settings.MEASURE_ID:
         return []
@@ -86,9 +92,6 @@ def update_measures(page_state, current_qs):
             "numerators": ["CREA"],
             "denominators": ["CREA", "ESR", "PV"],
             "result_filter": "all",
-            "groupby": "practice_id",
-            "ccg_ids_for_practice_filter": ["all"],
-            "lab_ids_for_practice_filter": ["all"],
             "sparse_data_toggle": True,
         },
         {
@@ -96,9 +99,6 @@ def update_measures(page_state, current_qs):
             "numerators": ["K"],
             "denominators": ["per1000"],
             "result_filter": "all",
-            "groupby": "practice_id",
-            "ccg_ids_for_practice_filter": ["all"],
-            "lab_ids_for_practice_filter": ["all"],
             "sparse_data_toggle": True,
         },
         {
@@ -106,9 +106,6 @@ def update_measures(page_state, current_qs):
             "numerators": ["TSH"],
             "denominators": ["per1000"],
             "result_filter": "all",
-            "groupby": "practice_id",
-            "ccg_ids_for_practice_filter": ["all"],
-            "lab_ids_for_practice_filter": ["all"],
             "sparse_data_toggle": True,
         },
         {
@@ -116,51 +113,51 @@ def update_measures(page_state, current_qs):
             "numerators": ["TSH"],
             "denominators": ["TSH"],
             "result_filter": "under_range",
-            "groupby": "practice_id",
-            "ccg_ids_for_practice_filter": ["all"],
-            "lab_ids_for_practice_filter": ["all"],
             "sparse_data_toggle": True,
         },
     ]
     charts = []
+    groupby = col_name = page_state.get("groupby", None)
+    ccg_ids_for_practice_filter = page_state.get("ccg_ids_for_practice_filter", [])
+    lab_ids_for_practice_filter = page_state.get("lab_ids_for_practice_filter", [])
     for measure in measures:
         numerators = measure["numerators"]
         denominators = measure["denominators"]
         result_filter = measure["result_filter"]
-        groupby = measure["groupby"]
-        col_name = measure["groupby"]
 
         trace_df = get_count_data(
             numerators=measure["numerators"],
             denominators=measure["denominators"],
             result_filter=measure["result_filter"],
-            lab_ids_for_practice_filter=measure["lab_ids_for_practice_filter"],
-            ccg_ids_for_practice_filter=measure["ccg_ids_for_practice_filter"],
+            lab_ids_for_practice_filter=lab_ids_for_practice_filter,
+            ccg_ids_for_practice_filter=ccg_ids_for_practice_filter,
             by=col_name,
             hide_entities_with_sparse_data=measure["sparse_data_toggle"],
         )
         if trace_df.empty:
-            return EMPTY_RESPONSE
+            return []
 
         # Don't show deciles in cases where they don't make sense
         if len(trace_df[col_name].unique()) < 10 or groupby == "result_category":
             show_deciles = False
         else:
             show_deciles = True
-
-        traces = get_decile_traces(trace_df, col_name) if show_deciles else []
-
-        # If we're showing deciles then get the IDs of the highlighted entities so
-        # we can display them
-        if show_deciles:
-            highlight_entities = query_string.get("highlight_entities", [])
+        highlight_entities = page_state.get("highlight_entities", [])
+        if show_deciles or highlight_entities:
             entity_ids = get_sorted_group_keys(
                 trace_df[trace_df[col_name].isin(highlight_entities)], col_name
             )
-        # If we're not showing deciles then we want to display all entities
+        # If we're not showing deciles, and no entities have been
+        # explicitly selected, then we want to display all entities
         # automatically
         else:
             entity_ids = get_sorted_group_keys(trace_df, col_name)
+
+        traces = (
+            get_decile_traces(trace_df, col_name, highlight_median=not entity_ids)
+            if show_deciles
+            else []
+        )
 
         has_error_bars = False
         for colour, entity_id in zip(cycle(settings.LINE_COLOUR_CYCLE), entity_ids):
@@ -207,7 +204,7 @@ def update_measures(page_state, current_qs):
 
         fragment = get_title_fragment(numerators, denominators, result_filter)
 
-        if show_deciles and entity_ids:
+        if entity_ids:
             fragment = initial_capital(fragment)
             if col_name == "test_code":
                 title = get_title_fragment(entity_ids, denominators, result_filter)
@@ -222,13 +219,8 @@ def update_measures(page_state, current_qs):
                 )
                 title = f"{fragment} at {entity_desc} {humanise_list(entity_ids)}"
             title += f"<br>(with deciles over all {humanise_column_name(col_name)})"
-        elif show_deciles and not entity_ids:
-            title = f"Deciles for {fragment} over all {humanise_column_name(col_name)}"
         else:
-            fragment = initial_capital(fragment)
-            title = (
-                f"{fragment} grouped by {humanise_column_name(col_name, plural=False)}"
-            )
+            title = f"Deciles for {fragment} over all {humanise_column_name(col_name)}"
 
         annotations = []
         if has_error_bars:
