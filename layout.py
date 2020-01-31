@@ -50,7 +50,8 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
                 options=[{"value": "all", "label": "All tests"}]
                 + tests_df.to_dict("records"),
             ),
-        ]
+        ],
+        id="numerators-form",
     )
 
     denominators_form = dbc.FormGroup(
@@ -93,7 +94,8 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
                 options=tests_df.to_dict("records"),
                 style={"display": "none"},
             ),
-        ]
+        ],
+        id="denominators-form",
     )
     groupby_form = dbc.FormGroup(
         [

@@ -1,6 +1,7 @@
 import logging
 from itertools import cycle
 import re
+import json
 
 import pandas as pd
 import plotly.graph_objs as go
@@ -99,42 +100,14 @@ def update_measures(page_state):
     page_state = get_state(page_state)
     if page_state.get("page_id") != settings.MEASURE_ID:
         return []
-    measures = [
-        {
-            "id": 1,
-            "numerators": ["CREA"],
-            "denominators": ["CREA", "ESR", "PV"],
-            "result_filter": "all",
-            "description": "this is a description",
-        },
-        {
-            "id": 2,
-            "numerators": ["K"],
-            "denominators": ["per1000"],
-            "result_filter": "all",
-            "description": "this is a description",
-        },
-        {
-            "id": 3,
-            "numerators": ["TSH"],
-            "denominators": ["per1000"],
-            "result_filter": "all",
-            "description": "this is a description",
-        },
-        {
-            "id": 4,
-            "numerators": ["TSH"],
-            "denominators": ["TSH"],
-            "result_filter": "under_range",
-            "description": "this is a description",
-        },
-    ]
+    with open("apps/measures.json", "rb") as f:
+        measures = json.load(f)
     charts = []
     groupby = col_name = page_state.get("groupby", None)
     ccg_ids_for_practice_filter = page_state.get("ccg_ids_for_practice_filter", [])
     lab_ids_for_practice_filter = page_state.get("lab_ids_for_practice_filter", [])
     sparse_data_toggle = page_state.get("sparse_data_toggle", [])
-    for measure in measures:
+    for measure_num, measure in enumerate(measures):
         numerators = measure["numerators"]
         denominators = measure["denominators"]
         result_filter = measure["result_filter"]
@@ -280,11 +253,18 @@ def update_measures(page_state):
                 annotations=annotations,
             ),
         }
-        charts.append(dcc.Graph(id=str(measure["id"]), figure=figure))
-        charts.append(html.Div(measure["description"], className="measure-description"))
+        charts.append(dcc.Graph(id=str(measure_num), figure=figure))
         charts.append(
             html.Div(
-                dcc.Link("Explore data", href=url), className="measure-description"
+                children=[
+                    html.Strong("Why it matters: "),
+                    measure["description"] + " ",
+                    dcc.Link(
+                        f"Compare all {humanise_column_name(col_name)} on this measure",
+                        href=url,
+                    ),
+                ],
+                className="measure-description",
             )
         )
         charts.append(html.Hr())
