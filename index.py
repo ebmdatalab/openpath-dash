@@ -6,12 +6,13 @@ def setup_app_and_layout():
     from app import app
     from layout import layout
     from data import get_test_list
-    from data import get_ccg_list
-    from data import get_lab_list
-    from data import get_practice_list
+    from data import get_org_list
 
     app.layout = layout(
-        get_test_list(), get_ccg_list(), get_lab_list(), get_practice_list()
+        get_test_list(),
+        get_org_list("ccg_id"),
+        get_org_list("lab_id"),
+        get_org_list("practice_id"),
     )
     return app
 

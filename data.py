@@ -427,38 +427,16 @@ def get_entity_label_to_id_map():
 
 
 @cache.memoize()
-def get_ccg_list():
-    """Get data suitably massaged for use in a dropdown
-    """
-    return [
-        {"value": x, "label": x}
-        for x in get_data().groupby("ccg_id")["test_code"].groups.keys()
-    ]
-
-
-@cache.memoize()
-def get_lab_list():
-    """Get data suitably massaged for use in a dropdown
-    """
-    return [
-        {"value": x, "label": humanise_entity_name("lab_id", x)}
-        for x in get_data().groupby("lab_id")["test_code"].groups.keys()
-    ]
-
-
-@cache.memoize()
-def get_practice_list(ccg_ids=None, lab_ids=None):
-    """Get data suitably massaged for use in a dropdown
-    """
+def get_org_list(org_type, ccg_ids_filter=None, lab_ids_filter=None):
     df = get_data()
-    if ccg_ids:
-        df = df[df["ccg_id"].isin(ccg_ids)]
-    if lab_ids:
-        df = df[df["lab_id"].isin(lab_ids)]
+    if ccg_ids_filter:
+        df = df[df["ccg_id"].isin(ccg_ids_filter)]
+    if lab_ids_filter:
+        df = df[df["lab_id"].isin(lab_ids_filter)]
 
     return [
         {"value": x, "label": x}
-        for x in df.groupby("practice_id", observed=True)["test_code"].groups.keys()
+        for x in df.groupby(org_type, observed=True)["test_code"].groups.keys()
     ]
 
 

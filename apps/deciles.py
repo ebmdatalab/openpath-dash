@@ -117,12 +117,13 @@ def update_deciles(page_state, current_qs):
 
     # If we're showing deciles then get the IDs of the highlighted entities so
     # we can display them
-    if show_deciles:
-        highlight_entities = page_state.get("highlight_entities", [])
+    highlight_entities = page_state.get("highlight_entities", [])
+    if show_deciles or highlight_entities:
         entity_ids = get_sorted_group_keys(
             trace_df[trace_df[col_name].isin(highlight_entities)], col_name
         )
-    # If we're not showing deciles then we want to display all entities
+    # If we're not showing deciles, and no entities have been
+    # explicitly selected, then we want to display all entities
     # automatically
     else:
         entity_ids = get_sorted_group_keys(trace_df, col_name)

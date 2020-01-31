@@ -14,7 +14,7 @@ from dash.exceptions import PreventUpdate
 import dash_html_components as html
 
 from app import app
-from data import get_practice_list
+from data import get_org_list
 from apps.base import toggle_entity_id_list_from_click_data
 from urls import urls
 import settings
@@ -365,9 +365,13 @@ def update_org_focus_from_heatmap_click_or_query_string(
 
 @app.callback(
     Output("org-focus-dropdown", "options"),
-    [Input("ccg-dropdown", "value"), Input("lab-dropdown", "value")],
+    [
+        Input("ccg-dropdown", "value"),
+        Input("lab-dropdown", "value"),
+        Input("groupby-dropdown", "value"),
+    ],
 )
-def filter_org_focus_dropdown(ccg_ids, lab_ids):
+def filter_org_focus_dropdown(ccg_ids, lab_ids, groupby):
     """Reduce the organisations available in the focus dropdown to those
     within the labs or CCGs specified.
 
@@ -376,7 +380,7 @@ def filter_org_focus_dropdown(ccg_ids, lab_ids):
         ccg_ids = []
     if "all" in lab_ids:
         lab_ids = []
-    return get_practice_list(ccg_ids=ccg_ids, lab_ids=lab_ids)
+    return get_org_list(groupby, ccg_ids_filter=ccg_ids, lab_ids_filter=lab_ids)
 
 
 # for each chart, generate a function to show only that chart
