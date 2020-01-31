@@ -446,6 +446,18 @@ def get_lab_list():
     ]
 
 
+@cache.memoize()
+def get_practice_list():
+    """Get data suitably massaged for use in a dropdown
+    """
+    return [
+        {"value": x, "label": x}
+        for x in get_data()
+        .groupby("practice_id", observed=True)["test_code"]
+        .groups.keys()
+    ]
+
+
 def humanise_entity_name(column_name, value):
     if column_name == "ccg_id":
         return f"CCG {value}"

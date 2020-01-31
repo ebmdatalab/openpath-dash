@@ -21,7 +21,7 @@ def pairs(seq):
         yield item, item_2
 
 
-def layout(tests_df, ccgs_list, labs_list):
+def layout(tests_df, ccgs_list, labs_list, practices_list):
     state_components = html.Div(
         [
             # Hidden div inside the app that stores the page state
@@ -130,6 +130,16 @@ def layout(tests_df, ccgs_list, labs_list):
             ),
         ]
     )
+    org_focus_form = dbc.FormGroup(
+        [
+            dbc.Label("Focusing on which organisations?"),
+            dcc.Dropdown(
+                id="org-focus-dropdown",
+                multi=True,
+                options=practices_list + labs_list + ccgs_list,
+            ),
+        ]
+    )
     tweak_form = dbc.FormGroup(
         [
             dbc.Checklist(
@@ -172,7 +182,14 @@ def layout(tests_df, ccgs_list, labs_list):
         [
             dbc.Row(
                 [
-                    dbc.Col([numerators_form, denominators_form, groupby_form]),
+                    dbc.Col(
+                        [
+                            numerators_form,
+                            denominators_form,
+                            groupby_form,
+                            org_focus_form,
+                        ]
+                    ),
                     dbc.Col([ccg_filter_form, lab_filter_form, tweak_form]),
                 ]
             ),

@@ -88,6 +88,7 @@ def update_url_from_page_state(page_state):
         Input("lab-dropdown", "value"),
         Input("chart-selector-tabs", "active_tab"),
         Input("tweak-form", "value"),
+        Input("org-focus-dropdown", "value"),
     ],
     [State("page-state", "children"), State("url-for-update", "pathname")],
 )
@@ -100,6 +101,7 @@ def update_state_from_inputs(
     selected_lab,
     selected_chart,
     tweak_form,
+    org_focus,
     page_state,
     current_path,
 ):
@@ -164,6 +166,7 @@ def update_state_from_inputs(
         page_id=selected_chart,
         sparse_data_toggle=sparse_data_toggle,
         equalise_colorscale=equalise_colorscale,
+        highlight_entities=org_focus,
     )
 
     # Only trigger state changes if something has changed
@@ -316,32 +319,48 @@ def show_error_from_page_state(page_state):
 
 @app.callback(
     Output("url-for-update", "search"),
-    [Input("heatmap-graph", "clickData"), Input("groupby-dropdown", "value")],
-    [
-        State("page-state", "children"),
-        State("url-for-update", "search"),
-        State("url-from-user", "search"),
-    ],
+    [Input("page-state", "children")],
+    [State("url-for-update", "search"), State("url-from-user", "search")],
 )
-def update_highlight_entities_querystring(
-    heatmap_click_data, groupby_dropdown, page_state, current_qs, supplied_qs
-):
-    query_string = current_qs and urllib.parse.parse_qs(current_qs[1:]) or {}
+def update_highlight_entities_querystring(page_state, current_qs, supplied_qs):
     page_state = get_state(page_state)
+    highlight_entities = page_state.get("highlight_entities", [])
+    # XXX possibly raise a NotUpdate if there's no change
+    qs = "?" + urlencode(
+        {"highlight_entities": highlight_entities}, doseq=True, quote_via=quote_plus
+    )
+    return qs
+
+
+@app.callback(
+    Output("org-focus-dropdown", "value"),
+    [Input("heatmap-graph", "clickData"), Input("url-from-user", "search")],
+    [State("page-state", "children"), State("url-for-update", "search")],
+)
+def update_org_focus_from_heatmap_click_or_query_string(
+    heatmap_click_data, supplied_qs, page_state, current_qs
+):
+    """Cause the specified multi dropdown to match the current page
+    location, as supplied either by the URL or by interaction with the
+    heat map
+
+    """
+
+    page_state = get_state(page_state)
+    # XXX what is current_qs any use for
+    query_string = supplied_qs and urllib.parse.parse_qs(supplied_qs[1:]) or {}
     ctx = dash.callback_context
     triggered_inputs = [x["prop_id"].split(".")[0] for x in ctx.triggered]
+    print(triggered_inputs, page_state, query_string)
     if "heatmap-graph" in triggered_inputs:
         # Update the URL to match the selected cell from the heatmap
-        highlight_entities = query_string.get("highlight_entities", [])
+        highlight_entities = page_state.get("highlight_entities", [])
         highlight_entities = toggle_entity_id_list_from_click_data(
             heatmap_click_data, highlight_entities
         )
-        qs = "?" + urlencode(
-            {"highlight_entities": highlight_entities}, doseq=True, quote_via=quote_plus
-        )
+        return highlight_entities
     else:
-        qs = current_qs
-    return qs
+        return query_string.get("highlight_entities", [])
 
 
 # for each chart, generate a function to show only that chart

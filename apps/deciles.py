@@ -77,13 +77,10 @@ def get_decile_traces(df, col_name):
         Output("heatmap-click-hint", "style"),
         Output("heatmap-click-hint", "children"),
     ],
-    [Input("page-state", "children"), Input("heatmap-graph", "clickData")],
+    [Input("page-state", "children")],
     [State("url-for-update", "search")],
 )
-def update_deciles(page_state, click_data, current_qs):
-    ctx = dash.callback_context
-    triggered_inputs = [x["prop_id"].split(".")[0] for x in ctx.triggered]
-    query_string = urllib.parse.parse_qs(current_qs[1:])
+def update_deciles(page_state, current_qs):
     page_state = get_state(page_state)
 
     if page_state.get("page_id") != settings.CHART_ID:
@@ -121,12 +118,7 @@ def update_deciles(page_state, click_data, current_qs):
     # If we're showing deciles then get the IDs of the highlighted entities so
     # we can display them
     if show_deciles:
-        highlight_entities = query_string.get("highlight_entities", [])
-        if "heatmap-graph" in triggered_inputs:
-            # User has clicked on a cell in the heatmap
-            highlight_entities = toggle_entity_id_list_from_click_data(
-                click_data, highlight_entities
-            )
+        highlight_entities = page_state.get("highlight_entities", [])
         entity_ids = get_sorted_group_keys(
             trace_df[trace_df[col_name].isin(highlight_entities)], col_name
         )
