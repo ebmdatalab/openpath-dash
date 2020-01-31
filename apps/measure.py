@@ -6,6 +6,7 @@ import pandas as pd
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
+import dash_html_components as html
 
 import numpy as np
 from app import app
@@ -19,6 +20,8 @@ from apps.base import (
 )
 from data import humanise_entity_name
 from data import get_count_data
+from urls import urls
+
 from stateful_routing import get_state
 import settings
 
@@ -102,24 +105,28 @@ def update_measures(page_state):
             "numerators": ["CREA"],
             "denominators": ["CREA", "ESR", "PV"],
             "result_filter": "all",
+            "description": "this is a description",
         },
         {
             "id": 2,
             "numerators": ["K"],
             "denominators": ["per1000"],
             "result_filter": "all",
+            "description": "this is a description",
         },
         {
             "id": 3,
             "numerators": ["TSH"],
             "denominators": ["per1000"],
             "result_filter": "all",
+            "description": "this is a description",
         },
         {
             "id": 4,
             "numerators": ["TSH"],
             "denominators": ["TSH"],
             "result_filter": "under_range",
+            "description": "this is a description",
         },
     ]
     charts = []
@@ -231,7 +238,14 @@ def update_measures(page_state):
             title += f"<br>(with deciles over all {humanise_column_name(col_name)})"
         else:
             title = f"Deciles for {fragment} over all {humanise_column_name(col_name)}"
+        url_args = measure.copy()
+        url_args["page_id"] = "chart"
+        url_args["groupby"] = groupby
+        url_args["lab_ids_for_practice_filter"] = lab_ids_for_practice_filter
+        url_args["ccg_ids_for_practice_filter"] = ccg_ids_for_practice_filter
+        url_args["highlight_entities"] = highlight_entities
 
+        url = urls.build("analysis", url_args, append_unknown=True)
         annotations = []
         if has_error_bars:
             annotations.append(
@@ -267,5 +281,11 @@ def update_measures(page_state):
             ),
         }
         charts.append(dcc.Graph(id=str(measure["id"]), figure=figure))
-    print("XXXXXXXXXXXXXXXXXXXXXXXX {}".format(len(charts)))
+        charts.append(html.Div(measure["description"], className="measure-description"))
+        charts.append(
+            html.Div(
+                dcc.Link("Explore data", href=url), className="measure-description"
+            )
+        )
+        charts.append(html.Hr())
     return charts
