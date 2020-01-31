@@ -120,6 +120,7 @@ def update_measures(page_state):
     groupby = col_name = page_state.get("groupby", None)
     ccg_ids_for_practice_filter = page_state.get("ccg_ids_for_practice_filter", [])
     lab_ids_for_practice_filter = page_state.get("lab_ids_for_practice_filter", [])
+    sparse_data_toggle = page_state.get("sparse_data_toggle", [])
     for measure in measures:
         numerators = measure["numerators"]
         denominators = measure["denominators"]
@@ -132,8 +133,9 @@ def update_measures(page_state):
             lab_ids_for_practice_filter=lab_ids_for_practice_filter,
             ccg_ids_for_practice_filter=ccg_ids_for_practice_filter,
             by=col_name,
-            hide_entities_with_sparse_data=measure["sparse_data_toggle"],
+            hide_entities_with_sparse_data=sparse_data_toggle,
         )
+
         if trace_df.empty:
             return []
 
