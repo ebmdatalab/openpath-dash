@@ -52,6 +52,7 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
             ),
         ],
         id="numerators-form",
+        style={"display": "none"},
     )
 
     denominators_form = dbc.FormGroup(
@@ -96,6 +97,7 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
             ),
         ],
         id="denominators-form",
+        style={"display": "none"},
     )
     groupby_form = dbc.FormGroup(
         [

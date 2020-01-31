@@ -144,7 +144,7 @@ def update_state_from_inputs(
     triggered_inputs = [x["prop_id"].split(".")[0] for x in ctx.triggered]
     page_state = get_state(page_state)
     orig_page_state = page_state.copy()
-    selected_chart = selected_chart or "chart"
+    selected_chart = selected_chart or "measure"
     # only do something if all the fields have values
     if not current_path or not (
         selected_numerator

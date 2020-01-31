@@ -87,9 +87,9 @@ EMPTY_CHART_LAYOUT = {
 
 LAB_NAMES = {"cornwall": "Cornwall", "plymouth": "Plymouth", "nd": "N. Devon"}
 CORE_DROPDOWN_OPTIONS = [
-    {"value": "practice_id", "label": "Practice"},
     {"value": "lab_id", "label": "Lab"},
     {"value": "ccg_id", "label": "CCG"},
+    {"value": "practice_id", "label": "Practice"},
 ]
 ANALYSE_DROPDOWN_OPTIONS = CORE_DROPDOWN_OPTIONS + [
     {"value": "test_code", "label": "Test code"},
