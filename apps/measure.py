@@ -1,6 +1,6 @@
 import logging
-import urllib
 from itertools import cycle
+import re
 
 import pandas as pd
 import plotly.graph_objs as go
@@ -79,6 +79,16 @@ def get_decile_traces(df, col_name, highlight_median=False):
     return deciles_traces
 
 
+def _filter_entity_ids_for_type(entity_type, entity_ids):
+    if entity_type == "ccg_id":
+        rx = r"^[0-9]{2}[A-Z]{1}$"
+    elif entity_type == "practice_id":
+        rx = r"^[A-Z]{1}[0-9]{5}$"
+    else:
+        rx = r"^[a-z]+$"
+    return [x for x in entity_ids if re.match(rx, x)]
+
+
 @app.callback(
     Output("measure-container", "children"), [Input("page-state", "children")]
 )
@@ -140,7 +150,9 @@ def update_measures(page_state):
             show_deciles = False
         else:
             show_deciles = True
-        highlight_entities = page_state.get("highlight_entities", [])
+        highlight_entities = _filter_entity_ids_for_type(
+            col_name, page_state.get("highlight_entities", [])
+        )
         if show_deciles or highlight_entities:
             entity_ids = get_sorted_group_keys(
                 trace_df[trace_df[col_name].isin(highlight_entities)], col_name
