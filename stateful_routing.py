@@ -14,6 +14,7 @@ from dash.exceptions import PreventUpdate
 import dash_html_components as html
 
 from app import app
+from data import get_practice_list
 from apps.base import toggle_entity_id_list_from_click_data
 from urls import urls
 import settings
@@ -351,7 +352,6 @@ def update_org_focus_from_heatmap_click_or_query_string(
     query_string = supplied_qs and urllib.parse.parse_qs(supplied_qs[1:]) or {}
     ctx = dash.callback_context
     triggered_inputs = [x["prop_id"].split(".")[0] for x in ctx.triggered]
-    print(triggered_inputs, page_state, query_string)
     if "heatmap-graph" in triggered_inputs:
         # Update the URL to match the selected cell from the heatmap
         highlight_entities = page_state.get("highlight_entities", [])
@@ -359,8 +359,24 @@ def update_org_focus_from_heatmap_click_or_query_string(
             heatmap_click_data, highlight_entities
         )
         return highlight_entities
-    else:
+    elif "url-from-user" in triggered_inputs:
         return query_string.get("highlight_entities", [])
+
+
+@app.callback(
+    Output("org-focus-dropdown", "options"),
+    [Input("ccg-dropdown", "value"), Input("lab-dropdown", "value")],
+)
+def filter_org_focus_dropdown(ccg_ids, lab_ids):
+    """Reduce the organisations available in the focus dropdown to those
+    within the labs or CCGs specified.
+
+    """
+    if "all" in ccg_ids:
+        ccg_ids = []
+    if "all" in lab_ids:
+        lab_ids = []
+    return get_practice_list(ccg_ids=ccg_ids, lab_ids=lab_ids)
 
 
 # for each chart, generate a function to show only that chart

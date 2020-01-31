@@ -447,14 +447,18 @@ def get_lab_list():
 
 
 @cache.memoize()
-def get_practice_list():
+def get_practice_list(ccg_ids=None, lab_ids=None):
     """Get data suitably massaged for use in a dropdown
     """
+    df = get_data()
+    if ccg_ids:
+        df = df[df["ccg_id"].isin(ccg_ids)]
+    if lab_ids:
+        df = df[df["lab_id"].isin(lab_ids)]
+
     return [
         {"value": x, "label": x}
-        for x in get_data()
-        .groupby("practice_id", observed=True)["test_code"]
-        .groups.keys()
+        for x in df.groupby("practice_id", observed=True)["test_code"].groups.keys()
     ]
 
 
