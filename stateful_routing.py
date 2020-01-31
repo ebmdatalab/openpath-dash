@@ -79,6 +79,18 @@ def update_url_from_page_state(page_state):
 
 
 @app.callback(
+    [Output("numerators-form", "style"), Output("denominators-form", "style")],
+    [Input("chart-selector-tabs", "active_tab")],
+)
+def toggle_numerator_denominator_visibility(active_tab):
+    if active_tab == "measure":
+        display = "none"
+    else:
+        display = "block"
+    return [{"display": display}, {"display": display}]
+
+
+@app.callback(
     Output("page-state", "children"),
     [
         Input("numerators-dropdown", "value"),
