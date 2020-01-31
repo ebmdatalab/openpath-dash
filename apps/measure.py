@@ -92,28 +92,24 @@ def update_measures(page_state):
             "numerators": ["CREA"],
             "denominators": ["CREA", "ESR", "PV"],
             "result_filter": "all",
-            "sparse_data_toggle": True,
         },
         {
             "id": 2,
             "numerators": ["K"],
             "denominators": ["per1000"],
             "result_filter": "all",
-            "sparse_data_toggle": True,
         },
         {
             "id": 3,
             "numerators": ["TSH"],
             "denominators": ["per1000"],
             "result_filter": "all",
-            "sparse_data_toggle": True,
         },
         {
             "id": 4,
             "numerators": ["TSH"],
             "denominators": ["TSH"],
             "result_filter": "under_range",
-            "sparse_data_toggle": True,
         },
     ]
     charts = []
