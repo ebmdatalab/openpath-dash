@@ -160,11 +160,11 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
     )
     chart_selector_tabs = dbc.Tabs(
         id="chart-selector-tabs",
-        active_tab="chart",
+        active_tab="measure",
         children=[
-            dbc.Tab(label="Chart", tab_id="chart"),
+            dbc.Tab(label="Compare measures", tab_id="measure"),
+            dbc.Tab(label="Compare organisations", tab_id="chart"),
             dbc.Tab(label="Data table", tab_id="datatable"),
-            dbc.Tab(label="Measure", tab_id="measure"),
         ],
     )
     result_category_hint = html.Div(
