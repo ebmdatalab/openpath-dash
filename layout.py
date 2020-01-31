@@ -99,22 +99,15 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
     )
     groupby_form = dbc.FormGroup(
         [
-            dbc.Label("Group by"),
+            dbc.Label("Group by", id="groupby-label"),
             dcc.Dropdown(
-                id="groupby-dropdown",
-                options=[
-                    {"value": "practice_id", "label": "Practice"},
-                    {"value": "test_code", "label": "Test code"},
-                    {"value": "ccg_id", "label": "CCG"},
-                    {"value": "lab_id", "label": "Lab"},
-                    {"value": "result_category", "label": "Result type"},
-                ],
+                id="groupby-dropdown", options=settings.ANALYSE_DROPDOWN_OPTIONS
             ),
         ]
     )
     ccg_filter_form = dbc.FormGroup(
         [
-            dbc.Label("Showing which CCGs?"),
+            dbc.Label("Filter to specific CCGs"),
             dcc.Dropdown(
                 id="ccg-dropdown",
                 multi=True,
@@ -124,7 +117,7 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
     )
     lab_filter_form = dbc.FormGroup(
         [
-            dbc.Label("Showing which labs?"),
+            dbc.Label("Filter to specific labs", id="lab-focus-label"),
             dcc.Dropdown(
                 id="lab-dropdown",
                 multi=True,
@@ -134,7 +127,7 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
     )
     org_focus_form = dbc.FormGroup(
         [
-            dbc.Label("Focusing on which organisations?"),
+            dbc.Label("Higlight specific organisation", id="org-focus-label"),
             dcc.Dropdown(
                 id="org-focus-dropdown",
                 multi=True,
@@ -165,7 +158,7 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
         active_tab="measure",
         children=[
             dbc.Tab(label="Compare measures", tab_id="measure"),
-            dbc.Tab(label="Compare organisations", tab_id="chart"),
+            dbc.Tab(label="Compare organisations", tab_id="chart", id="org-tab-label"),
             dbc.Tab(label="Data table", tab_id="datatable"),
         ],
     )

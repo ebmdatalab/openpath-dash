@@ -16,6 +16,8 @@ import dash_html_components as html
 from app import app
 from data import get_org_list
 from apps.base import toggle_entity_id_list_from_click_data
+from apps.base import humanise_column_name
+
 from urls import urls
 import settings
 
@@ -79,15 +81,33 @@ def update_url_from_page_state(page_state):
 
 
 @app.callback(
-    [Output("numerators-form", "style"), Output("denominators-form", "style")],
+    [
+        Output("numerators-form", "style"),
+        Output("denominators-form", "style"),
+        Output("groupby-label", "children"),
+        Output("groupby-dropdown", "options"),
+    ],
     [Input("chart-selector-tabs", "active_tab")],
 )
 def toggle_numerator_denominator_visibility(active_tab):
     if active_tab == "measure":
         display = "none"
+        groupby_label = "Compare by"
+        dropdown_options = settings.CORE_DROPDOWN_OPTIONS
     else:
         display = "block"
-    return [{"display": display}, {"display": display}]
+        groupby_label = "Group by"
+        dropdown_options = settings.ANALYSE_DROPDOWN_OPTIONS
+    return [{"display": display}, {"display": display}, groupby_label, dropdown_options]
+
+
+@app.callback(
+    [Output("org-focus-label", "children"), Output("org-tab-label", "label")],
+    [Input("groupby-dropdown", "value")],
+)
+def update_org_labels(groupby):
+    name = humanise_column_name(groupby)
+    return [f"Highlight specific {name}", f"Compare {name}"]
 
 
 @app.callback(
