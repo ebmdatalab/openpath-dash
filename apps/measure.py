@@ -260,7 +260,7 @@ def update_measures(page_state):
                     html.Strong("Why it matters: "),
                     measure["description"] + " ",
                     dcc.Link(
-                        f"Compare all {humanise_column_name(col_name)} on this measure",
+                        f"Customise this measure, including heatmap for all {humanise_column_name(col_name)}",
                         href=url,
                     ),
                 ],

@@ -102,12 +102,11 @@ def toggle_numerator_denominator_visibility(active_tab):
 
 
 @app.callback(
-    [Output("org-focus-label", "children"), Output("org-tab-label", "label")],
-    [Input("groupby-dropdown", "value")],
+    Output("org-focus-label", "children"), [Input("groupby-dropdown", "value")]
 )
 def update_org_labels(groupby):
     name = humanise_column_name(groupby)
-    return [f"Highlight specific {name}", f"Compare {name}"]
+    return (f"Highlight specific {name}",)
 
 
 @app.callback(
@@ -287,9 +286,9 @@ def update_chart_selector_tabs_from_url(pathname):
         # https://github.com/plotly/dash/issues/133#issuecomment-330714608
         try:
             _, url_state = urls.match(pathname)
-            return url_state.get("page_id", "chart")
+            return url_state.get("page_id", "measure")
         except NotFound:
-            return "chart"
+            return "measure"
     raise PreventUpdate
 
 

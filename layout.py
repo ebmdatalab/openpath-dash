@@ -157,8 +157,10 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
         id="chart-selector-tabs",
         active_tab="measure",
         children=[
-            dbc.Tab(label="Compare measures", tab_id="measure"),
-            dbc.Tab(label="Compare organisations", tab_id="chart", id="org-tab-label"),
+            dbc.Tab(label="All predefined measures", tab_id="measure"),
+            dbc.Tab(
+                label="Custom measure (+ heatmap)", tab_id="chart", id="org-tab-label"
+            ),
             dbc.Tab(label="Data table", tab_id="datatable"),
         ],
     )
