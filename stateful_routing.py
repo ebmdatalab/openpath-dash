@@ -109,6 +109,14 @@ def update_org_labels(groupby):
     return (f"Highlight specific {name}",)
 
 
+@app.callback(Output("org-focus-form", "style"), [Input("groupby-dropdown", "value")])
+def show_or_hide_org_focus_dropdown(groupby_selector):
+    if groupby_selector in ["practice_id", "ccg_id", "lab_id"]:
+        return {"display": "block"}
+    else:
+        return {"display": "none"}
+
+
 @app.callback(
     Output("page-state", "children"),
     [

@@ -135,7 +135,9 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
                 multi=True,
                 options=practices_list + labs_list + ccgs_list,
             ),
-        ]
+        ],
+        id="org-focus-form",
+        style={"display": "none"},
     )
     tweak_form = dbc.FormGroup(
         [
