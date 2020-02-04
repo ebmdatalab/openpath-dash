@@ -406,6 +406,25 @@ def get_test_code_to_name_map():
 
 
 @cache.memoize()
+def get_all_entity_ids():
+    """
+    Return a dict mapping entity column names to the set of all the possible
+    entity_ids for that column
+    """
+    df = get_data()
+    return {
+        column_name: set(df[column_name].unique())
+        for column_name in [
+            "lab_id",
+            "ccg_id",
+            "practice_id",
+            "test_code",
+            "result_category",
+        ]
+    }
+
+
+@cache.memoize()
 def get_entity_label_to_id_map():
     """Return a dict of labels to ids. Required for interaction between
     deciles and heatmap charts
@@ -417,12 +436,9 @@ def get_entity_label_to_id_map():
     # property but this seems to have been broken for the last couple of
     # years. See:
     # https://community.plot.ly/t/plotly-dash-heatmap-customdata/5871
-
-    column_names = ["lab_id", "ccg_id", "practice_id", "test_code", "result_category"]
     data = {}
-    for column_name in column_names:
-        keys = get_data()[column_name].unique()
-        data.update({humanise_entity_name(column_name, k): k for k in keys})
+    for column_name, entity_ids in get_all_entity_ids().items():
+        data.update({humanise_entity_name(column_name, k): k for k in entity_ids})
     return data
 
 

@@ -1,7 +1,6 @@
 """Callbacks that apply to all pages
 """
-import re
-
+from data import get_all_entity_ids
 from data import get_test_code_to_name_map
 from data import get_entity_label_to_id_map
 
@@ -127,10 +126,5 @@ def toggle_entity_id_list_from_click_data(click_data, entity_ids):
 
 
 def filter_entity_ids_for_type(entity_type, entity_ids):
-    if entity_type == "ccg_id":
-        rx = r"^[0-9]{2}[A-Z]{1}$"
-    elif entity_type == "practice_id":
-        rx = r"^[A-Z]{1}[0-9]{5}$"
-    else:
-        rx = r"^[a-z]+$"
-    return [x for x in entity_ids if re.match(rx, x)]
+    valid_entity_ids = get_all_entity_ids()[entity_type]
+    return [x for x in entity_ids if x in valid_entity_ids]
