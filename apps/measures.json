@@ -18,12 +18,6 @@
     "description": "Potassium is commonly monitored as a renal function test. Hyperkalaemia is a serious medical condition which, if severe, requires urgent hospitalisation. However, test potassium levels can be significantly affected by in vitro effects, such as storage time and temperature, and whether the sample has been centrifuged before transport. This can affect the result, and the corresponding treatment of the patient. Seasonal peaks in this measure may indicate high rates of false positives."
   },
   {
-    "numerators": ["K"],
-    "denominators": ["per1000"],
-    "result_filter": "all",
-    "description": "Potassium is commonly monitored as a renal function test. It may be useful for practices to know if they are testing at a higher or lower rate than average."
-  },
-  {
     "numerators": ["CREA"],
     "denominators": ["CREA", "ESR", "PV"],
     "result_filter": "all",
