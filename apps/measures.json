@@ -18,8 +18,8 @@
     "description": "Potassium is commonly monitored as a renal function test. Hyperkalaemia is a serious medical condition which, if severe, requires urgent hospitalisation. However, test potassium levels can be significantly affected by in vitro effects, such as storage time and temperature, and whether the sample has been centrifuged before transport. This can affect the result, and the corresponding treatment of the patient. Seasonal peaks in this measure may indicate high rates of false positives."
   },
   {
-    "numerators": ["CREA"],
-    "denominators": ["CREA", "ESR", "PV"],
+    "numerators": ["CRP"],
+    "denominators": ["CRP", "ESR", "PV"],
     "result_filter": "all",
     "description": "C-Reative Protein (CRP), Erythrocyte Sedimentation Rate (ESR) and Plasma Viscosity (PV) are all requested as common, non-specific inflammatory markers in primary care. Evidence for their use is poor, but CRP has marginally superior diagnostic accuracy for infections (Watson et al, 2019). ESR are also more expensive and more time consuming for laboratories."
   },
