@@ -81,7 +81,7 @@ def get_chart_components(page_state):
     numerators = page_state.get("numerators", [])
     denominators = page_state.get("denominators", [])
     result_filter = page_state.get("result_filter", [])
-    groupby = col_name = page_state.get("groupby", None)
+    groupby = page_state.get("groupby", None)
     ccg_ids_for_practice_filter = page_state.get("ccg_ids_for_practice_filter", [])
     lab_ids_for_practice_filter = page_state.get("lab_ids_for_practice_filter", [])
 
@@ -91,14 +91,14 @@ def get_chart_components(page_state):
         result_filter=result_filter,
         lab_ids_for_practice_filter=lab_ids_for_practice_filter,
         ccg_ids_for_practice_filter=ccg_ids_for_practice_filter,
-        by=col_name,
+        by=groupby,
         hide_entities_with_sparse_data=page_state.get("sparse_data_toggle"),
     )
     if trace_df.empty:
         return None
 
     # Don't show deciles in cases where they don't make sense
-    if len(trace_df[col_name].unique()) < 10 or groupby == "result_category":
+    if len(trace_df[groupby].unique()) < 10 or groupby == "result_category":
         show_deciles = False
     else:
         show_deciles = True
@@ -106,27 +106,27 @@ def get_chart_components(page_state):
     # If we're showing deciles then get the IDs of the highlighted entities so
     # we can display them
     highlight_entities = filter_entity_ids_for_type(
-        col_name, page_state.get("highlight_entities", [])
+        groupby, page_state.get("highlight_entities", [])
     )
     if show_deciles or highlight_entities:
         entity_ids = get_sorted_group_keys(
-            trace_df[trace_df[col_name].isin(highlight_entities)], col_name
+            trace_df[trace_df[groupby].isin(highlight_entities)], groupby
         )
     # If we're not showing deciles, and no entities have been
     # explicitly selected, then we want to display all entities
     # automatically
     else:
-        entity_ids = get_sorted_group_keys(trace_df, col_name)
+        entity_ids = get_sorted_group_keys(trace_df, groupby)
     highlight_median = not entity_ids
     traces = (
-        get_decile_traces(trace_df, col_name, highlight_median=highlight_median)
+        get_decile_traces(trace_df, groupby, highlight_median=highlight_median)
         if show_deciles
         else []
     )
 
     has_error_bars = False
     for colour, entity_id in zip(cycle(settings.LINE_COLOUR_CYCLE), entity_ids):
-        entity_df = trace_df[trace_df[col_name] == entity_id]
+        entity_df = trace_df[trace_df[groupby] == entity_id]
         # First, plot the practice line
         traces.append(
             go.Scatter(
@@ -135,7 +135,7 @@ def get_chart_components(page_state):
                 y=entity_df["calc_value"],
                 text=entity_df["label"],
                 hoverinfo="text",
-                name=humanise_entity_name(col_name, entity_id),
+                name=humanise_entity_name(groupby, entity_id),
                 line_width=2,
                 line=dict(color=colour, width=1, dash="solid"),
             )
@@ -173,31 +173,31 @@ def get_chart_components(page_state):
 
     if show_deciles and entity_ids:
         fragment = initial_capital(fragment)
-        if col_name == "test_code":
+        if groupby == "test_code":
             title = get_title_fragment(entity_ids, denominators, result_filter)
-        elif col_name == "result_category":
+        elif groupby == "result_category":
             category_list = humanise_list(
                 [humanise_result_filter(x) for x in entity_ids]
             )
             title = f"{fragment} {category_list}"
         else:
-            entity_desc = humanise_column_name(col_name, plural=len(entity_ids) != 1)
+            entity_desc = humanise_column_name(groupby, plural=len(entity_ids) != 1)
             title = f"{fragment} at {entity_desc} {humanise_list(entity_ids)}"
-        title += f"<br>(with deciles over all {humanise_column_name(col_name)})"
+        title += f"<br>(with deciles over all {humanise_column_name(groupby)})"
     elif show_deciles and not entity_ids:
-        title = f"Deciles for {fragment} over all {humanise_column_name(col_name)}"
+        title = f"Deciles for {fragment} over all {humanise_column_name(groupby)}"
         hint_text = (
             f"Click rows in the heatmap below to show lines for individual "
-            f"{humanise_column_name(col_name)}"
+            f"{humanise_column_name(groupby)}"
         )
     else:
         fragment = initial_capital(fragment)
-        title = f"{fragment} grouped by {humanise_column_name(col_name, plural=False)}"
+        title = f"{fragment} grouped by {humanise_column_name(groupby, plural=False)}"
         hint_text = (
             f"Click legend labels above to hide/show individual "
-            f"{humanise_column_name(col_name)}.\n\n"
+            f"{humanise_column_name(groupby)}.\n\n"
             f"Double-click labels to show just that "
-            f"{humanise_column_name(col_name, plural=False)}."
+            f"{humanise_column_name(groupby, plural=False)}."
         )
 
     annotations = []
