@@ -406,6 +406,25 @@ def get_test_code_to_name_map():
 
 
 @cache.memoize()
+def get_all_entity_ids():
+    """
+    Return a dict mapping entity column names to the set of all the possible
+    entity_ids for that column
+    """
+    df = get_data()
+    return {
+        column_name: set(df[column_name].unique())
+        for column_name in [
+            "lab_id",
+            "ccg_id",
+            "practice_id",
+            "test_code",
+            "result_category",
+        ]
+    }
+
+
+@cache.memoize()
 def get_entity_label_to_id_map():
     """Return a dict of labels to ids. Required for interaction between
     deciles and heatmap charts
@@ -417,32 +436,23 @@ def get_entity_label_to_id_map():
     # property but this seems to have been broken for the last couple of
     # years. See:
     # https://community.plot.ly/t/plotly-dash-heatmap-customdata/5871
-
-    column_names = ["lab_id", "ccg_id", "practice_id", "test_code", "result_category"]
     data = {}
-    for column_name in column_names:
-        keys = get_data()[column_name].unique()
-        data.update({humanise_entity_name(column_name, k): k for k in keys})
+    for column_name, entity_ids in get_all_entity_ids().items():
+        data.update({humanise_entity_name(column_name, k): k for k in entity_ids})
     return data
 
 
 @cache.memoize()
-def get_ccg_list():
-    """Get data suitably massaged for use in a dropdown
-    """
+def get_org_list(org_type, ccg_ids_filter=None, lab_ids_filter=None):
+    df = get_data()
+    if ccg_ids_filter:
+        df = df[df["ccg_id"].isin(ccg_ids_filter)]
+    if lab_ids_filter:
+        df = df[df["lab_id"].isin(lab_ids_filter)]
+
     return [
         {"value": x, "label": x}
-        for x in get_data().groupby("ccg_id")["test_code"].groups.keys()
-    ]
-
-
-@cache.memoize()
-def get_lab_list():
-    """Get data suitably massaged for use in a dropdown
-    """
-    return [
-        {"value": x, "label": humanise_entity_name("lab_id", x)}
-        for x in get_data().groupby("lab_id")["test_code"].groups.keys()
+        for x in df.groupby(org_type, observed=True)["test_code"].groups.keys()
     ]
 
 

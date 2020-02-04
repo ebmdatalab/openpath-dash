@@ -21,7 +21,7 @@ def pairs(seq):
         yield item, item_2
 
 
-def layout(tests_df, ccgs_list, labs_list):
+def layout(tests_df, ccgs_list, labs_list, practices_list):
     state_components = html.Div(
         [
             # Hidden div inside the app that stores the page state
@@ -43,14 +43,16 @@ def layout(tests_df, ccgs_list, labs_list):
             dcc.Dropdown(
                 id="numerators-dropdown",
                 multi=True,
-                value=["CREA"],
+                value=["all"],
                 # XXX use clientside javascript to make "all tests"
                 # disappear if you select just one:
                 # https://community.plot.ly/t/dash-0-41-0-released/22131
                 options=[{"value": "all", "label": "All tests"}]
                 + tests_df.to_dict("records"),
             ),
-        ]
+        ],
+        id="numerators-form",
+        style={"display": "none"},
     )
 
     denominators_form = dbc.FormGroup(
@@ -93,26 +95,21 @@ def layout(tests_df, ccgs_list, labs_list):
                 options=tests_df.to_dict("records"),
                 style={"display": "none"},
             ),
-        ]
+        ],
+        id="denominators-form",
+        style={"display": "none"},
     )
     groupby_form = dbc.FormGroup(
         [
-            dbc.Label("Group by"),
+            dbc.Label("Group by", id="groupby-label"),
             dcc.Dropdown(
-                id="groupby-dropdown",
-                options=[
-                    {"value": "practice_id", "label": "Practice"},
-                    {"value": "test_code", "label": "Test code"},
-                    {"value": "ccg_id", "label": "CCG"},
-                    {"value": "lab_id", "label": "Lab"},
-                    {"value": "result_category", "label": "Result type"},
-                ],
+                id="groupby-dropdown", options=settings.ANALYSE_DROPDOWN_OPTIONS
             ),
         ]
     )
     ccg_filter_form = dbc.FormGroup(
         [
-            dbc.Label("Showing which CCGs?"),
+            dbc.Label("Filter to specific CCGs"),
             dcc.Dropdown(
                 id="ccg-dropdown",
                 multi=True,
@@ -122,13 +119,25 @@ def layout(tests_df, ccgs_list, labs_list):
     )
     lab_filter_form = dbc.FormGroup(
         [
-            dbc.Label("Showing which labs?"),
+            dbc.Label("Filter to specific labs", id="lab-focus-label"),
             dcc.Dropdown(
                 id="lab-dropdown",
                 multi=True,
                 options=[{"value": "all", "label": "All labs"}] + labs_list,
             ),
         ]
+    )
+    org_focus_form = dbc.FormGroup(
+        [
+            dbc.Label("Higlight specific organisation", id="org-focus-label"),
+            dcc.Dropdown(
+                id="org-focus-dropdown",
+                multi=True,
+                options=practices_list + labs_list + ccgs_list,
+            ),
+        ],
+        id="org-focus-form",
+        style={"display": "none"},
     )
     tweak_form = dbc.FormGroup(
         [
@@ -150,9 +159,12 @@ def layout(tests_df, ccgs_list, labs_list):
     )
     chart_selector_tabs = dbc.Tabs(
         id="chart-selector-tabs",
-        active_tab="chart",
+        active_tab="measure",
         children=[
-            dbc.Tab(label="Chart", tab_id="chart"),
+            dbc.Tab(label="All predefined measures", tab_id="measure"),
+            dbc.Tab(
+                label="Custom measure (+ heatmap)", tab_id="chart", id="org-tab-label"
+            ),
             dbc.Tab(label="Data table", tab_id="datatable"),
         ],
     )
@@ -171,7 +183,14 @@ def layout(tests_df, ccgs_list, labs_list):
         [
             dbc.Row(
                 [
-                    dbc.Col([numerators_form, denominators_form, groupby_form]),
+                    dbc.Col(
+                        [
+                            numerators_form,
+                            denominators_form,
+                            groupby_form,
+                            org_focus_form,
+                        ]
+                    ),
                     dbc.Col([ccg_filter_form, lab_filter_form, tweak_form]),
                 ]
             ),
@@ -249,6 +268,20 @@ def layout(tests_df, ccgs_list, labs_list):
                                     ],
                                 )
                             ),
+                        ],
+                    )
+                )
+            ),
+            dbc.Row(
+                dbc.Col(
+                    dcc.Loading(
+                        id="loading-measures",
+                        children=[
+                            html.Div(
+                                id="measure-container",
+                                style={"display": "none"},
+                                children=[],
+                            )
                         ],
                     )
                 )

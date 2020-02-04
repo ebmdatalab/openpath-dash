@@ -14,7 +14,10 @@ from dash.exceptions import PreventUpdate
 import dash_html_components as html
 
 from app import app
+from data import get_org_list
 from apps.base import toggle_entity_id_list_from_click_data
+from apps.base import humanise_column_name
+
 from urls import urls
 import settings
 
@@ -78,6 +81,43 @@ def update_url_from_page_state(page_state):
 
 
 @app.callback(
+    [
+        Output("numerators-form", "style"),
+        Output("denominators-form", "style"),
+        Output("groupby-label", "children"),
+        Output("groupby-dropdown", "options"),
+    ],
+    [Input("chart-selector-tabs", "active_tab")],
+)
+def toggle_numerator_denominator_visibility(active_tab):
+    if active_tab == "measure":
+        display = "none"
+        groupby_label = "Compare by"
+        dropdown_options = settings.CORE_DROPDOWN_OPTIONS
+    else:
+        display = "block"
+        groupby_label = "Group by"
+        dropdown_options = settings.ANALYSE_DROPDOWN_OPTIONS
+    return [{"display": display}, {"display": display}, groupby_label, dropdown_options]
+
+
+@app.callback(
+    Output("org-focus-label", "children"), [Input("groupby-dropdown", "value")]
+)
+def update_org_labels(groupby):
+    name = humanise_column_name(groupby)
+    return (f"Highlight specific {name}",)
+
+
+@app.callback(Output("org-focus-form", "style"), [Input("groupby-dropdown", "value")])
+def show_or_hide_org_focus_dropdown(groupby_selector):
+    if groupby_selector in ["practice_id", "ccg_id", "lab_id"]:
+        return {"display": "block"}
+    else:
+        return {"display": "none"}
+
+
+@app.callback(
     Output("page-state", "children"),
     [
         Input("numerators-dropdown", "value"),
@@ -88,6 +128,7 @@ def update_url_from_page_state(page_state):
         Input("lab-dropdown", "value"),
         Input("chart-selector-tabs", "active_tab"),
         Input("tweak-form", "value"),
+        Input("org-focus-dropdown", "value"),
     ],
     [State("page-state", "children"), State("url-for-update", "pathname")],
 )
@@ -100,6 +141,7 @@ def update_state_from_inputs(
     selected_lab,
     selected_chart,
     tweak_form,
+    org_focus,
     page_state,
     current_path,
 ):
@@ -110,7 +152,7 @@ def update_state_from_inputs(
     triggered_inputs = [x["prop_id"].split(".")[0] for x in ctx.triggered]
     page_state = get_state(page_state)
     orig_page_state = page_state.copy()
-    selected_chart = selected_chart or "chart"
+    selected_chart = selected_chart or "measure"
     # only do something if all the fields have values
     if not current_path or not (
         selected_numerator
@@ -164,6 +206,7 @@ def update_state_from_inputs(
         page_id=selected_chart,
         sparse_data_toggle=sparse_data_toggle,
         equalise_colorscale=equalise_colorscale,
+        highlight_entities=org_focus,
     )
 
     # Only trigger state changes if something has changed
@@ -251,9 +294,9 @@ def update_chart_selector_tabs_from_url(pathname):
         # https://github.com/plotly/dash/issues/133#issuecomment-330714608
         try:
             _, url_state = urls.match(pathname)
-            return url_state.get("page_id", "chart")
+            return url_state.get("page_id", "measure")
         except NotFound:
-            return "chart"
+            return "measure"
     raise PreventUpdate
 
 
@@ -316,32 +359,67 @@ def show_error_from_page_state(page_state):
 
 @app.callback(
     Output("url-for-update", "search"),
-    [Input("heatmap-graph", "clickData"), Input("groupby-dropdown", "value")],
-    [
-        State("page-state", "children"),
-        State("url-for-update", "search"),
-        State("url-from-user", "search"),
-    ],
+    [Input("page-state", "children")],
+    [State("url-for-update", "search"), State("url-from-user", "search")],
 )
-def update_highlight_entities_querystring(
-    heatmap_click_data, groupby_dropdown, page_state, current_qs, supplied_qs
-):
-    query_string = current_qs and urllib.parse.parse_qs(current_qs[1:]) or {}
+def update_highlight_entities_querystring(page_state, current_qs, supplied_qs):
     page_state = get_state(page_state)
+    highlight_entities = page_state.get("highlight_entities", [])
+    # XXX possibly raise a NotUpdate if there's no change
+    qs = "?" + urlencode(
+        {"highlight_entities": highlight_entities}, doseq=True, quote_via=quote_plus
+    )
+    return qs
+
+
+@app.callback(
+    Output("org-focus-dropdown", "value"),
+    [Input("heatmap-graph", "clickData"), Input("url-from-user", "search")],
+    [State("page-state", "children"), State("url-for-update", "search")],
+)
+def update_org_focus_from_heatmap_click_or_query_string(
+    heatmap_click_data, supplied_qs, page_state, current_qs
+):
+    """Cause the specified multi dropdown to match the current page
+    location, as supplied either by the URL or by interaction with the
+    heat map
+
+    """
+
+    page_state = get_state(page_state)
+    # XXX what is current_qs any use for
+    query_string = supplied_qs and urllib.parse.parse_qs(supplied_qs[1:]) or {}
     ctx = dash.callback_context
     triggered_inputs = [x["prop_id"].split(".")[0] for x in ctx.triggered]
     if "heatmap-graph" in triggered_inputs:
         # Update the URL to match the selected cell from the heatmap
-        highlight_entities = query_string.get("highlight_entities", [])
+        highlight_entities = page_state.get("highlight_entities", [])
         highlight_entities = toggle_entity_id_list_from_click_data(
             heatmap_click_data, highlight_entities
         )
-        qs = "?" + urlencode(
-            {"highlight_entities": highlight_entities}, doseq=True, quote_via=quote_plus
-        )
-    else:
-        qs = current_qs
-    return qs
+        return highlight_entities
+    elif "url-from-user" in triggered_inputs:
+        return query_string.get("highlight_entities", [])
+
+
+@app.callback(
+    Output("org-focus-dropdown", "options"),
+    [
+        Input("ccg-dropdown", "value"),
+        Input("lab-dropdown", "value"),
+        Input("groupby-dropdown", "value"),
+    ],
+)
+def filter_org_focus_dropdown(ccg_ids, lab_ids, groupby):
+    """Reduce the organisations available in the focus dropdown to those
+    within the labs or CCGs specified.
+
+    """
+    if "all" in ccg_ids:
+        ccg_ids = []
+    if "all" in lab_ids:
+        lab_ids = []
+    return get_org_list(groupby, ccg_ids_filter=ccg_ids, lab_ids_filter=lab_ids)
 
 
 # for each chart, generate a function to show only that chart

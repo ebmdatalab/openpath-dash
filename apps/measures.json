@@ -1,0 +1,50 @@
+[
+  {
+    "numerators": ["K"],
+    "denominators": ["per1000"],
+    "result_filter": "all",
+    "description": "Potassium is commonly monitored as a renal function test. It may be useful for practices to know if they are testing at a higher or lower rate than average."
+  },
+  {
+    "numerators": ["K"],
+    "denominators": ["K"],
+    "result_filter": "under_range",
+    "description": "Potassium is commonly monitored as a renal function test. Hyperkalaemia is a serious medical condition which, if severe, requires urgent hospitalisation. However, test potassium levels can be significantly affected by in vitro effects, such as storage time and temperature, and whether the sample has been centrifuged before transport. This can affect the result, and the corresponding treatment of the patient. Seasonal peaks in this measure may indicate high rates of false positives."
+  },
+  {
+    "numerators": ["K"],
+    "denominators": ["K"],
+    "result_filter": "over_range",
+    "description": "Potassium is commonly monitored as a renal function test. Hyperkalaemia is a serious medical condition which, if severe, requires urgent hospitalisation. However, test potassium levels can be significantly affected by in vitro effects, such as storage time and temperature, and whether the sample has been centrifuged before transport. This can affect the result, and the corresponding treatment of the patient. Seasonal peaks in this measure may indicate high rates of false positives."
+  },
+  {
+    "numerators": ["CREA"],
+    "denominators": ["CREA", "ESR", "PV"],
+    "result_filter": "all",
+    "description": "C-Reative Protein (CRP), Erythrocyte Sedimentation Rate (ESR) and Plasma Viscosity (PV) are all requested as common, non-specific inflammatory markers in primary care. Evidence for their use is poor, but CRP has marginally superior diagnostic accuracy for infections (Watson et al, 2019). ESR are also more expensive and more time consuming for laboratories."
+  },
+  {
+    "numerators": ["TSH"],
+    "denominators": ["per1000"],
+    "result_filter": "all",
+    "description": "Thyroid Stimulating Hormone (TSH) is a test commonly performed in primary care. It is used often to diagnose an under or overactive thyroid. It is also used as a test in Tired All The Time (TATT). The 2013 Atlas of Variation found a 57-fold variation between GP practices in the level of testing. They can have a very low proportion of abnormal results and could be safely reduced (Werhun and Hamilton 2015). It may be useful for practices to know if they are testing at a higher or lower rate than average."
+  },
+  {
+    "numerators": ["TSH"],
+    "denominators": ["TSH"],
+    "result_filter": "under_range",
+    "description": "Thyroid Stimulating Hormone (TSH) is a test commonly performed in primary care. It is used often to diagnose an under or overactive thyroid. It is also used as a test in Tired All The Time (TATT). The 2013 Atlas of Variation found a 57-fold variation between GP practices in the level of testing. They can have a very low proportion of abnormal results and could be safely reduced (Werhun and Hamilton 2015)."
+  },
+  {
+    "numerators": ["TSH"],
+    "denominators": ["TSH"],
+    "result_filter": "over_range",
+    "description": "Thyroid Stimulating Hormone (TSH) is a test commonly performed in primary care. It is used often to diagnose an under or overactive thyroid. It is also used as a test in Tired All The Time (TATT). The 2013 Atlas of Variation found a 57-fold variation between GP practices in the level of testing. They can have a very low proportion of abnormal results and could be safely reduced (Werhun and Hamilton 2015)."
+  },
+  {
+    "numerators": ["VITD"],
+    "denominators": ["per1000"],
+    "result_filter": "all",
+    "description": "Vitamin D testing rates have increased dramatically, according to a study in CPRD since around 2005 (O'Sullivan et al), but testing is not a prerequesite to advise patients to take supplements if a deficiency is suspected. It may be useful for practices to know if they are testing at a higher or lower rate than average."
+  }
+]

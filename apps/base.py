@@ -1,5 +1,6 @@
 """Callbacks that apply to all pages
 """
+from data import get_all_entity_ids
 from data import get_test_code_to_name_map
 from data import get_entity_label_to_id_map
 
@@ -122,3 +123,8 @@ def toggle_entity_id_list_from_click_data(click_data, entity_ids):
         else:
             entity_ids.remove(entity_id)
     return entity_ids
+
+
+def filter_entity_ids_for_type(entity_type, entity_ids):
+    valid_entity_ids = get_all_entity_ids()[entity_type]
+    return [x for x in entity_ids if x in valid_entity_ids]
