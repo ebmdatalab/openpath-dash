@@ -111,6 +111,11 @@ def get_chart_components(page_state):
         entity_ids = sorted(
             trace_df[trace_df[groupby].isin(highlight_entities)][groupby].unique()
         )
+        if highlight_entities:
+            # Sort by the order they appear in the query string (which
+            # should be the order the user added them in)
+            entity_ids = [x for x in highlight_entities if x in entity_ids]
+
     # If we're not showing deciles, and no entities have been
     # explicitly selected, then we want to display all entities
     # automatically
