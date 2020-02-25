@@ -460,7 +460,7 @@ def humanise_entity_name(column_name, value):
     if column_name == "ccg_id":
         return f"CCG {value}"
     if column_name == "lab_id":
-        return f"{settings.LAB_NAMES[value]} lab"
+        return f"{settings.LAB_NAMES.get(value, value)} lab"
     if column_name == "practice_id":
         return f"Practice {value}"
     if column_name == "test_code":

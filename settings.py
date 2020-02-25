@@ -85,7 +85,12 @@ EMPTY_CHART_LAYOUT = {
 }
 
 
-LAB_NAMES = {"cornwall": "Cornwall", "plymouth": "Plymouth", "nd": "N. Devon"}
+LAB_NAMES = {
+    "cornwall": "Cornwall",
+    "plymouth": "Plymouth",
+    "nd": "N. Devon",
+    "exeter": "Exeter",
+}
 CORE_DROPDOWN_OPTIONS = [
     {"value": "lab_id", "label": "Lab"},
     {"value": "ccg_id", "label": "CCG"},
