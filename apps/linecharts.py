@@ -137,6 +137,7 @@ def get_chart_components(page_state):
                 hoverinfo="text",
                 name=humanise_entity_name(groupby, entity_id),
                 line_width=2,
+                mode="lines",
                 line=dict(color=colour, width=1, dash="solid"),
             )
         )
@@ -150,6 +151,7 @@ def get_chart_components(page_state):
                     y=entity_df["calc_value"] + entity_df["calc_value_error"],
                     name=str(entity_id),
                     line=dict(color=colour, width=1, dash="dot"),
+                    mode="lines",
                     hoverinfo="skip",
                     showlegend=False,
                 )
@@ -162,6 +164,7 @@ def get_chart_components(page_state):
                     name=str(entity_id),
                     fill="tonexty",
                     line=dict(color=colour, width=1, dash="dot"),
+                    mode="lines",
                     hoverinfo="skip",
                     showlegend=False,
                 )
