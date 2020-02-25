@@ -463,7 +463,7 @@ def humanise_entity_name(column_name, value):
     if column_name == "practice_id":
         return f"Practice {value}"
     if column_name == "test_code":
-        return get_test_code_to_name_map()[value]
+        return get_test_code_to_name_map().get(value, value)
     if column_name == "result_category":
         return settings.ERROR_CODES[value]
     return f"{column_name} {value}"
