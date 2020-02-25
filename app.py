@@ -82,6 +82,15 @@ def get_involved():
     return render_template("get_involved.html")
 
 
+@server.route("/start_here")
+def start_here():
+    from data import get_org_list
+
+    return render_template(
+        "start_here.html", dropdown_options=get_org_list("practice_id")
+    )
+
+
 @server.route("/data_format")
 def data_format():
     return render_template("data_format.html")
