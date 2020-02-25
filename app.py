@@ -67,11 +67,6 @@ def index():
     return render_template("index.html")
 
 
-@server.route("/measures")
-def measures():
-    return render_template("measures.html")
-
-
 @server.route("/faq")
 def faq():
     return render_template("faq.html")
