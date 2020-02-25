@@ -50,6 +50,9 @@ body {
 .nav-tabs {
   margin-bottom: 1rem;
 }
+.nav-tabs a.active {
+  font-weight: bold;
+}
 .navbar-brand {
   text-align: center;
   font-size: 2rem;

@@ -157,15 +157,46 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
     sort_order_form = dbc.FormGroup(
         [dcc.Dropdown(id="sort-order-dropdown", clearable=False)]
     )
+    measures_tab_text = dbc.Row(
+        dbc.Col(
+            html.Div(
+                "This page lists several measures that we think may be of interest for comparing labs, CCGs or practices.  Under each chart is an explanation of why it matters, and a link to drill down deeper into that measure.  Use the 'compare by' field below to switch between comparing practices, labs, or CCGs. When there are too many comparisons to make at once, we show deciles; use the 'highlight' field in the form to add lines to the chart individually. ",
+                className="alert alert-info",
+            )
+        )
+    )
+    custom_tab_text = dbc.Row(
+        dbc.Col(
+            html.Div(
+                "This page allows you to create or explore a single measure. When there are too many comparisons to make at once, we just show deciles; click a row in the heatmap to add lines to the chart individually. ",
+                className="alert alert-info",
+            )
+        )
+    )
+    data_tab_text = dbc.Row(
+        dbc.Col(
+            html.Div(
+                "This page shows all data at a practice level for the currently-selected filters",
+                className="alert alert-info",
+            )
+        )
+    )
     chart_selector_tabs = dbc.Tabs(
         id="chart-selector-tabs",
         active_tab="measure",
         children=[
-            dbc.Tab(label="All predefined measures", tab_id="measure"),
             dbc.Tab(
-                label="Custom measure (+ heatmap)", tab_id="chart", id="org-tab-label"
+                label="All predefined measures",
+                tab_id="measure",
+                children=[measures_tab_text],
             ),
-            dbc.Tab(label="Data table", tab_id="datatable"),
+            dbc.Tab(
+                label="Custom measure (+ heatmap)",
+                tab_id="chart",
+                id="org-tab-label",
+                children=[custom_tab_text],
+            ),
+            dbc.Tab(label="Data table", tab_id="datatable", children=[data_tab_text]),
         ],
     )
     result_category_hint = html.Div(
@@ -179,6 +210,18 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
         className="alert alert-info",
         style={"display": "none"},
     )
+    header = dbc.Row(
+        dbc.Col(
+            html.Div(
+                [
+                    html.Div(id="description-container"),
+                    html.Div(id="error-container"),
+                    chart_selector_tabs,
+                ]
+            )
+        )
+    )
+
     form = dbc.Container(
         [
             dbc.Row(
@@ -199,17 +242,6 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
     )
     body = dbc.Container(
         [
-            dbc.Row(
-                dbc.Col(
-                    html.Div(
-                        [
-                            html.Div(id="description-container"),
-                            html.Div(id="error-container"),
-                            chart_selector_tabs,
-                        ]
-                    )
-                )
-            ),
             dbc.Row(
                 dbc.Col(
                     html.Div(
@@ -322,5 +354,5 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
             ),
         ]
     )
-    dash_app = html.Div([state_components, form, body])
+    dash_app = html.Div([state_components, header, form, body])
     return dash_app
