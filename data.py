@@ -364,7 +364,6 @@ def get_count_data(
                 months_required=settings.NUM_MONTHS_REQUIRED,
             )
         # The fillna is to work around this bug: https://github.com/plotly/plotly.js/issues/3296
-        num_df_agg["calc_value"] = num_df_agg["calc_value"].fillna(0)
         num_df_agg["calc_value_error"] = num_df_agg["calc_value_error"].fillna(0)
         return num_df_agg[required_cols].sort_values("month")
     else:
