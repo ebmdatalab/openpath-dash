@@ -5,17 +5,6 @@ from data import get_test_code_to_name_map
 from data import get_entity_label_to_id_map
 
 
-def get_sorted_group_keys(df, group_by):
-    """Compute a sort order for the practice charts, based on the mean
-    calc_value of the last 6 months"""
-    df2 = df.pivot_table(index=group_by, columns="month", values="calc_value")
-    entity_ids = df2.reindex(
-        df2.fillna(0).iloc[:, -6:].mean(axis=1).sort_values(ascending=False).index,
-        axis=0,
-    ).index
-    return list(entity_ids)
-
-
 def get_title_fragment(numerators, denominators, result_filter):
     numerators_text = humanise_test_code_list(numerators)
     if result_filter is None or result_filter == "all":

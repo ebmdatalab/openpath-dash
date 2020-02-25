@@ -7,7 +7,6 @@ import pandas as pd
 import plotly.graph_objs as go
 
 import numpy as np
-from apps.base import get_sorted_group_keys
 from apps.base import (
     get_title_fragment,
     humanise_list,
@@ -109,14 +108,14 @@ def get_chart_components(page_state):
         groupby, page_state.get("highlight_entities", [])
     )
     if show_deciles or highlight_entities:
-        entity_ids = get_sorted_group_keys(
-            trace_df[trace_df[groupby].isin(highlight_entities)], groupby
+        entity_ids = sorted(
+            trace_df[trace_df[groupby].isin(highlight_entities)][groupby].unique()
         )
     # If we're not showing deciles, and no entities have been
     # explicitly selected, then we want to display all entities
     # automatically
     else:
-        entity_ids = get_sorted_group_keys(trace_df, groupby)
+        entity_ids = sorted(trace_df[groupby].unique())
     highlight_median = not entity_ids
     traces = (
         get_decile_traces(trace_df, groupby, highlight_median=highlight_median)
