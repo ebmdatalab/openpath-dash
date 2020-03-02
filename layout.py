@@ -47,8 +47,7 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
                 # XXX use clientside javascript to make "all tests"
                 # disappear if you select just one:
                 # https://community.plot.ly/t/dash-0-41-0-released/22131
-                options=[{"value": "all", "label": "All tests"}]
-                + tests_df.to_dict("records"),
+                options=tests_df.to_dict("records"),
                 placeholder="Start typing",
             ),
         ],
@@ -111,21 +110,13 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
     ccg_filter_form = dbc.FormGroup(
         [
             dbc.Label("Filter to specific CCGs"),
-            dcc.Dropdown(
-                id="ccg-dropdown",
-                multi=True,
-                options=[{"value": "all", "label": "All CCGs"}] + ccgs_list,
-            ),
+            dcc.Dropdown(id="ccg-dropdown", multi=True, options=ccgs_list),
         ]
     )
     lab_filter_form = dbc.FormGroup(
         [
             dbc.Label("Filter to specific labs", id="lab-focus-label"),
-            dcc.Dropdown(
-                id="lab-dropdown",
-                multi=True,
-                options=[{"value": "all", "label": "All labs"}] + labs_list,
-            ),
+            dcc.Dropdown(id="lab-dropdown", multi=True, options=labs_list),
         ]
     )
     org_focus_form = dbc.FormGroup(
@@ -135,6 +126,7 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
                 id="org-focus-dropdown",
                 multi=True,
                 options=practices_list + labs_list + ccgs_list,
+                placeholder="Start typing",
             ),
         ],
         id="org-focus-form",
