@@ -65,9 +65,19 @@ smooth-scroll handler for this, per [these notes](https://community.plot.ly/t/sc
 
 # Pipeline
 
-Run with `flask get_test_codes` and `flask get_practice_codes`
+Run with `flask get_practice_codes` gets practice codes (crucially, including CCG membership)
 
-Then process new data files with `flask process_file <lab_code> <filename>` - this normalises practice codes, test codes, adds error ranges, etc.
+
+Then process new data files with `flask process_file <lab_code> <filename>` -  this
+
+* normalises practice codes (i.e. ensures they're all ODS codes)
+* adds a lab code column to each CSV
+* outputs a summary table of possibly-interesting outlier tests (e.g. ones that don't have reference ranges, etc)
+* trims the data with respect to lead-in data (the first months supplied with include tests requested some time before)
+* excludes practices we don't know about (based on data in OP) and practices for which we don't have list size data
+* removes extreme outlier practices (ones with fewer than 1000 tests)
+* combines everything into one big file
+
 
 Finally run `flask postprocess_files <filenames>` to anonymise (replace practice ids) and report outlier data
 
