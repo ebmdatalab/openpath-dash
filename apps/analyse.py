@@ -33,20 +33,22 @@ def update_deciles(page_state, current_qs):
 
     if page_state.get("page_id") != settings.CHART_ID:
         return EMPTY_RESPONSE
+    components = get_chart_components(page_state)
+    if components:
+        traces, title, hint_text, annotations = components
+        all_x_vals = set().union(*[trace.x for trace in traces])
 
-    traces, title, hint_text, annotations = get_chart_components(page_state)
-    all_x_vals = set().union(*[trace.x for trace in traces])
-
-    chart = {
-        "data": traces,
-        "layout": go.Layout(
-            title=title,
-            height=350,
-            xaxis={"range": [min(all_x_vals), max(all_x_vals)]},
-            showlegend=True,
-            legend={"orientation": "v"},
-            annotations=annotations,
-        ),
-    }
-
-    return chart, DISPLAY_SHOW if hint_text else DISPLAY_NONE, hint_text
+        chart = {
+            "data": traces,
+            "layout": go.Layout(
+                title=title,
+                height=350,
+                xaxis={"range": [min(all_x_vals), max(all_x_vals)]},
+                showlegend=True,
+                legend={"orientation": "v"},
+                annotations=annotations,
+            ),
+        }
+        return chart, DISPLAY_SHOW, hint_text
+    else:
+        return EMPTY_RESPONSE
