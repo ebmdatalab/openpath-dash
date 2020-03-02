@@ -37,11 +37,11 @@ def humanise_result_filter(result_filter):
     assert result_filter is not None and result_filter != "all"
     result_filter = str(result_filter)
     if result_filter == "0" or result_filter == "within_range":
-        return "within range"
+        return "<b>within range</b>"
     elif result_filter == "-1" or result_filter == "under_range":
-        return "under range"
+        return "<b>under range</b>"
     elif result_filter == "1" or result_filter == "over_range":
-        return "over range"
+        return "<b>over range</b>"
     elif result_filter == "error":
         return "with errors"
     elif result_filter == "2":
@@ -64,7 +64,7 @@ def humanise_test_code_list(test_codes):
     if not test_codes or "all" in test_codes or test_codes == ["None"]:
         return "all"
     test_name_map = get_test_code_to_name_map()
-    test_names = [test_name_map[code] for code in test_codes]
+    test_names = [f"<b>{test_name_map[code]}</b>" for code in test_codes]
     return humanise_list(test_names)
 
 
