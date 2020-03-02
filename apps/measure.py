@@ -8,6 +8,7 @@ import plotly.graph_objs as go
 
 from app import app
 from apps.base import filter_entity_ids_for_type
+from apps.base import get_yaxis_label
 from apps.base import humanise_column_name
 from apps.linecharts import get_chart_components
 from stateful_routing import get_state
@@ -42,6 +43,7 @@ def update_measures(page_state):
         measure_state = page_state.copy()
         measure_state.update(measure)
         traces, title, hint_text, annotations = get_chart_components(measure_state)
+        yaxis_label = get_yaxis_label(measure_state)
         url = analyse_url(measure_state)
         all_x_vals = set().union(*[trace.x for trace in traces])
 
@@ -51,6 +53,7 @@ def update_measures(page_state):
                 title=title,
                 height=350,
                 xaxis={"range": [min(all_x_vals), max(all_x_vals)]},
+                yaxis={"title": {"text": yaxis_label}},
                 showlegend=True,
                 legend={"orientation": "v"},
                 annotations=annotations,

@@ -154,3 +154,14 @@ def get_title_and_hint_text(
             f"{humanise_column_name(groupby, plural=False)}."
         )
     return title, hint_text
+
+
+def get_yaxis_label(page_state):
+    denominators = page_state.get("denominators", [])
+    if denominators == ["per1000"]:
+        yaxis_label = "tests per 1000"
+    elif denominators == ["raw"]:
+        yaxis_label = "tests"
+    else:
+        yaxis_label = "proportion"
+    return yaxis_label

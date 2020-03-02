@@ -5,6 +5,7 @@ from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
 
 from app import app
+from apps.base import get_yaxis_label
 from apps.linecharts import get_chart_components
 from stateful_routing import get_state
 import settings
@@ -36,14 +37,15 @@ def update_deciles(page_state, current_qs):
     components = get_chart_components(page_state)
     if components:
         traces, title, hint_text, annotations = components
+        yaxis_label = get_yaxis_label(page_state)
         all_x_vals = set().union(*[trace.x for trace in traces])
-
         chart = {
             "data": traces,
             "layout": go.Layout(
                 title=title,
                 height=350,
                 xaxis={"range": [min(all_x_vals), max(all_x_vals)]},
+                yaxis={"title": {"text": yaxis_label}},
                 showlegend=True,
                 legend={"orientation": "v"},
                 annotations=annotations,
