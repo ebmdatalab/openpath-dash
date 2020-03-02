@@ -240,7 +240,7 @@ def _get_dropdown_current_value_by_id(component_id):
             break
     if component is not None:
         if hasattr(component, "value"):
-            return component.value[0]
+            return component.value and component.value[0] or ""
         else:
             return component.options[0]["value"]
     else:

@@ -43,12 +43,13 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
             dcc.Dropdown(
                 id="numerators-dropdown",
                 multi=True,
-                value=["all"],
+                value=[],
                 # XXX use clientside javascript to make "all tests"
                 # disappear if you select just one:
                 # https://community.plot.ly/t/dash-0-41-0-released/22131
                 options=[{"value": "all", "label": "All tests"}]
                 + tests_df.to_dict("records"),
+                placeholder="Start typing",
             ),
         ],
         id="numerators-form",
@@ -91,7 +92,7 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
             dcc.Dropdown(
                 id="denominator-tests-dropdown",
                 multi=True,
-                placeholder="Select tests",
+                placeholder="Start typing",
                 options=tests_df.to_dict("records"),
                 style={"display": "none"},
             ),
