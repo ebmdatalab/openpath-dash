@@ -133,9 +133,9 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
                         "label": "Hide organisations with low numbers",
                         "value": "suppress_sparse_data",
                     },
-                    {"label": "Equalise heatmap colours", "value": "equalise_colours"},
+                    {"label": "Increase heatmap contrast", "value": "equalise_colours"},
                 ],
-                value=["suppress_sparse_data"],
+                value=[],
             )
         ]
     )
@@ -221,7 +221,7 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
                             org_focus_form,
                         ]
                     ),
-                    dbc.Col([ccg_filter_form, lab_filter_form, tweak_form]),
+                    dbc.Col([ccg_filter_form, lab_filter_form]),
                 ]
             ),
             result_category_hint,
@@ -266,15 +266,6 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
                                             className="alert alert-info text-center",
                                             style={"display": "none"},
                                         ),
-                                        dbc.Row(
-                                            id="sort-order-dropdown-container",
-                                            children=[
-                                                dbc.Col(
-                                                    sort_order_form,
-                                                    width={"size": 6, "offset": 6},
-                                                )
-                                            ],
-                                        ),
                                         html.Div(
                                             id="heatmap-container",
                                             children=[
@@ -282,6 +273,17 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
                                                     id="heatmap-graph",
                                                     config=COMMON_GRAPH_CONFIG,
                                                 )
+                                            ],
+                                        ),
+                                        dbc.Row(children=html.H2("Heatmap options")),
+                                        dbc.Row(
+                                            id="sort-order-dropdown-container",
+                                            children=[
+                                                dbc.Col(tweak_form, width={"size": 3}),
+                                                dbc.Col(
+                                                    sort_order_form,
+                                                    width={"size": 6, "offset": 3},
+                                                ),
                                             ],
                                         ),
                                     ],
