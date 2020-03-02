@@ -382,12 +382,17 @@ def _filter_rows_with_sparse_data(df, index_col, months_to_check, months_require
     return df[df[index_col].isin(remaining_ids)]
 
 
+@cache.memoize()
 def get_test_list():
     """Get a list of tests suitable for showing in HTML dropdown forms
     """
     df = pd.read_csv(settings.CSV_DIR / "test_codes.csv")
     df = df[["datalab_testcode", "testname"]]
+    data_testcodes = get_data()["test_code"].unique()
+    df = df[df["datalab_testcode"].isin(data_testcodes)]
+    df = df[["datalab_testcode", "testname"]]
     df = df.rename(columns={"datalab_testcode": "value", "testname": "label"})
+    df = df.sort_values("label")
     return df
 
 
