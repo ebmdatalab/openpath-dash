@@ -3,6 +3,7 @@
 from data import get_all_entity_ids
 from data import get_test_code_to_name_map
 from data import get_entity_label_to_id_map
+from data import ids_to_labels
 
 
 def get_title_fragment(numerators, denominators, result_filter):
@@ -136,7 +137,7 @@ def get_title_and_hint_text(
             title = f"{fragment} {category_list}"
         else:
             entity_desc = humanise_column_name(groupby, plural=len(entity_ids) != 1)
-            title = f"{fragment} at {entity_desc} {humanise_list(entity_ids)}"
+            title = f"{fragment} at {entity_desc} {humanise_list(ids_to_labels(groupby, entity_ids))}"
         title += f"<br>(with deciles over all {humanise_column_name(groupby)})"
     elif show_deciles and not entity_ids:
         title = f"Deciles for {fragment} over all {humanise_column_name(groupby)}"

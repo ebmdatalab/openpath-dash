@@ -446,6 +446,19 @@ def get_entity_label_to_id_map():
     return data
 
 
+def ids_to_labels(org_type, entity_ids):
+    if org_type == "lab_id":
+        org_labels = [settings.LAB_NAMES.get(x, x) for x in entity_ids]
+    elif org_type == "ccg_id":
+        org_labels = [settings.CCG_NAMES.get(x, x) for x in entity_ids]
+    elif org_type == "practice_id":
+        practices = dict(
+            get_practice_data().groupby(["practice_id", "practice_name"]).groups.keys()
+        )
+        org_labels = [practices[x] for x in entity_ids]
+    return org_labels
+
+
 @cache.memoize()
 def get_org_list(org_type, ccg_ids_filter=None, lab_ids_filter=None):
     df = get_data()
@@ -453,11 +466,11 @@ def get_org_list(org_type, ccg_ids_filter=None, lab_ids_filter=None):
         df = df[df["ccg_id"].isin(ccg_ids_filter)]
     if lab_ids_filter:
         df = df[df["lab_id"].isin(lab_ids_filter)]
+    org_values = df.groupby(org_type, observed=True)["test_code"].groups.keys()
+    org_labels = ids_to_labels(org_type, org_values)
 
-    return [
-        {"value": x, "label": x}
-        for x in df.groupby(org_type, observed=True)["test_code"].groups.keys()
-    ]
+    org_values_and_labels = zip(org_values, org_labels)
+    return [{"value": x, "label": y} for x, y in org_values_and_labels]
 
 
 def humanise_entity_name(column_name, value):

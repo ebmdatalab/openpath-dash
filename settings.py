@@ -91,6 +91,10 @@ LAB_NAMES = {
     "nd": "N. Devon",
     "exeter": "Exeter",
 }
+
+CCG_NAMES = {"11X": "Somerset", "11N": "Kernow", "15N": "Devon"}
+
+
 CORE_DROPDOWN_OPTIONS = [
     {"value": "lab_id", "label": "Lab"},
     {"value": "ccg_id", "label": "CCG"},
