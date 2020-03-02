@@ -153,16 +153,6 @@ def update_state_from_inputs(
     page_state = get_state(page_state)
     orig_page_state = page_state.copy()
     selected_chart = selected_chart or "measure"
-    # only do something if all the fields have values
-    if not current_path or not (
-        selected_numerator
-        and selected_denominator
-        and groupby
-        and selected_ccg
-        and selected_lab
-    ):
-        raise PreventUpdate
-
     # Infer `selected_filter` value from the denominators dropdown
     if selected_denominator not in ["per1000", "raw", "other"]:
         # It's actually a filter
