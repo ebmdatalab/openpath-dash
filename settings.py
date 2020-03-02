@@ -97,6 +97,6 @@ CORE_DROPDOWN_OPTIONS = [
     {"value": "practice_id", "label": "Practice"},
 ]
 ANALYSE_DROPDOWN_OPTIONS = CORE_DROPDOWN_OPTIONS + [
-    {"value": "test_code", "label": "Test code"},
-    {"value": "result_category", "label": "Result type"},
+    {"value": "test_code", "label": "Test"},
+    {"value": "result_category", "label": "Result value (in/out of range)"},
 ]
