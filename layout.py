@@ -76,14 +76,6 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
                         "value": "over_range",
                         "label": "Proportion of numeric results over reference range",
                     },
-                    {
-                        "value": settings.ERR_NO_REF_RANGE,
-                        "label": "Proportion of results where no reference range available",
-                    },
-                    {
-                        "value": settings.ERR_UNPARSEABLE_RESULT,
-                        "label": "Proportion of non-numeric results",
-                    },
                     OPTION_SEPARATOR,
                     {"value": "other", "label": "Compared with other test numbers"},
                 ],
