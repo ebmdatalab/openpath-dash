@@ -145,9 +145,9 @@ def get_columns(
         {"id": "numerator", "name": numerator_name},
         {"id": "denominator", "name": denominator_name},
         {"id": "calc_value", "name": calc_value_name},
-        {"id": "numerator_error", "name": "Numerator error"},
-        {"id": "denominator_error", "name": "Denominator error"},
-        {"id": "calc_value_error", "name": "Ratio error"},
+        {"id": "numerator_error", "name": "Numerator ±"},
+        {"id": "denominator_error", "name": "Denominator ±"},
+        {"id": "calc_value_error", "name": "Ratio ±"},
     ]
 
     return [col for col in columns if col["id"] in available_columns]

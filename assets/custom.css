@@ -78,7 +78,7 @@ body {
 }
 
 #datatable-container .download-link-container {
-  text-align: right;
+  text-align: left;
 }
 
 #heatmap-click-hint p {

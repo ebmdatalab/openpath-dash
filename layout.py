@@ -189,7 +189,9 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
                 id="org-tab-label",
                 children=[custom_tab_text],
             ),
-            dbc.Tab(label="Data table", tab_id="datatable", children=[data_tab_text]),
+            dbc.Tab(
+                label="Download data", tab_id="datatable", children=[data_tab_text]
+            ),
         ],
     )
     result_category_hint = html.Div(
@@ -320,14 +322,6 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
                                 id="datatable-container",
                                 style={"display": "none"},
                                 children=[
-                                    dash_table.DataTable(
-                                        id="datatable",
-                                        sort_action="custom",
-                                        sort_mode="multi",
-                                        page_action="custom",
-                                        page_current=0,
-                                        page_size=50,
-                                    ),
                                     html.Div(
                                         className="download-link-container",
                                         children=[
@@ -338,6 +332,15 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
                                                 className="btn btn-outline-primary",
                                             )
                                         ],
+                                    ),
+                                    html.Hr(),
+                                    dash_table.DataTable(
+                                        id="datatable",
+                                        sort_action="custom",
+                                        sort_mode="multi",
+                                        page_action="custom",
+                                        page_current=0,
+                                        page_size=50,
                                     ),
                                 ],
                             )
