@@ -8,11 +8,8 @@ import plotly.graph_objs as go
 
 import numpy as np
 from apps.base import (
-    get_title_fragment,
-    humanise_list,
-    humanise_result_filter,
+    get_title_and_hint_text,
     humanise_column_name,
-    initial_capital,
     filter_entity_ids_for_type,
 )
 from data import humanise_entity_name
@@ -174,39 +171,9 @@ def get_chart_components(page_state):
                 )
             )
 
-    # Titles and help text
-    fragment = get_title_fragment(numerators, denominators, result_filter)
-    hint_text = ""
-
-    if show_deciles and entity_ids:
-        fragment = initial_capital(fragment)
-        if groupby == "test_code":
-            title = get_title_fragment(entity_ids, denominators, result_filter)
-        elif groupby == "result_category":
-            category_list = humanise_list(
-                [humanise_result_filter(x) for x in entity_ids]
-            )
-            title = f"{fragment} {category_list}"
-        else:
-            entity_desc = humanise_column_name(groupby, plural=len(entity_ids) != 1)
-            title = f"{fragment} at {entity_desc} {humanise_list(entity_ids)}"
-        title += f"<br>(with deciles over all {humanise_column_name(groupby)})"
-    elif show_deciles and not entity_ids:
-        title = f"Deciles for {fragment} over all {humanise_column_name(groupby)}"
-        hint_text = (
-            f"Click rows in the heatmap below to show lines for individual "
-            f"{humanise_column_name(groupby)}"
-        )
-    else:
-        fragment = initial_capital(fragment)
-        title = f"{fragment} grouped by {humanise_column_name(groupby, plural=False)}"
-        hint_text = (
-            f"Click legend labels above to hide/show individual "
-            f"{humanise_column_name(groupby)}.\n\n"
-            f"Double-click labels to show just that "
-            f"{humanise_column_name(groupby, plural=False)}."
-        )
-
+    title, hint_text = get_title_and_hint_text(
+        numerators, denominators, result_filter, show_deciles, groupby, entity_ids
+    )
     annotations = []
     if has_error_bars:
         annotations.append(

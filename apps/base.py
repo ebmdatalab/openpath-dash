@@ -117,3 +117,40 @@ def toggle_entity_id_list_from_click_data(click_data, entity_ids):
 def filter_entity_ids_for_type(entity_type, entity_ids):
     valid_entity_ids = get_all_entity_ids()[entity_type]
     return [x for x in entity_ids if x in valid_entity_ids]
+
+
+def get_title_and_hint_text(
+    numerators, denominators, result_filter, show_deciles, groupby, entity_ids
+):
+    fragment = get_title_fragment(numerators, denominators, result_filter)
+    hint_text = ""
+
+    if show_deciles and entity_ids:
+        fragment = initial_capital(fragment)
+        if groupby == "test_code":
+            title = get_title_fragment(entity_ids, denominators, result_filter)
+        elif groupby == "result_category":
+            category_list = humanise_list(
+                [humanise_result_filter(x) for x in entity_ids]
+            )
+            title = f"{fragment} {category_list}"
+        else:
+            entity_desc = humanise_column_name(groupby, plural=len(entity_ids) != 1)
+            title = f"{fragment} at {entity_desc} {humanise_list(entity_ids)}"
+        title += f"<br>(with deciles over all {humanise_column_name(groupby)})"
+    elif show_deciles and not entity_ids:
+        title = f"Deciles for {fragment} over all {humanise_column_name(groupby)}"
+        hint_text = (
+            f"Click rows in the heatmap below to show lines for individual "
+            f"{humanise_column_name(groupby)}"
+        )
+    else:
+        fragment = initial_capital(fragment)
+        title = f"{fragment} grouped by {humanise_column_name(groupby, plural=False)}"
+        hint_text = (
+            f"Click legend labels above to hide/show individual "
+            f"{humanise_column_name(groupby)}.\n\n"
+            f"Double-click labels to show just that "
+            f"{humanise_column_name(groupby, plural=False)}."
+        )
+    return title, hint_text
