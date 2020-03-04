@@ -130,7 +130,11 @@ def show_or_hide_org_focus_dropdown(groupby_selector):
         Input("tweak-form", "value"),
         Input("org-focus-dropdown", "value"),
     ],
-    [State("page-state", "children"), State("url-for-update", "pathname")],
+    [
+        State("page-state", "children"),
+        State("url-for-update", "pathname"),
+        State("url-for-update", "hash"),
+    ],
 )
 def update_state_from_inputs(
     selected_numerator,
@@ -144,6 +148,7 @@ def update_state_from_inputs(
     org_focus,
     page_state,
     current_path,
+    current_hash,
 ):
     """
     Given a series of possible user inputs, update the state if it needs to be changed.
@@ -206,7 +211,12 @@ def update_state_from_inputs(
     # Only trigger state changes if something has changed
     if "_dirty" not in page_state:
         logger.info("State unchanged")
-        raise PreventUpdate
+        if current_hash:
+            # Propagate event chain, so we don't ignore events
+            # involving hash changes
+            return json.dumps(page_state)
+        else:
+            raise PreventUpdate
 
     del page_state["_dirty"]
     update_state(page_state, update_counter=page_state["update_counter"] + 1)
@@ -416,6 +426,53 @@ def filter_org_focus_dropdown(ccg_ids, lab_ids, groupby):
     if "all" in lab_ids:
         lab_ids = []
     return get_org_list(groupby, ccg_ids_filter=ccg_ids, lab_ids_filter=lab_ids)
+
+
+@app.callback(
+    [
+        Output("org-filter-form", "style"),
+        Output("ccg-filter-form", "style"),
+        Output("lab-filter-form", "style"),
+        Output("org-filter-link", "style"),
+    ],
+    [Input("url-from-user", "hash"), Input("page-state", "children")],
+)
+def toggle_org_filter_form(filter_link, page_state):
+    page_state = get_state(page_state)
+    ccg_ids = page_state["ccg_ids_for_practice_filter"]
+    lab_ids = page_state["lab_ids_for_practice_filter"]
+    groupby = page_state["groupby"]
+    show = {"display": "block"}
+    hide = {"display": "none"}
+    if lab_ids != ["all"] and ccg_ids != ["all"] or filter_link:
+        link_show = hide
+        # Show at least some things in the filter form
+        if groupby == "ccg_id":
+            # don't allow filtering to CCG
+            form_show = show
+            ccg_show = hide
+            lab_show = show
+        elif groupby == "lab_id":
+            # don't allow filtering to labs
+            form_show = show
+            ccg_show = show
+            lab_show = hide
+        elif groupby == "practice_id":
+            # allow filtering to labs or CCGs
+            form_show = show
+            ccg_show = show
+            lab_show = show
+        else:
+            # no filtering
+            form_show = hide
+            ccg_show = hide
+            lab_show = hide
+    else:
+        link_show = show
+        form_show = hide
+        ccg_show = hide
+        lab_show = hide
+    return [form_show, ccg_show, lab_show, link_show]
 
 
 # for each chart, generate a function to show only that chart

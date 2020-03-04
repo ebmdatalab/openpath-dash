@@ -97,19 +97,29 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
             dcc.Dropdown(
                 id="groupby-dropdown", options=settings.ANALYSE_DROPDOWN_OPTIONS
             ),
+            dcc.Link(
+                "Filter practice list...", href="#show-org-filter", id="org-filter-link"
+            ),
         ]
     )
     ccg_filter_form = dbc.FormGroup(
         [
             dbc.Label("Filter to specific CCGs"),
             dcc.Dropdown(id="ccg-dropdown", multi=True, options=ccgs_list),
-        ]
+        ],
+        id="ccg-filter-form",
     )
     lab_filter_form = dbc.FormGroup(
         [
             dbc.Label("Filter to specific labs", id="lab-focus-label"),
             dcc.Dropdown(id="lab-dropdown", multi=True, options=labs_list),
-        ]
+        ],
+        id="lab-filter-form",
+    )
+    org_filter_form = dbc.FormGroup(
+        children=[ccg_filter_form, lab_filter_form],
+        id="org-filter-form",
+        style={"display": "none"},
     )
     org_focus_form = dbc.FormGroup(
         [
@@ -181,15 +191,8 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
         [
             dbc.Row(
                 [
-                    dbc.Col(
-                        [
-                            numerators_form,
-                            denominators_form,
-                            groupby_form,
-                            org_focus_form,
-                        ]
-                    ),
-                    dbc.Col([ccg_filter_form, lab_filter_form]),
+                    dbc.Col([numerators_form, denominators_form]),
+                    dbc.Col([groupby_form, org_focus_form, org_filter_form]),
                 ]
             ),
             result_category_hint,
