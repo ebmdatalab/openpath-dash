@@ -46,7 +46,9 @@ def update_state(state, **kw):
     Sets a `_dirty` key if any changes have been made
 
     """
-    changed = False
+    if "_dirty" in state:
+        del state["_dirty"]
+    orig_state = state.copy()
     for k, v in kw.items():
         if isinstance(v, list):
             if not v and k not in state:
@@ -61,8 +63,7 @@ def update_state(state, **kw):
                     del state[k]
             else:
                 state[k] = v
-            changed = True
-    if changed:
+    if orig_state != state:
         state["_dirty"] = True
 
 
