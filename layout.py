@@ -104,14 +104,14 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
     )
     ccg_filter_form = dbc.FormGroup(
         [
-            dbc.Label("Filter to specific CCGs"),
+            dbc.Label("Only consider orgs in these CCGs", id="ccg-focus-label"),
             dcc.Dropdown(id="ccg-dropdown", multi=True, options=ccgs_list),
         ],
         id="ccg-filter-form",
     )
     lab_filter_form = dbc.FormGroup(
         [
-            dbc.Label("Filter to specific labs", id="lab-focus-label"),
+            dbc.Label("Only consider orgs using these labs", id="lab-focus-label"),
             dcc.Dropdown(id="lab-dropdown", multi=True, options=labs_list),
         ],
         id="lab-filter-form",

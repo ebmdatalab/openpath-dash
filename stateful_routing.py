@@ -97,17 +97,71 @@ def toggle_numerator_denominator_visibility(active_tab):
         dropdown_options = settings.CORE_DROPDOWN_OPTIONS
     else:
         display = "block"
-        groupby_label = "Group by"
+        groupby_label = "Compare by"
         dropdown_options = settings.ANALYSE_DROPDOWN_OPTIONS
     return [{"display": display}, {"display": display}, groupby_label, dropdown_options]
 
 
 @app.callback(
-    Output("org-focus-label", "children"), [Input("groupby-dropdown", "value")]
+    [
+        Output("org-focus-label", "children"),
+        Output("ccg-focus-label", "children"),
+        Output("lab-focus-label", "children"),
+    ],
+    [Input("groupby-dropdown", "value")],
 )
 def update_org_labels(groupby):
     name = humanise_column_name(groupby)
-    return (f"Highlight specific {name}",)
+    if groupby == "practice_id":
+        ccg_qualifier = "within these CCGs"
+        lab_qualifier = "using these labs"
+    elif groupby == "ccg_id":
+        ccg_qualifier = ""
+        lab_qualifier = "using these labs"
+    elif groupby == "lab_id":
+        ccg_qualifier = "servicing these CCGs"
+        lab_qualifier = ""
+    else:
+        raise PreventUpdate
+    return [
+        f"Plot specific {name}",
+        f"Only compare {name} {ccg_qualifier}",
+        f"Only compare {name} {lab_qualifier}",
+    ]
+
+
+def _select_value_from_url(selector_id, page_state_key, url, is_multi=False):
+    # Sometimes None for reasons explained here:
+    # https://github.com/plotly/dash/issues/133#issuecomment-330714608
+    current_value = _get_dropdown_current_value_by_id(selector_id)
+    try:
+        _, url_state = urls.match(url)
+        if page_state_key in url_state:
+            return url_state[page_state_key]
+        else:
+            logger.info("****-> %s", current_value)
+            return is_multi and [current_value] or current_value
+    except NotFound:
+        return default
+
+
+@app.callback(
+    [Output("lab-dropdown", "value"), Output("ccg-dropdown", "value")],
+    [Input("groupby-dropdown", "value")],
+    [State("url-from-user", "pathname")],
+)
+def update_org_filter_dropdowns(groupby, url):
+    selected_labs = _select_value_from_url(
+        "lab-dropdown", "lab_ids_for_practice_filter", url, is_multi=True
+    )
+    selected_ccgs = _select_value_from_url(
+        "ccg-dropdown", "ccg_ids_for_practice_filter", url, is_multi=True
+    )
+    if selected_labs and groupby == "lab_id":
+        selected_labs = []
+    if selected_ccgs and groupby == "ccg_id":
+        selected_ccgs = []
+    return [selected_labs, selected_ccgs]
 
 
 @app.callback(Output("org-focus-form", "style"), [Input("groupby-dropdown", "value")])
@@ -163,6 +217,7 @@ def update_state_from_inputs(
     selected_denominator = selected_denominator or ["all"]
     selected_ccg = selected_ccg or ["all"]
     selected_lab = selected_lab or ["all"]
+
     # Infer `selected_filter` value from the denominators dropdown
     if selected_denominator not in ["per1000", "raw", "other"]:
         # It's actually a filter
@@ -261,18 +316,9 @@ def _create_dropdown_update_func(selector_id, page_state_key, default, is_multi)
         """
         logger.info("-- multi dropdown %s being set from URL %s", selector_id, pathname)
         if pathname:
-            # Sometimes None for reasons explained here:
-            # https://github.com/plotly/dash/issues/133#issuecomment-330714608
-            current_value = _get_dropdown_current_value_by_id(selector_id)
-            try:
-                _, url_state = urls.match(pathname)
-                if page_state_key in url_state:
-                    return url_state[page_state_key]
-                else:
-                    logger.info("****-> %s", current_value)
-                    return is_multi and [current_value] or current_value
-            except NotFound:
-                return default
+            return _select_value_from_url(
+                selector_id, page_state_key, pathname, is_multi=is_multi
+            )
         raise PreventUpdate
 
     return update_dropdown_from_url
@@ -282,8 +328,6 @@ for selector_id, page_state_key, default, is_multi in [
     ("numerators-dropdown", "numerators", None, True),
     ("denominator-tests-dropdown", "denominators", "", True),
     ("groupby-dropdown", "groupby", "lab_id", False),
-    ("ccg-dropdown", "ccg_ids_for_practice_filter", "all", True),
-    ("lab-dropdown", "lab_ids_for_practice_filter", "all", True),
 ]:
     app.callback(Output(selector_id, "value"), [Input("url-from-user", "pathname")])(
         _create_dropdown_update_func(selector_id, page_state_key, default, is_multi)
@@ -422,9 +466,9 @@ def filter_org_focus_dropdown(ccg_ids, lab_ids, groupby):
     """
     if groupby not in ["practice_id", "ccg_id", "lab_id"]:
         raise PreventUpdate
-    if "all" in ccg_ids:
+    if not ccg_ids or "all" in ccg_ids:
         ccg_ids = []
-    if "all" in lab_ids:
+    if not lab_ids or "all" in lab_ids:
         lab_ids = []
     return get_org_list(groupby, ccg_ids_filter=ccg_ids, lab_ids_filter=lab_ids)
 
