@@ -56,6 +56,7 @@ def get_decile_traces(df, col_name, highlight_median=False):
                 legendgroup=legendgroup,
                 name=legend_text,
                 line=dict(color=color, width=1, dash=style),
+                mode="lines",
                 hoverinfo="skip",
                 showlegend=showlegend,
             )
