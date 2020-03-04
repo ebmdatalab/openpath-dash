@@ -405,6 +405,8 @@ def filter_org_focus_dropdown(ccg_ids, lab_ids, groupby):
     within the labs or CCGs specified.
 
     """
+    if groupby not in ["practice_id", "ccg_id", "lab_id"]:
+        raise PreventUpdate
     if "all" in ccg_ids:
         ccg_ids = []
     if "all" in lab_ids:
