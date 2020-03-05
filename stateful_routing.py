@@ -283,7 +283,7 @@ def update_state_from_inputs(
         orig_page_state,
         page_state,
     )
-    return json.dumps(page_state)
+    return json.dumps(page_state, indent=2)
 
 
 def _get_dropdown_current_value_by_id(component_id):

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import settings
 
 
 def setup_app_and_layout():
@@ -34,5 +35,5 @@ setup_callbacks()
 if __name__ == "__main__":
     # You can't set up callbacks until the layout has been registered
     port = int(os.environ.get("PORT", 8050))
-    debug = os.environ.get("DEBUG", "").strip().lower() == "true"
+    debug = settings.DEBUG
     app.run_server(port=port, debug=debug)

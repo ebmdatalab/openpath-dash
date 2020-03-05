@@ -13,6 +13,7 @@ ERR_DISCARDED_AGE = 6
 ERR_INVALID_REF_RANGE = 7
 ERR_NO_TEST_CODE = 8
 
+DEBUG = os.environ.get("DEBUG", "").strip().lower() == "true"
 
 # A list of all the charts that appear in the app
 CHART_ID = "chart"

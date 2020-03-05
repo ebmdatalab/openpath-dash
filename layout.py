@@ -26,7 +26,16 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
         [
             # Hidden div inside the app that stores the page state
             # XXX possibly use https://dash.plot.ly/dash-core-components/store
-            html.Pre(id="page-state", style={"display": "none"}),
+            html.Div(
+                children=[
+                    html.Button(
+                        "show state",
+                        style={"display": "block" if settings.DEBUG else "none"},
+                        **{"data-toggle": "collapse", "data-target": "#page-state"}
+                    ),
+                    html.Pre(id="page-state", className="collapse"),
+                ]
+            ),
             # Two "locations" with the same function, to allow two
             # different callbacks to use them without cycles in the
             # graph.  This one represents URLs from the user,

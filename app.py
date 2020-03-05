@@ -49,7 +49,7 @@ app = DashWithBaseTemplate(
 app.static_folder = "assets"
 
 credentials = os.environ.get("BASIC_AUTH_CREDENTIALS")
-if "DEBUG" not in os.environ:
+if not settings.DEBUG:
     assert (
         credentials
     ), 'You need to `export BASIC_AUTH_CREDENTIALS="username: password"`'
