@@ -102,7 +102,7 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
     )
     groupby_form = dbc.FormGroup(
         [
-            dbc.Label("Group by", id="groupby-label"),
+            dbc.Label("Compare by", id="groupby-label"),
             dcc.Dropdown(
                 id="groupby-dropdown", options=settings.ANALYSE_DROPDOWN_OPTIONS
             ),
