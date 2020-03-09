@@ -268,6 +268,11 @@ def update_state_from_inputs(
         stored_denominator = denominator_tests
     sparse_data_toggle = "suppress_sparse_data" in tweak_form
     equalise_colorscale = "equalise_colours" in tweak_form
+    # Note that while the denominator dropdown is a single-select, we
+    # always store it as an array, to support lists of tests and other
+    # types of denominator uniformly
+    if isinstance(stored_denominator, str):
+        stored_denominator = [stored_denominator]
     update_state(
         page_state,
         numerators=selected_numerator,
