@@ -127,7 +127,7 @@ def update_heatmap(page_state, current_qs, sort_order, current_fig):
 
     fragment = get_title_fragment(numerators, denominators, result_filter)
     fragment = initial_capital(fragment)
-    title = f"{fragment} grouped by {humanise_column_name(col_name, plural=False)}"
+    title = f"Heatmap view: {fragment} grouped by {humanise_column_name(col_name, plural=False)} (click to select)"
 
     def make_highlight_rect(y_index):
         return {
