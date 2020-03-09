@@ -519,16 +519,11 @@ def toggle_org_filter_form(filter_link, page_state):
             form_show = show
             ccg_show = show
             lab_show = hide
-        elif groupby == "practice_id":
+        else:
             # allow filtering to labs or CCGs
             form_show = show
             ccg_show = show
             lab_show = show
-        else:
-            # no filtering
-            form_show = hide
-            ccg_show = hide
-            lab_show = hide
     else:
         link_show = show
         form_show = hide
