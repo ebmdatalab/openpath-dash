@@ -110,24 +110,10 @@ def toggle_numerator_denominator_visibility(active_tab):
 )
 def update_org_labels(groupby):
     name = humanise_column_name(groupby)
-    if groupby == "practice_id":
-        restriction_text = "Only use data from practices"
-        ccg_qualifier = "within these CCGs"
-        lab_qualifier = "using these labs"
-    elif groupby == "ccg_id":
-        restriction_text = "Only use data from practices"
-        ccg_qualifier = ""
-        lab_qualifier = "in CCGs that use these labs"
-    elif groupby == "lab_id":
-        restriction_text = "Only use data from practices"
-        ccg_qualifier = "that use labs which service these CCGs"
-        lab_qualifier = ""
-    else:
-        raise PreventUpdate
     return [
         f"Plot specific {name}",
-        f"{restriction_text} {ccg_qualifier}",
-        f"{restriction_text} {lab_qualifier}",
+        f"Only use data from practices in these CCGs",
+        f"Only use data from practices in these labs",
     ]
 
 
