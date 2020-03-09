@@ -14,11 +14,6 @@ import settings
 logger = logging.getLogger(__name__)
 
 
-DISPLAY_NONE = {"display": "none"}
-
-EMPTY_RESPONSE = (settings.EMPTY_CHART_LAYOUT, DISPLAY_NONE, "")
-
-
 @app.callback(
     Output("deciles-graph", "figure"),
     [Input("page-state", "children")],
@@ -28,7 +23,7 @@ def update_deciles(page_state, current_qs):
     page_state = get_state(page_state)
 
     if page_state.get("page_id") != settings.CHART_ID:
-        return EMPTY_RESPONSE
+        return settings.EMPTY_CHART_LAYOUT
     components = get_chart_components(page_state)
     if components:
         traces, title, annotations = components
@@ -48,4 +43,4 @@ def update_deciles(page_state, current_qs):
                 ),
             }
             return chart
-    return EMPTY_RESPONSE
+    return settings.EMPTY_CHART_LAYOUT
