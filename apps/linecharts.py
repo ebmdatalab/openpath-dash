@@ -132,7 +132,7 @@ def get_chart_components(page_state):
         # First, plot the practice line
         traces.append(
             go.Scatter(
-                legendgroup=entity_id,
+                legendgroup=str(entity_id),
                 x=entity_df["month"],
                 y=entity_df["calc_value"],
                 text=entity_df["label"],
@@ -148,7 +148,7 @@ def get_chart_components(page_state):
             # If there's any error, bounds and fill
             traces.append(
                 go.Scatter(
-                    legendgroup=entity_id,
+                    legendgroup=str(entity_id),
                     x=entity_df["month"],
                     y=entity_df["calc_value"] + entity_df["calc_value_error"],
                     name=str(entity_id),
@@ -160,7 +160,7 @@ def get_chart_components(page_state):
             )
             traces.append(
                 go.Scatter(
-                    legendgroup=entity_id,
+                    legendgroup=str(entity_id),
                     x=entity_df["month"],
                     y=entity_df["calc_value"] - entity_df["calc_value_error"],
                     name=str(entity_id),
