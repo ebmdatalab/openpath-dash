@@ -81,8 +81,7 @@ def update_url_from_page_state(page_state):
 
 @app.callback(
     [
-        Output("numerators-form", "style"),
-        Output("denominators-form", "style"),
+        Output("measurements-fieldset", "style"),
         Output("groupby-label", "children"),
         Output("groupby-dropdown", "options"),
     ],
@@ -97,7 +96,7 @@ def toggle_numerator_denominator_visibility(active_tab):
         display = "block"
         groupby_label = "Compare by"
         dropdown_options = settings.ANALYSE_DROPDOWN_OPTIONS
-    return [{"display": display}, {"display": display}, groupby_label, dropdown_options]
+    return [{"display": display}, groupby_label, dropdown_options]
 
 
 @app.callback(

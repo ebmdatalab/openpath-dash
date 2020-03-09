@@ -61,7 +61,6 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
             ),
         ],
         id="numerators-form",
-        style={"display": "none"},
     )
 
     denominators_form = dbc.FormGroup(
@@ -94,11 +93,9 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
                 multi=True,
                 placeholder="Start typing",
                 options=tests_df.to_dict("records"),
-                style={"display": "none"},
             ),
         ],
         id="denominators-form",
-        style={"display": "none"},
     )
     groupby_form = dbc.FormGroup(
         [
@@ -221,6 +218,8 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
                                 denominators_form,
                             ],
                             className="border p-2",
+                            id="measurements-fieldset",
+                            style={"display": "none"},
                         )
                     ),
                 ]
