@@ -46,8 +46,6 @@ def update_state(state, **kw):
     Sets a `_dirty` key if any changes have been made
 
     """
-    if "_dirty" in state:
-        del state["_dirty"]
     orig_state = state.copy()
     for k, v in kw.items():
         if isinstance(v, list):
@@ -214,18 +212,14 @@ def update_state_from_inputs(
     orig_page_state = page_state.copy()
     selected_chart = selected_chart or "measure"
     selected_numerator = selected_numerator or ["all"]
-    selected_denominator = selected_denominator or ["all"]
+    if not selected_denominator:
+        if denominator_tests:
+            selected_denominator = "other"
+        else:
+            selected_denominator = ["all"]
     selected_ccg = selected_ccg or ["all"]
     selected_lab = selected_lab or ["all"]
 
-    # Infer `selected_filter` value from the denominators dropdown
-    if selected_denominator not in ["per1000", "raw", "other"]:
-        # It's actually a filter
-        selected_filter = selected_denominator
-        selected_denominator = "other"
-        denominator_tests = selected_numerator
-    else:
-        selected_filter = "all"
     # Errors should already have been shown by this point. Reset error state.
     if "error" in page_state:
         del page_state["error"]
@@ -240,21 +234,42 @@ def update_state_from_inputs(
                 "message": f"Unable to find page at {current_path}",
             },
         )
-    if selected_denominator == "other":
-        # We store one of raw, per100 or TEST1+TEST in the URL. We
-        # always store that as the `denominators` value in the page
-        # state, even though the dropdown for selected_numerator may
-        # be `other`. This needs cleaning up! XXX
-        stored_denominators = denominator_tests
-    else:
-        stored_denominators = [selected_denominator]
+    # The value of `selected_denominator` (derived from the dropdown
+    # with id `denominators-dropdown`) is a mixture of things which
+    # (hopefully) belong together from the user's point of view, but
+    # are (confusingly for you reading this code) a mixture of
+    # different ratio types. They are one of two main types - either:
+    #
+    # (a) an external count type ("per1000", "raw"), or
+    # (b) a proportion, which can in turn be
+    #   (i) the value `other`, indicating a list of test codes, or
+    #   (ii) one of `within_range`, `over_range`, or `under_range`,
+    #        indicating that the numerator should be a filtered subset
+    #        of the same denominator.
+
+    # We convert these possible `selected_denominator` values into a
+    # `stored_denominator` value and a `result_filter` value, which
+    # generates a more sensible data structure that can be used to
+    # construct meaningful URLs and page state.
+    result_filter = "all"
+    stored_denominator = selected_denominator
+
+    if selected_denominator in ["within_range", "under_range", "over_range"]:
+        result_filter = selected_denominator
+        stored_denominator = selected_numerator
+    elif (
+        selected_denominator == "other"
+        or selected_denominator == ["all"]
+        and denominator_tests
+    ):
+        stored_denominator = denominator_tests
     sparse_data_toggle = "suppress_sparse_data" in tweak_form
     equalise_colorscale = "equalise_colours" in tweak_form
     update_state(
         page_state,
         numerators=selected_numerator,
-        denominators=stored_denominators,
-        result_filter=selected_filter,
+        denominators=stored_denominator,
+        result_filter=result_filter,
         groupby=groupby,
         ccg_ids_for_practice_filter=selected_ccg,
         lab_ids_for_practice_filter=selected_lab,
@@ -266,7 +281,7 @@ def update_state_from_inputs(
 
     # Only trigger state changes if something has changed
     if "_dirty" not in page_state:
-        logger.info("State unchanged")
+        logger.info("State unchanged - from %s", triggered_inputs)
         if current_hash:
             # Propagate event chain, so we don't ignore events
             # involving hash changes
@@ -274,8 +289,8 @@ def update_state_from_inputs(
         else:
             raise PreventUpdate
 
-    del page_state["_dirty"]
     update_state(page_state, update_counter=page_state["update_counter"] + 1)
+    del page_state["_dirty"]
 
     logger.info(
         "-- updating state from %s, was %s, now %s",
@@ -314,11 +329,17 @@ def _create_dropdown_update_func(selector_id, page_state_key, default, is_multi)
     def update_dropdown_from_url(pathname):
         """Cause the specified multi dropdown to match the current page location
         """
-        logger.info("-- multi dropdown %s being set from URL %s", selector_id, pathname)
         if pathname:
-            return _select_value_from_url(
+            val = _select_value_from_url(
                 selector_id, page_state_key, pathname, is_multi=is_multi
             )
+            logger.info(
+                "-- multi dropdown %s being set to %s from URL %s",
+                selector_id,
+                val,
+                pathname,
+            )
+            return val
         raise PreventUpdate
 
     return update_dropdown_from_url
@@ -365,11 +386,13 @@ def update_denominator_dropdown_from_url(pathname):
             # if it's raw, per1000 or other, leave as-is
             # otherwise, pick based on the result_filter
             if "denominators" in url_state:
-                if url_state["denominators"][0] in ["per1000", "other", "raw"]:
-                    logger.info("  setting to %s", url_state["denominators"][0])
-                    return url_state["denominators"][0]
-                else:
+                first_part = url_state["denominators"][0]
+                if first_part in ["per1000", "raw"]:
+                    return first_part
+                elif url_state["result_filter"] != "all":
                     return url_state["result_filter"]
+                else:
+                    return "other"
             else:
                 # default for when someone visits /apps/decile (for example)
                 return "per1000"
