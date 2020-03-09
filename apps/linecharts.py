@@ -7,11 +7,7 @@ import pandas as pd
 import plotly.graph_objs as go
 
 import numpy as np
-from apps.base import (
-    get_title_and_hint_text,
-    humanise_column_name,
-    filter_entity_ids_for_type,
-)
+from apps.base import get_title, humanise_column_name, filter_entity_ids_for_type
 from data import humanise_entity_name
 from data import get_count_data
 
@@ -172,7 +168,7 @@ def get_chart_components(page_state):
                 )
             )
 
-    title, hint_text = get_title_and_hint_text(
+    title = get_title(
         numerators, denominators, result_filter, show_deciles, groupby, entity_ids
     )
     annotations = []
@@ -195,4 +191,4 @@ def get_chart_components(page_state):
                 showarrow=False,
             )
         )
-    return traces, title, hint_text, annotations
+    return traces, title, annotations

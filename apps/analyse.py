@@ -15,17 +15,12 @@ logger = logging.getLogger(__name__)
 
 
 DISPLAY_NONE = {"display": "none"}
-DISPLAY_SHOW = {"display": ""}
 
 EMPTY_RESPONSE = (settings.EMPTY_CHART_LAYOUT, DISPLAY_NONE, "")
 
 
 @app.callback(
-    [
-        Output("deciles-graph", "figure"),
-        Output("heatmap-click-hint", "style"),
-        Output("heatmap-click-hint", "children"),
-    ],
+    Output("deciles-graph", "figure"),
     [Input("page-state", "children")],
     [State("url-for-update", "search")],
 )
@@ -36,7 +31,7 @@ def update_deciles(page_state, current_qs):
         return EMPTY_RESPONSE
     components = get_chart_components(page_state)
     if components:
-        traces, title, hint_text, annotations = components
+        traces, title, annotations = components
         if traces:
             yaxis_label = get_yaxis_label(page_state)
             all_x_vals = set().union(*[trace.x for trace in traces])
@@ -52,5 +47,5 @@ def update_deciles(page_state, current_qs):
                     annotations=annotations,
                 ),
             }
-            return chart, DISPLAY_SHOW, hint_text
+            return chart
     return EMPTY_RESPONSE

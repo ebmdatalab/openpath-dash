@@ -107,7 +107,9 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
                 id="groupby-dropdown", options=settings.ANALYSE_DROPDOWN_OPTIONS
             ),
             dcc.Link(
-                "Filter practice list...", href="#show-org-filter", id="org-filter-link"
+                "Filter practices used for comparison...",
+                href="#show-org-filter",
+                id="org-filter-link",
             ),
         ]
     )
@@ -200,8 +202,27 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
         [
             dbc.Row(
                 [
-                    dbc.Col([numerators_form, denominators_form]),
-                    dbc.Col([groupby_form, org_focus_form, org_filter_form]),
+                    dbc.Col(
+                        html.Fieldset(
+                            children=[
+                                html.Legend("Comparisons", className="w-auto"),
+                                groupby_form,
+                                org_filter_form,
+                                org_focus_form,
+                            ],
+                            className="border p-2",
+                        )
+                    ),
+                    dbc.Col(
+                        html.Fieldset(
+                            children=[
+                                html.Legend("Measurements", className="w-auto"),
+                                numerators_form,
+                                denominators_form,
+                            ],
+                            className="border p-2",
+                        )
+                    ),
                 ]
             ),
             result_category_hint,
@@ -236,16 +257,6 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
                                 dcc.Loading(
                                     id="loading-heatmap",
                                     children=[
-                                        # We use Markdown component so we can insert
-                                        # line breaks as new paragraphs. We add a
-                                        # custom CSS rule to remove bottom margin from
-                                        # child P elements.
-                                        dcc.Markdown(
-                                            "",
-                                            id="heatmap-click-hint",
-                                            className="alert alert-info text-center",
-                                            style={"display": "none"},
-                                        ),
                                         html.Div(
                                             id="heatmap-container",
                                             children=[

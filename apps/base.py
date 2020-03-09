@@ -120,11 +120,10 @@ def filter_entity_ids_for_type(entity_type, entity_ids):
     return [x for x in entity_ids if x in valid_entity_ids]
 
 
-def get_title_and_hint_text(
+def get_title(
     numerators, denominators, result_filter, show_deciles, groupby, entity_ids
 ):
     fragment = get_title_fragment(numerators, denominators, result_filter)
-    hint_text = ""
 
     if show_deciles and entity_ids:
         fragment = initial_capital(fragment)
@@ -141,20 +140,10 @@ def get_title_and_hint_text(
         title += f"<br>(with deciles over all {humanise_column_name(groupby)})"
     elif show_deciles and not entity_ids:
         title = f"Deciles for {fragment} over all {humanise_column_name(groupby)}"
-        hint_text = (
-            f"Click rows in the heatmap below to show lines for individual "
-            f"{humanise_column_name(groupby)}"
-        )
     else:
         fragment = initial_capital(fragment)
         title = f"{fragment} grouped by {humanise_column_name(groupby, plural=False)}"
-        hint_text = (
-            f"Click legend labels above to hide/show individual "
-            f"{humanise_column_name(groupby)}.\n\n"
-            f"Double-click labels to show just that "
-            f"{humanise_column_name(groupby, plural=False)}."
-        )
-    return title, hint_text
+    return title
 
 
 def get_yaxis_label(page_state):

@@ -42,7 +42,7 @@ def update_measures(page_state):
     for measure_num, measure in enumerate(measures):
         measure_state = page_state.copy()
         measure_state.update(measure)
-        traces, title, hint_text, annotations = get_chart_components(measure_state)
+        traces, title, annotations = get_chart_components(measure_state)
         yaxis_label = get_yaxis_label(measure_state)
         url = analyse_url(measure_state)
         all_x_vals = set().union(*[trace.x for trace in traces])
