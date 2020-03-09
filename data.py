@@ -226,7 +226,7 @@ def get_count_data(
         filtered_df = df.query(" & ".join(numerator_and_query))
     else:
         filtered_df = df
-    if groupby:
+    if groupby and not filtered_df.empty:
         # Because each practice-month pair might occur multiple times in our
         # dataframe (once for each test code and result category) we can't
         # simply sum the `total_list_size` column as this will end up counting
@@ -344,13 +344,14 @@ def get_count_data(
         label_format = (
             "{0[calc_value]:.5f} ({0[numerator]:.0f} / {0[denominator]:.0f} tests)"
         )
-    num_df_agg = num_df_agg.rename(
-        columns={"count": "numerator", "error": "numerator_error"}
-    )
-    # Always include date in label
-    label_format += " in {0[month]:%b %Y}"
-    num_df_agg["label"] = num_df_agg.apply(label_format.format, axis=1)
+
     if not num_df_agg.empty:
+        num_df_agg = num_df_agg.rename(
+            columns={"count": "numerator", "error": "numerator_error"}
+        )
+        # Always include date in label
+        label_format += " in {0[month]:%b %Y}"
+        num_df_agg["label"] = num_df_agg.apply(label_format.format, axis=1)
         # If `by` is `None` then we're getting the raw, unaggregated data to
         # display in a table and the filtering mechanism below won't work (and
         # also, probably, is less necessary as the table will be too big to
@@ -367,7 +368,7 @@ def get_count_data(
         num_df_agg["calc_value_error"] = num_df_agg["calc_value_error"].fillna(0)
         return num_df_agg[required_cols].sort_values("month")
     else:
-        return pd.DataFrame()
+        return pd.DataFrame(columns=required_cols)
 
 
 def _filter_rows_with_sparse_data(df, index_col, months_to_check, months_required):

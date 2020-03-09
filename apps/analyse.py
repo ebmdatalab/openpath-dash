@@ -37,20 +37,20 @@ def update_deciles(page_state, current_qs):
     components = get_chart_components(page_state)
     if components:
         traces, title, hint_text, annotations = components
-        yaxis_label = get_yaxis_label(page_state)
-        all_x_vals = set().union(*[trace.x for trace in traces])
-        chart = {
-            "data": traces,
-            "layout": go.Layout(
-                title=title,
-                height=350,
-                xaxis={"range": [min(all_x_vals), max(all_x_vals)]},
-                yaxis={"title": {"text": yaxis_label}},
-                showlegend=True,
-                legend={"orientation": "v"},
-                annotations=annotations,
-            ),
-        }
-        return chart, DISPLAY_SHOW, hint_text
-    else:
-        return EMPTY_RESPONSE
+        if traces:
+            yaxis_label = get_yaxis_label(page_state)
+            all_x_vals = set().union(*[trace.x for trace in traces])
+            chart = {
+                "data": traces,
+                "layout": go.Layout(
+                    title=title,
+                    height=350,
+                    xaxis={"range": [min(all_x_vals), max(all_x_vals)]},
+                    yaxis={"title": {"text": yaxis_label}},
+                    showlegend=True,
+                    legend={"orientation": "v"},
+                    annotations=annotations,
+                ),
+            }
+            return chart, DISPLAY_SHOW, hint_text
+    return EMPTY_RESPONSE
