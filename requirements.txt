@@ -4,43 +4,43 @@
 #
 #    pip-compile
 #
-certifi==2019.9.11        # via requests
+certifi==2019.11.28       # via requests
 chardet==3.0.4            # via requests
 click==7.0                # via flask
 cycler==0.10.0            # via matplotlib
 dash-auth==1.3.2
-dash-bootstrap-components==0.7.1
-dash-core-components==1.2.1  # via dash, dash-auth
-dash-html-components==1.0.1  # via dash, dash-auth
-dash-table==4.3.0         # via dash
-dash==1.3.1
-dash_renderer==1.1.0      # via dash
-flask-caching==1.7.2
+dash-bootstrap-components==0.8.3
+dash-core-components==1.8.1  # via dash, dash-auth
+dash-html-components==1.0.2  # via dash, dash-auth
+dash-table==4.6.1         # via dash
+dash==1.9.1
+dash_renderer==1.2.4      # via dash
+flask-caching==1.8.0
 flask-compress==1.4.0     # via dash, dash-auth
 flask-seasurf==0.2.2      # via dash-auth
 flask==1.1.1
-future==0.17.1            # via dash
-gunicorn==19.9.0
-idna==2.8                 # via requests
+future==0.18.2            # via dash
+gunicorn==20.0.4
+idna==2.9                 # via requests
 itsdangerous==1.1.0       # via dash-auth, flask
-jinja2==2.10.1            # via flask
+jinja2==2.11.1            # via flask
 kiwisolver==1.1.0         # via matplotlib
-lxml==4.4.2
+lxml==4.5.0
 markupsafe==1.1.1         # via jinja2
-matplotlib==3.1.1
-numpy==1.17.2
-pandas==0.25.1
-plotly==4.1.1             # via dash, dash-auth
-pyparsing==2.4.4          # via matplotlib
-python-dateutil==2.8.0    # via matplotlib, pandas
-pytz==2019.2              # via pandas
-pyyaml==5.2
-requests==2.22.0
+matplotlib==3.2.0
+numpy==1.18.1
+pandas==1.0.1
+plotly==4.5.3             # via dash, dash-auth
+pyparsing==2.4.6          # via matplotlib
+python-dateutil==2.8.1    # via matplotlib, pandas
+pytz==2019.3              # via pandas
+pyyaml==5.3
+requests==2.23.0
 retrying==1.3.3           # via dash-auth, plotly
-six==1.12.0               # via cycler, plotly, python-dateutil, retrying
-ua-parser==0.8.0          # via dash-auth
-urllib3==1.25.6           # via requests
-werkzeug==0.16.0          # via flask
+six==1.14.0               # via cycler, plotly, python-dateutil, retrying
+ua-parser==0.10.0         # via dash-auth
+urllib3==1.25.8           # via requests
+werkzeug==1.0.0           # via flask
 
 # The following packages are considered to be unsafe in a requirements file:
-# setuptools==42.0.2        # via kiwisolver
+# setuptools==46.0.0        # via gunicorn, kiwisolver
