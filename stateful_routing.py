@@ -123,12 +123,14 @@ def _select_value_from_url(selector_id, page_state_key, url, is_multi=False):
     try:
         _, url_state = urls.match(url)
         if page_state_key in url_state:
-            return url_state[page_state_key]
+            value = url_state[page_state_key]
         else:
             logger.info("****-> %s", current_value)
-            return is_multi and [current_value] or current_value
+            value = is_multi and [current_value] or current_value
     except NotFound:
-        return default
+        value = default
+    changed = value == current_value
+    return changed, value
 
 
 @app.callback(
@@ -137,12 +139,15 @@ def _select_value_from_url(selector_id, page_state_key, url, is_multi=False):
     [State("url-from-user", "pathname")],
 )
 def update_org_filter_dropdowns(groupby, url):
-    selected_labs = _select_value_from_url(
+    changed, selected_labs = _select_value_from_url(
         "lab-dropdown", "lab_ids_for_practice_filter", url, is_multi=True
     )
-    selected_ccgs = _select_value_from_url(
+    changed_2, selected_ccgs = _select_value_from_url(
         "ccg-dropdown", "ccg_ids_for_practice_filter", url, is_multi=True
     )
+    changed = changed and changed_2
+    if not changed:
+        raise PreventUpdate
     if selected_labs and groupby == "lab_id":
         selected_labs = []
     if selected_ccgs and groupby == "ccg_id":
@@ -323,9 +328,11 @@ def _create_dropdown_update_func(selector_id, page_state_key, default, is_multi)
         """Cause the specified multi dropdown to match the current page location
         """
         if pathname:
-            val = _select_value_from_url(
+            changed, val = _select_value_from_url(
                 selector_id, page_state_key, pathname, is_multi=is_multi
             )
+            if not changed:
+                raise PreventUpdate
             logger.info(
                 "-- multi dropdown %s being set to %s from URL %s",
                 selector_id,
@@ -371,9 +378,11 @@ def update_denominator_dropdown_from_url(pathname):
     """Cause the denom dropdown to match the current page location
     """
     logger.info("-- denom dropdown being set from URL %s", pathname)
+    val = None
     if pathname:
         # Sometimes None for reasons explained here:
         # https://github.com/plotly/dash/issues/133#issuecomment-330714608
+        current_value = _get_dropdown_current_value_by_id(selector_id)
         try:
             _, url_state = urls.match(pathname)
             # if it's raw, per1000 or other, leave as-is
@@ -381,17 +390,20 @@ def update_denominator_dropdown_from_url(pathname):
             if "denominators" in url_state:
                 first_part = url_state["denominators"][0]
                 if first_part in ["per1000", "raw"]:
-                    return first_part
+                    val = first_part
                 elif url_state["result_filter"] != "all":
-                    return url_state["result_filter"]
+                    val = url_state["result_filter"]
                 else:
-                    return "other"
+                    val = "other"
             else:
                 # default for when someone visits /apps/decile (for example)
-                return "per1000"
+                val = "per1000"
         except NotFound:
-            return "per1000"
-    raise PreventUpdate
+            val = "per1000"
+    if not val or val == current_value:
+        raise PreventUpdate
+    else:
+        return val
 
 
 @app.callback(
