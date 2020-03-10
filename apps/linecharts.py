@@ -7,7 +7,9 @@ import pandas as pd
 import plotly.graph_objs as go
 
 import numpy as np
-from apps.base import get_title, humanise_column_name, filter_entity_ids_for_type
+from apps.base import get_title, filter_entity_ids_for_type
+from apps.base import humanise_column_name
+from apps.base import linebreakify
 from data import humanise_entity_name
 from data import get_count_data
 
@@ -25,14 +27,21 @@ def get_deciles(df):
     return zip(deciles, deciles_data)
 
 
-def get_decile_traces(df, col_name, highlight_median=False):
+def get_decile_traces(
+    df,
+    col_name,
+    ccg_ids_for_practice_filter,
+    lab_ids_for_practice_filter,
+    highlight_median=False,
+):
     """Return a set of `Scatter` traces  suitable for adding to a Dash figure
     """
+
     deciles_traces = []
     months = pd.to_datetime(df["month"].unique())
     showlegend = True
     for n, decile in get_deciles(df):
-        legend_text = f"Deciles over all<br>available {humanise_column_name(col_name)}<br>nationally"
+        legend_text = f"Deciles over {humanise_column_name(col_name, plural=True)}"
         legendgroup = "deciles"
         color = settings.DECILE_COLOUR
         style = "dot"
@@ -117,7 +126,13 @@ def get_chart_components(page_state):
         entity_ids = sorted(trace_df[groupby].unique())
     highlight_median = not entity_ids
     traces = (
-        get_decile_traces(trace_df, groupby, highlight_median=highlight_median)
+        get_decile_traces(
+            trace_df,
+            groupby,
+            ccg_ids_for_practice_filter,
+            lab_ids_for_practice_filter,
+            highlight_median=highlight_median,
+        )
         if show_deciles
         else []
     )
@@ -169,8 +184,16 @@ def get_chart_components(page_state):
             )
 
     title = get_title(
-        numerators, denominators, result_filter, show_deciles, groupby, entity_ids
+        numerators,
+        denominators,
+        result_filter,
+        show_deciles,
+        groupby,
+        entity_ids,
+        ccg_ids_for_practice_filter,
+        lab_ids_for_practice_filter,
     )
+    title = linebreakify(title, 100)
     annotations = []
     if has_error_bars:
         annotations.append(

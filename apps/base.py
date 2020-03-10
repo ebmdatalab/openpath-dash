@@ -3,6 +3,7 @@
 from data import get_all_entity_ids
 from data import get_test_code_to_name_map
 from data import get_entity_label_to_id_map
+from data import humanise_entity_name
 from data import ids_to_labels
 
 
@@ -121,10 +122,19 @@ def filter_entity_ids_for_type(entity_type, entity_ids):
 
 
 def get_title(
-    numerators, denominators, result_filter, show_deciles, groupby, entity_ids
+    numerators,
+    denominators,
+    result_filter,
+    show_deciles,
+    groupby,
+    entity_ids,
+    ccg_ids_for_practice_filter,
+    lab_ids_for_practice_filter,
 ):
     fragment = get_title_fragment(numerators, denominators, result_filter)
-
+    practice_filters_fragment = humanise_practice_filters(
+        groupby, ccg_ids_for_practice_filter, lab_ids_for_practice_filter
+    )
     if show_deciles and entity_ids:
         fragment = initial_capital(fragment)
         if groupby == "test_code":
@@ -137,13 +147,55 @@ def get_title(
         else:
             entity_desc = humanise_column_name(groupby, plural=len(entity_ids) != 1)
             title = f"{fragment} at {entity_desc} {humanise_list(ids_to_labels(groupby, entity_ids))}"
-        title += f"<br>(with deciles over all {humanise_column_name(groupby)})"
+        title += f" (in the context of {practice_filters_fragment})"
     elif show_deciles and not entity_ids:
-        title = f"Deciles for {fragment} over all {humanise_column_name(groupby)}"
+        title = f"Deciles for {fragment} over {practice_filters_fragment}"
     else:
         fragment = initial_capital(fragment)
         title = f"{fragment} grouped by {humanise_column_name(groupby, plural=False)}"
     return title
+
+
+def humanise_practice_filters(
+    groupby, ccg_ids_for_practice_filter, lab_ids_for_practice_filter
+):
+    ccg_ids_for_practice_filter = [x for x in ccg_ids_for_practice_filter if x != "all"]
+    lab_ids_for_practice_filter = [x for x in lab_ids_for_practice_filter if x != "all"]
+    entity = humanise_column_name(groupby, plural=True)
+    if not (ccg_ids_for_practice_filter or lab_ids_for_practice_filter):
+        text = f"all {entity} nationally"
+    else:
+        text = ""
+        if ccg_ids_for_practice_filter:
+            ccg_names = humanise_list(
+                [humanise_entity_name("ccg_id", x) for x in ccg_ids_for_practice_filter]
+            )
+            text += f"{entity} within " + ccg_names
+        if lab_ids_for_practice_filter:
+            lab_names = humanise_list(
+                [humanise_entity_name("lab_id", x) for x in lab_ids_for_practice_filter]
+            )
+            if text:
+                text += ", that are also "
+            else:
+                text += f"{entity} "
+            text += "serviced by " + lab_names
+    return text
+
+
+def linebreakify(text, max_chars_per_line):
+    processed = []
+    while text:
+        fragment = text[: max_chars_per_line + 1]
+        if fragment != text:
+            # find first space going backwards
+            last_char = fragment[-1]
+            while fragment and last_char != " ":
+                fragment = fragment[:-1]
+                last_char = fragment[-1]
+        text = text[len(fragment) :]
+        processed.append(fragment.strip())
+    return "<br>".join(processed)
 
 
 def get_yaxis_label(page_state):
