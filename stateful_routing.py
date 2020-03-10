@@ -176,11 +176,7 @@ def show_or_hide_org_focus_dropdown(groupby_selector):
         Input("tweak-form", "value"),
         Input("org-focus-dropdown", "value"),
     ],
-    [
-        State("page-state", "children"),
-        State("url-for-update", "pathname"),
-        State("url-for-update", "hash"),
-    ],
+    [State("page-state", "children"), State("url-for-update", "pathname")],
 )
 def update_state_from_inputs(
     selected_numerator,
@@ -194,7 +190,6 @@ def update_state_from_inputs(
     org_focus,
     page_state,
     current_path,
-    current_hash,
 ):
     """
     Given a series of possible user inputs, update the state if it needs to be changed.
@@ -280,12 +275,7 @@ def update_state_from_inputs(
     # Only trigger state changes if something has changed
     if "_dirty" not in page_state:
         logger.info("State unchanged - from %s", triggered_inputs)
-        if current_hash:
-            # Propagate event chain, so we don't ignore events
-            # involving hash changes
-            return json.dumps(page_state)
-        else:
-            raise PreventUpdate
+        raise PreventUpdate
 
     update_state(page_state, update_counter=page_state["update_counter"] + 1)
     del page_state["_dirty"]
@@ -508,13 +498,14 @@ def filter_org_focus_dropdown(ccg_ids, lab_ids, groupby):
         Output("lab-filter-form", "style"),
         Output("org-filter-link", "style"),
     ],
-    [Input("url-from-user", "hash"), Input("page-state", "children")],
+    [Input("url-from-user", "hash")],
+    [State("page-state", "children")],
 )
 def toggle_org_filter_form(filter_link, page_state):
     page_state = get_state(page_state)
-    ccg_ids = page_state["ccg_ids_for_practice_filter"]
-    lab_ids = page_state["lab_ids_for_practice_filter"]
-    groupby = page_state["groupby"]
+    ccg_ids = page_state.get("ccg_ids_for_practice_filter", ["all"])
+    lab_ids = page_state.get("lab_ids_for_practice_filter", ["all"])
+    groupby = page_state.get("groupby", "practice_id")
     show = {"display": "block"}
     hide = {"display": "none"}
     if lab_ids != ["all"] and ccg_ids != ["all"] or filter_link:
