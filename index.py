@@ -31,6 +31,7 @@ def setup_callbacks():
 
 app = setup_app_and_layout()
 setup_callbacks()
+server = app.server
 
 if __name__ == "__main__":
     # You can't set up callbacks until the layout has been registered
