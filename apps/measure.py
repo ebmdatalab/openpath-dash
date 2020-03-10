@@ -46,19 +46,21 @@ def update_measures(page_state):
         yaxis_label = get_yaxis_label(measure_state)
         url = analyse_url(measure_state)
         all_x_vals = set().union(*[trace.x for trace in traces])
-
-        figure = {
-            "data": traces,
-            "layout": go.Layout(
-                title=title,
-                height=350,
-                xaxis={"range": [min(all_x_vals), max(all_x_vals)]},
-                yaxis={"title": {"text": yaxis_label}},
-                showlegend=True,
-                legend={"orientation": "v"},
-                annotations=annotations,
-            ),
-        }
+        if all_x_vals:
+            figure = {
+                "data": traces,
+                "layout": go.Layout(
+                    title=title,
+                    height=350,
+                    xaxis={"range": [min(all_x_vals), max(all_x_vals)]},
+                    yaxis={"title": {"text": yaxis_label}},
+                    showlegend=True,
+                    legend={"orientation": "v"},
+                    annotations=annotations,
+                ),
+            }
+        else:
+            figure = settings.EMPTY_CHART_LAYOUT
         charts.append(dcc.Graph(id=str(measure_num), figure=figure))
         charts.append(
             html.Div(
