@@ -93,6 +93,7 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
                 multi=True,
                 placeholder="Start typing",
                 options=tests_df.to_dict("records"),
+                style={"display": "none"},
             ),
         ],
         id="denominators-form",
