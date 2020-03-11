@@ -97,7 +97,7 @@ def get_chart_components(page_state):
         hide_entities_with_sparse_data=page_state.get("sparse_data_toggle"),
     )
     if trace_df.empty:
-        return None
+        return [], "", ""
 
     # Don't show deciles in cases where they don't make sense
     if len(trace_df[groupby].unique()) < 10 or groupby == "result_category":
