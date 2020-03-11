@@ -129,7 +129,7 @@ def _select_value_from_url(selector_id, page_state_key, url, is_multi=False):
             value = is_multi and [current_value] or current_value
     except NotFound:
         value = default
-    changed = value == current_value
+    changed = value != current_value
     return changed, value
 
 
@@ -508,7 +508,7 @@ def toggle_org_filter_form(filter_link, page_state):
     groupby = page_state.get("groupby", "practice_id")
     show = {"display": "block"}
     hide = {"display": "none"}
-    if lab_ids != ["all"] and ccg_ids != ["all"] or filter_link:
+    if lab_ids != ["all"] or ccg_ids != ["all"] or filter_link:
         link_show = hide
         # Show at least some things in the filter form
         if groupby == "ccg_id":
