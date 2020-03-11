@@ -101,7 +101,9 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
         [
             dbc.Label("Compare by", id="groupby-label"),
             dcc.Dropdown(
-                id="groupby-dropdown", options=settings.ANALYSE_DROPDOWN_OPTIONS
+                id="groupby-dropdown",
+                options=settings.ANALYSE_DROPDOWN_OPTIONS,
+                clearable=False,
             ),
             dcc.Link(
                 "Filter practices used for comparison...",
