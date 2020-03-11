@@ -372,7 +372,9 @@ def update_denominator_dropdown_from_url(pathname):
     if pathname:
         # Sometimes None for reasons explained here:
         # https://github.com/plotly/dash/issues/133#issuecomment-330714608
-        using_default, current_value = _get_dropdown_current_value_by_id(selector_id)
+        using_default, current_value = _get_dropdown_current_value_by_id(
+            "denominators-dropdown"
+        )
         try:
             _, url_state = urls.match(pathname)
             # if it's raw, per1000 or other, leave as-is
@@ -390,7 +392,7 @@ def update_denominator_dropdown_from_url(pathname):
                 val = "per1000"
         except NotFound:
             val = "per1000"
-    if not val or val == current_value or using_default:
+    if not val or val == current_value:
         raise PreventUpdate
     else:
         return val
