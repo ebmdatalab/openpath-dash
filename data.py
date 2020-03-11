@@ -475,12 +475,8 @@ def get_org_list(org_type, ccg_ids_filter=None, lab_ids_filter=None):
 
 
 def humanise_entity_name(column_name, value):
-    if column_name == "ccg_id":
-        return f"{settings.CCG_NAMES.get(value, value)} CCG"
-    if column_name == "lab_id":
-        return f"{settings.LAB_NAMES.get(value, value)} lab"
-    if column_name == "practice_id":
-        return f"Practice {value}"
+    if column_name in ["ccg_id", "lab_id", "practice_id"]:
+        return ids_to_labels(column_name, [value])[0]
     if column_name == "test_code":
         return get_test_code_to_name_map().get(value, value)
     if column_name == "result_category":

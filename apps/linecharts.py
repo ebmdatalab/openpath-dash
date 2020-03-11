@@ -148,7 +148,7 @@ def get_chart_components(page_state):
                 y=entity_df["calc_value"],
                 text=entity_df["label"],
                 hoverinfo="text",
-                name=humanise_entity_name(groupby, entity_id),
+                name=linebreakify(humanise_entity_name(groupby, entity_id), 20),
                 line_width=2,
                 mode="lines",
                 line=dict(color=colour, width=1, dash="solid"),
