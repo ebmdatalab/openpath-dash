@@ -10,6 +10,7 @@ from apps.base import get_title_fragment, initial_capital, humanise_column_name
 import numpy as np
 
 import matplotlib
+import matplotlib.cm
 
 from data import get_count_data
 from data import humanise_entity_name
