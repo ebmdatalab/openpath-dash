@@ -119,7 +119,7 @@ def update_org_labels(groupby):
 def _select_value_from_url(selector_id, page_state_key, url, is_multi=False):
     # Sometimes None for reasons explained here:
     # https://github.com/plotly/dash/issues/133#issuecomment-330714608
-    current_value = _get_dropdown_current_value_by_id(selector_id)
+    using_default, current_value = _get_dropdown_current_value_by_id(selector_id)
     try:
         _, url_state = urls.match(url)
         if page_state_key in url_state:
@@ -129,7 +129,7 @@ def _select_value_from_url(selector_id, page_state_key, url, is_multi=False):
             value = is_multi and [current_value] or current_value
     except NotFound:
         value = default
-    changed = value != current_value
+    changed = value != current_value or using_default
     return changed, value
 
 
@@ -295,17 +295,17 @@ def _get_dropdown_current_value_by_id(component_id):
     options
 
     """
-    # XXX find out if this can be made safe to use. Seems like a useful method
-    # to make public.
     component = None
     for _, component in app.layout._traverse_with_paths():
         if getattr(component, "id", None) == component_id:
             break
     if component is not None:
         if hasattr(component, "value"):
-            return component.value and component.value[0] or ""
+            using_default = False
+            return using_default, component.value and component.value[0] or ""
         else:
-            return component.options[0]["value"]
+            using_default = True
+            return using_default, component.options[0]["value"]
     else:
         return ""
 
@@ -372,7 +372,7 @@ def update_denominator_dropdown_from_url(pathname):
     if pathname:
         # Sometimes None for reasons explained here:
         # https://github.com/plotly/dash/issues/133#issuecomment-330714608
-        current_value = _get_dropdown_current_value_by_id(selector_id)
+        using_default, current_value = _get_dropdown_current_value_by_id(selector_id)
         try:
             _, url_state = urls.match(pathname)
             # if it's raw, per1000 or other, leave as-is
@@ -390,7 +390,7 @@ def update_denominator_dropdown_from_url(pathname):
                 val = "per1000"
         except NotFound:
             val = "per1000"
-    if not val or val == current_value:
+    if not val or val == current_value or using_default:
         raise PreventUpdate
     else:
         return val
