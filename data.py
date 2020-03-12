@@ -471,7 +471,10 @@ def get_org_list(org_type, ccg_ids_filter=None, lab_ids_filter=None):
     org_labels = ids_to_labels(org_type, org_values)
 
     org_values_and_labels = zip(org_values, org_labels)
-    return [{"value": x, "label": y} for x, y in org_values_and_labels]
+    return sorted(
+        [{"value": x, "label": y} for x, y in org_values_and_labels],
+        key=lambda x: x["label"],
+    )
 
 
 def humanise_entity_name(column_name, value):
