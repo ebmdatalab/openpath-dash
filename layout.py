@@ -132,8 +132,16 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
         ],
         id="lab-filter-form",
     )
+    practice_filter_form = dbc.FormGroup(
+        [
+            dbc.Label("Only use data from these practices", id="practice-focus-label"),
+            dcc.Dropdown(id="practice-dropdown", multi=True, options=practices_list),
+        ],
+        id="practice-filter-form",
+        style={"display": "none"},
+    )
     org_filter_form = dbc.FormGroup(
-        children=[ccg_filter_form, lab_filter_form],
+        children=[ccg_filter_form, lab_filter_form, practice_filter_form],
         id="org-filter-form",
         style={"display": "none"},
     )
@@ -148,7 +156,6 @@ def layout(tests_df, ccgs_list, labs_list, practices_list):
             ),
         ],
         id="org-focus-form",
-        style={"display": "none"},
     )
     tweak_form = dbc.FormGroup(
         [

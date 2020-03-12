@@ -42,7 +42,6 @@ def get_practice_data():
     practice_df = practice_df[practice_df.practice_id.isin(practices_with_data)]
     lab_df = get_labs_for_practices()
     practice_df = practice_df.merge(lab_df, how="left", on=["month", "practice_id"])
-
     return practice_df
 
 
@@ -109,6 +108,7 @@ def get_count_data(
     result_filter=None,
     lab_ids_for_practice_filter=[],
     ccg_ids_for_practice_filter=[],
+    practice_ids_for_practice_filter=[],
     by="practice_id",
     sample_size=None,
     hide_entities_with_sparse_data=False,
@@ -216,6 +216,11 @@ def get_count_data(
         base_and_query.append(f"(lab_id.isin({lab_ids_for_practice_filter}))")
     if ccg_ids_for_practice_filter and "all" not in ccg_ids_for_practice_filter:
         base_and_query.append(f"(ccg_id.isin({ccg_ids_for_practice_filter}))")
+    if (
+        practice_ids_for_practice_filter
+        and "all" not in practice_ids_for_practice_filter
+    ):
+        base_and_query.append(f"(practice_id.isin({practice_ids_for_practice_filter}))")
     numerator_and_query = base_and_query[:]
     result_filter_query = get_result_filter_query(result_filter)
     if result_filter_query:

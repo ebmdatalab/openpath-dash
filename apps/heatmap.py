@@ -84,6 +84,9 @@ def update_heatmap(page_state, current_qs, sort_order, current_fig):
     equalise_colorscale = page_state.get("equalise_colorscale", None)
     ccg_ids_for_practice_filter = page_state.get("ccg_ids_for_practice_filter", [])
     lab_ids_for_practice_filter = page_state.get("lab_ids_for_practice_filter", [])
+    practice_ids_for_practice_filter = page_state.get(
+        "practice_ids_for_practice_filter", []
+    )
     col_name = groupby
     trace_df = get_count_data(
         numerators=numerators,
@@ -91,6 +94,7 @@ def update_heatmap(page_state, current_qs, sort_order, current_fig):
         result_filter=result_filter,
         lab_ids_for_practice_filter=lab_ids_for_practice_filter,
         ccg_ids_for_practice_filter=ccg_ids_for_practice_filter,
+        practice_ids_for_practice_filter=practice_ids_for_practice_filter,
         by=col_name,
         hide_entities_with_sparse_data=page_state.get("sparse_data_toggle"),
     )

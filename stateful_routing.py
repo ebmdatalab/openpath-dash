@@ -163,6 +163,7 @@ def show_or_hide_org_focus_dropdown(groupby_selector):
         Input("groupby-dropdown", "value"),
         Input("ccg-dropdown", "value"),
         Input("lab-dropdown", "value"),
+        Input("practice-dropdown", "value"),
         Input("chart-selector-tabs", "active_tab"),
         Input("tweak-form", "value"),
         Input("org-focus-dropdown", "value"),
@@ -176,6 +177,7 @@ def update_state_from_inputs(
     groupby,
     selected_ccg,
     selected_lab,
+    selected_practice,
     selected_chart,
     tweak_form,
     org_focus,
@@ -257,6 +259,7 @@ def update_state_from_inputs(
         groupby=groupby,
         ccg_ids_for_practice_filter=selected_ccg,
         lab_ids_for_practice_filter=selected_lab,
+        practice_ids_for_practice_filter=selected_practice,
         page_id=selected_chart,
         sparse_data_toggle=sparse_data_toggle,
         equalise_colorscale=equalise_colorscale,
@@ -371,6 +374,7 @@ def update_denominator_dropdown_from_url(pathname):
             # if it's raw, per1000 or other, leave as-is
             # otherwise, pick based on the result_filter
             if "denominators" in url_state:
+
                 first_part = url_state["denominators"][0]
                 if first_part in ["per1000", "raw"]:
                     val = first_part
@@ -489,19 +493,27 @@ def filter_org_focus_dropdown(ccg_ids, lab_ids, groupby):
         Output("org-filter-form", "style"),
         Output("ccg-filter-form", "style"),
         Output("lab-filter-form", "style"),
+        Output("practice-filter-form", "style"),
         Output("org-filter-link", "style"),
+        Output("practice-dropdown", "value"),
     ],
-    [Input("url-from-user", "hash")],
-    [State("page-state", "children")],
+    [Input("url-from-user", "hash"), Input("groupby-dropdown", "value")],
+    [State("page-state", "children"), State("org-focus-dropdown", "value")],
 )
-def toggle_org_filter_form(filter_link, page_state):
+def toggle_org_filter_form(filter_link, groupby, page_state, org_focus):
     page_state = get_state(page_state)
     ccg_ids = page_state.get("ccg_ids_for_practice_filter", ["all"])
     lab_ids = page_state.get("lab_ids_for_practice_filter", ["all"])
-    groupby = page_state.get("groupby", "practice_id")
+    practice_ids = page_state.get("practice_ids_for_practice_filter", ["all"])
     show = {"display": "block"}
     hide = {"display": "none"}
-    if lab_ids != ["all"] or ccg_ids != ["all"] or filter_link:
+    practice_ids_for_practice_filter = []
+    if (
+        lab_ids != ["all"]
+        or ccg_ids != ["all"]
+        or practice_ids != ["all"]
+        or filter_link
+    ):
         link_show = hide
         # Show at least some things in the filter form
         if groupby == "ccg_id":
@@ -509,22 +521,45 @@ def toggle_org_filter_form(filter_link, page_state):
             form_show = show
             ccg_show = hide
             lab_show = show
+            practice_show = hide
         elif groupby == "lab_id":
             # don't allow filtering to labs
             form_show = show
             ccg_show = show
             lab_show = hide
-        else:
+            practice_show = hide
+        elif groupby == "practice_id":
             # allow filtering to labs or CCGs
             form_show = show
             ccg_show = show
             lab_show = show
+            practice_show = hide
+        else:
+            # For tests and result types, also allow filtering to
+            # individual practices
+            form_show = show
+            ccg_show = show
+            lab_show = show
+            practice_show = show
+            # If someone has focussed on one practice, assume they is
+            # only interested in data from that one practice when
+            # grouping by test or result type
+            practice_ids_for_practice_filter = org_focus
+
     else:
         link_show = show
         form_show = hide
         ccg_show = hide
         lab_show = hide
-    return [form_show, ccg_show, lab_show, link_show]
+        practice_show = hide
+    return [
+        form_show,
+        ccg_show,
+        lab_show,
+        practice_show,
+        link_show,
+        practice_ids_for_practice_filter,
+    ]
 
 
 # for each chart, generate a function to show only that chart

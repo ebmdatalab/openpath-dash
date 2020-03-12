@@ -86,6 +86,9 @@ def get_chart_components(page_state):
     groupby = page_state.get("groupby", None)
     ccg_ids_for_practice_filter = page_state.get("ccg_ids_for_practice_filter", [])
     lab_ids_for_practice_filter = page_state.get("lab_ids_for_practice_filter", [])
+    practice_ids_for_practice_filter = page_state.get(
+        "practice_ids_for_practice_filter", []
+    )
 
     trace_df = get_count_data(
         numerators=numerators,
@@ -93,6 +96,7 @@ def get_chart_components(page_state):
         result_filter=result_filter,
         lab_ids_for_practice_filter=lab_ids_for_practice_filter,
         ccg_ids_for_practice_filter=ccg_ids_for_practice_filter,
+        practice_ids_for_practice_filter=practice_ids_for_practice_filter,
         by=groupby,
         hide_entities_with_sparse_data=page_state.get("sparse_data_toggle"),
     )
