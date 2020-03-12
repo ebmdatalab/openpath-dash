@@ -10,13 +10,44 @@
         </p>
       </div>
     </div>
+
     <div class="row">
       <div class="col">
         <div class="mb-3 card">
           <div class="card-body">
-            <h5 class="card-title">View by practice</h5>
-            <form method="get" action="/data/measure/by/practice_id/showing/ccg_id/all/lab_id/all/numerators/all/denominators/per1000/filter/all" class="form">
+            <h5 class="card-title">Compare by Lab</h5>
+            <form method="get" action="/data/measure/by/lab_id/showing/ccg_id/all/lab_id/all/numerators/all/denominators/per1000/filter/all" class="form">
               <div class="form-group mb-3">
+                <input value="View measures" type="submit" class="btn btn-primary">
+              </div>
+              <br><a href="/data/chart/by/lab_id/showing/ccg_id/all/lab_id/all/numerators/all/denominators/per1000/filter/all">...or build your own measure</a>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="mb-3 card">
+          <div class="card-body">
+            <h5 class="card-title">Compare by CCG</h5>
+            <form method="get" action="/data/measure/by/ccg_id/showing/ccg_id/all/lab_id/all/numerators/all/denominators/per1000/filter/all" class="form">
+              <div class="form-group mb-3">
+                <input value="View measures" type="submit" class="btn btn-primary">
+              </div>
+              <br><a href="/data/chart/by/ccg_id/showing/ccg_id/all/lab_id/all/numerators/all/denominators/per1000/filter/all">...or build your own measure</a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <div class="mb-6 card">
+          <div class="card-body">
+            <h5 class="card-title">Compare by practice</h5>
+            <form method="get" action="/data/measure/by/practice_id/showing/ccg_id/all/lab_id/all/numerators/all/denominators/per1000/filter/all" class="form">
+              <div class="form-group">
                 <select class="basic-multiple" name="highlight_entities" multiple="multiple">
                   {% for org in dropdown_options %}
                   <option value="{{ org.value }}">{{ org.label }}</option>
@@ -31,35 +62,7 @@
           </div>
         </div>
       </div>
-
-      <div class="col">
-        <div class="mb-3 card">
-          <div class="card-body">
-            <h5 class="card-title">View by CCG</h5>
-            <form method="get" action="/data/measure/by/ccg_id/showing/ccg_id/all/lab_id/all/numerators/all/denominators/per1000/filter/all" class="form form-inline">
-              <div class="form-group mb-3">
-                <input value="View measures" type="submit" class="btn btn-primary">
-              </div>
-              <br><a href="/data/chart/by/ccg_id/showing/ccg_id/all/lab_id/all/numerators/all/denominators/per1000/filter/all">...or build your own measure</a>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <div class="col">
-        <div class="mb-3 card">
-          <div class="card-body">
-            <h5 class="card-title">View by Lab</h5>
-            <form method="get" action="/data/measure/by/lab_id/showing/ccg_id/all/lab_id/all/numerators/all/denominators/per1000/filter/all" class="form form-inline">
-              <div class="form-group mb-3">
-                <input value="View measures" type="submit" class="btn btn-primary">
-              </div>
-              <br><a href="/data/chart/by/lab_id/showing/ccg_id/all/lab_id/all/numerators/all/denominators/per1000/filter/all">...or build your own measure</a>
-            </form>
-          </div>
-        </div>
-      </div>
-
     </div>
+
   </div>
   {% endblock %}
