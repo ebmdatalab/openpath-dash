@@ -100,20 +100,11 @@ def toggle_numerator_denominator_visibility(active_tab):
 
 
 @app.callback(
-    [
-        Output("org-focus-label", "children"),
-        Output("ccg-focus-label", "children"),
-        Output("lab-focus-label", "children"),
-    ],
-    [Input("groupby-dropdown", "value")],
+    Output("org-focus-label", "children"), [Input("groupby-dropdown", "value")]
 )
 def update_org_labels(groupby):
     name = humanise_column_name(groupby)
-    return [
-        f"Plot specific {name}",
-        f"Only use data from practices in these CCGs",
-        f"Only use data from practices in these labs",
-    ]
+    return [f"Plot specific {name}"]
 
 
 def _select_value_from_url(selector_id, page_state_key, url, is_multi=False):
