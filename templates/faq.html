@@ -10,11 +10,28 @@
 
 <div class="row">
 
+  <h2 id="access">Where does the data come from and what does it include?</h2>
+  
+  <p>
+    The data is sourced from participating hospital laboratories who carry out pathology tests. 
+    Any additional labs wishing to get involved should refer to our <a
+      href="https://openpathology.net/blog/get-involved">Get Involved</a> 
+    page and get in touch with us.
+  </p>
+  
+  <p>
+    We include data on tests requested by practices, for adult patients. 
+    Most tests are classified by local test codes which vary by laboratory. 
+    We include the most common tests, and those where we have matched 
+    codes between several labs. See 
+  </p>
+  
   <h2 id="access">Who can access the data?</h2>
   
   <p>
-    NHS practices and other relevant staff in the regions which have contributed data to the project can access their data.
-    This includes North Devon, Cornwall and Plymouth, with more expected soon. 
+    NHS practices and other relevant staff in the regions which have contributed data 
+    to the project can access their data on request.
+    This includes North Devon, Cornwall, Exeter and Plymouth, with more expected soon. 
     As always, we intend to make our tools public and we hope to be able to do this shortly. 
   </p>
   
@@ -35,11 +52,20 @@
     Testing rates can be affected by many factors. A few examples may be: population demographics;
     specialisms of a practice, lab or hospital; 
     the range of tests and order sets offered by each lab; and tests required by local care pathways. 
+    For example, practices may carry out an apparently high volume of some tests on behalf of 
+    a secondary care service or care home.  
    </p>
 
   <p>
     As such, making a judgement on performance is often largely down to local interpretation. 
-    A good question to consider is whether the testing rate is where it is "by design" or "by accident". 
+    A good question to consider is whether the testing rate is where it is "by design" or "by accident".
+  </p>
+  
+  <p>
+    Typically it will be most helpful to compare practices with those using the same laboratory rather 
+    than within the same CCG, due to the large influence of laboratory services on tests carried out
+    via order sets and order comms systems. In addition, patterns of test results can vary between labs thanks to
+    reference ranges and procedures used. 
   </p>
   
   <h2 id="reference-ranges">What are reference ranges?</h2>
@@ -57,56 +83,61 @@
       href="https://openpathology.net/blog/issues-with-reference-ranges-part-3">here</a>.
   </p>
 
-
-  <h2 id="result-categories">What do the result categories and error codes mean?</h2>
-
   <dl>
-    <dt>Within range / Under range / Over range</dt>
+    <dt>Numeric results Within range / Under range / Over range</dt>
     <dd>
-      We determined the appropriate reference range for this result and have
-      coded how the result compared to this reference range.
+      Selecting this option, you'll see the proportion of results classed as
+      Within range ("normal"), or over/under range ("abnormally" high/low), 
+      as a proportion of all tests of the selected type with <i>numeric</i> results. 
+      Numeric results means that tests were performed successfully and generated a valid result.
+      
+      However, there are various issues to bear in mind when interpreting this data;
+      see next item for more information.
     </dd>
-
+   </dl>
+  
+  <h2 id="ref-ranges">What are the issues with using reference ranges?</h2>
+  
+  <dl>
+    <dt>Change over time</dt>
+    <dd>
+      Reference ranges change over time, for example due to new testing equipment, 
+      changing guidelines or after a review. We are generally applying 
+      only the *latest* reference ranges to all data, except where the 
+      laboratory has supplied the within/over/under range flags within the 
+      dataset (this currently applies to Plymouth). 
+    </dd>
+    
+  <dl>
     <dt>No ref range</dt>
     <dd>
-      There was no reference range available for this result. This might be
+      For some tests there will be no reference range available. This might be
       because a reference range simply doesn't make sense for this kind of
       test. Or it could be that we haven't been able to obtain a reference
-      range for this test from the particular lab involved. (Note that
-      different labs can have different reference ranges for a given test.)
+      range for this test from the particular lab involved. Note that
+      different labs can have different reference ranges for a given test, 
+      and they make different decisions about whether or not to have a reference
+      range at all for each test (PSA is one example test where this occurs).
     </dd>
 
-    <dt>Invalid ref range</dt>
+    <dt>Ref range is not valid or applicable</dt>
     <dd>
-      We have been supplied with a reference range, but we were unable to
-      interpret it correctly.
-    </dd>
-
-    <dt>Non-numeric result</dt>
-    <dd>
-      The result was some sort of error code, rather than a number.
-    </dd>
-
-    <dt>Unknown sex</dt>
-    <dd>
-      Reference ranges generally differ between male and female so if we can't
-      determine the sex of the patient (e.g. it's coded as "U") then we can't
-      determine which reference range to apply.
+      At times we may have been supplied with a reference range, 
+      but we were unable to interpret it correctly. 
+      Sometimes although we have a valid reference range, but not for all
+      ages and sexes, or we cannot apply it because of the sex of the patient was unknown 
+      (though this usually only applies to neonates which are excluded anyway because we 
+      restrict the data to adults only).
     </dd>
 
     <dt>Insufficient data</dt>
     <dd>
-      Given the data we have we can't tell whether or not this result falls
+      Sometimes it is not possible to tell whether or not a result falls
       within the reference range. For example, if the reference range is 10-20
       and the result we have is "greater than 18" then we don't know whether
-      that result was within or over range.
+      that result was within or over range. 
     </dd>
 
-    <dt>Underage for ref range</dt>
-    <dd>
-      The only reference ranges we have are defined for adults. If the patient
-      is under 18 then we can't compare their result to a reference range.
-    </dd>
   </dl>
 
   <h2 id="low-numbers">What do the error bars mean?</h2>
